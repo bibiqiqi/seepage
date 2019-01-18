@@ -1,5 +1,12 @@
- language: node_js
- node_js: node
- cache:
-   directories:
-     - node_modules
+language: node_js
+node_js: node
+cache:
+  directories:
+  - node_modules
+deploy:
+  provider: heroku
+  api_key:
+    secure: SK01BoESidQJcPi5Tswh3dOIkS7IGwPlf7OsKr8jWKLfup0tpZb5Lg7Q+jrDTZf4GpLqcPFBQpCAyUo4SLmwsGsoEMPa8bPOsKaepjpMi5XmOGc9JlL627Pg+04SuqZUIRD6vTyfDtZuGYyOto04KYG/S9HQXl971R4i6J1s7PatssBHlUUBBYYXCs2YbrIxOdXvWkS3E7UfAO1uO8+b0ImhHCK4zwTZmDWe0EQnIsnItIFfjT0sNuS/Dyi+eCUT0sze5DhquBlcpCv+KspOtkumQ+8YPnbcofKyhdwvbKgE3iA0HdYLeHAW2+mh+XKtZ0HzWvUYl8t9XaV5OG5YpCI3fhCEQNrUG4KPaH0tfOD5l4rmBBP+6u8dxGZsNe0vEz1k2VjEgv6DCQOdMREXiQSZJeQTWN1oDFOgZE4LM1JqjyyVR69j0ePyIlp4WezyLPRE4CM40+8ZgZh5EcP9q2YHYmGwzIkwxDl/S9FfZOAqpTqxt6+8cBj9vlGIa8GRkcA9X+BvpG4J9h33HaLSMpLQA+sjw2MEpVChnyG2SBK3RsnCD43Pgc8pj8n4HXngNCWJFetFRlMr3Rf69PAydLX7+5zS11qwDxiqZVLPHKw0/+TsS+IV7vDlZDl1ftZ6/ruAW0p8iPi3vzCGE5gGcC2DJ/fbHKeCzA4C4q6fd60=
+  app: secret-scrubland-65310
+  on:
+    repo: bibiqiqi/seepage
