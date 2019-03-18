@@ -1,0 +1,56 @@
+.logo {
+  width: max-content;
+}
+
+.logo h1 {
+  font-family: 'Epittazio';
+  font-weight: 300;
+  margin: 0;
+  text-align: center;
+}
+
+.logo h2 {
+  font-family: 'Times New Roman';
+  font-weight: 100;
+  font-style: italic;
+  margin: 0;
+  position: relative;
+  display: inline-block;
+}
+
+.logo-large {
+  margin: 0 auto;
+}
+
+.logo-large h1 {
+  font-size: 3rem;
+}
+
+.logo-large h2 {
+  font-size: .59rem;
+  top: -1.2rem;
+  left: .25rem;
+}
+
+.logo-large h2:last-child {
+  left: .9rem;
+}
+
+.logo-small {
+  margin: 0 auto;
+  height: 14vh;
+}
+
+.logo-small h1 {
+  font-size: 2rem;
+}
+
+.logo-small h2 {
+  font-size: .4rem;
+  top: -1.1rem;
+  left: 0rem;
+}
+
+.logo-small h2:last-child {
+  left: .6rem;
+}

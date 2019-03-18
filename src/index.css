@@ -1,33 +1,134 @@
-body {
-  font-family: Helvetica;
+html {
+  font-size: 30px;
+  box-sizing: border-box;
+  font-family: sans-serif;
 }
 
-.update {
-  color: #888888;
-  position:absolute;
-  top: 10px;
-  left: 10px;
-  padding: 5px 10px;
-  margin: 10px;
-  cursor: pointer;
-  border: 1px solid #999999;
-  border-radius: 3px;
+*, *:before, *:after {
+  box-sizing: inherit;
 }
 
-.node rect {
-  fill: #ff0000;
-  stroke: #fff;
-  stroke-width: 2px;
+@font-face {
+  font-family: 'Epittazio';
+  src: url('fonts/Epittazio.ttf');
 }
 
-.node text {
-  fill: #888888;
-  stroke: none;
-  font-size: .6em;
+h3 {
+  font-size: .5rem;
 }
 
-.link {
-  stroke: #cccccc;
-  stroke-opacity: .2;
-  stroke-width: 2px;
+h4 {
+  font-size: .25rem;
+}
+
+p {
+  margin: 0 auto;
+}
+
+b {
+  font-weight: 400;
+}
+
+ul {
+  list-style: none;
+  padding-inline-start: .5rem;
+}
+
+a {
+  text-decoration: none;
+}
+
+/* unvisited and visited link */
+a:link,
+a:visited {
+ color: black;
+}
+
+/* mouse over and selected link */
+a:hover,
+a:active {
+ color: pink;
+}
+
+button {
+  display: block;
+  margin: .5rem auto;
+}
+
+input[type=text],
+input[type=password] {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+form {
+  padding: .5rem;
+  font-size: .75rem;
+}
+
+main {
+  width: 95vw;
+  margin: 0 auto;
+}
+
+.page {
+  height: 100vh;
+  width: 100vw;
+  border: .01rem solid black;
+}
+
+.check {
+  font-family: wingdings2;
+}
+
+.back {
+  font-family: wingdings;
+  position: absolute;
+  top: -2rem;
+  left: .2rem;
+}
+
+.exit {
+  font-family:wingdings2;
+}
+
+.edit {
+  font-family:wingdings2;
+  font-size: .75rem;
+}
+
+.button {
+  display: block;
+  margin: .5rem auto;
+}
+
+.float-right {
+  float: right;
+}
+
+.clear-fix {
+  overflow:auto
+}
+
+.clear {
+  clear: both;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.forgot-psw {
+  font-size: .5rem;
+}
+
+#editor-upload main,
+#editor-find main,
+#editor-find-results main,
+#editor-view-edit main {
+  position: relative;
 }

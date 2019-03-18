@@ -1,0 +1,29 @@
+#cover-page {
+  color: rgb(255, 135, 250);
+  background-color: rgb(147, 147, 147);
+}
+
+#cover-page main {
+  font-family: sans-serif;
+  font-weight: 200;
+  font-size: .35rem;
+  max-width: 8rem;
+}
+
+#cover-page  .button {
+  background-color: rgb(255, 135, 250);
+  color: rgb(147, 147, 147);
+  font-size: .5rem;
+}
+
+#cover-page  p {
+  font-weight: 200;
+}
+
+#cover-page footer {
+  margin: 0 auto;
+}
+
+#cover-page footer p {
+  text-align: center;
+}
