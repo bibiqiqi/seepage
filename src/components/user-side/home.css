@@ -1,0 +1,22 @@
+#user-browse p {
+  text-align: center;
+  font-family: sans-serif;
+  font-weight: 200;
+}
+
+#user-browse main {
+  margin: 0 auto;
+}
+
+#tag-map {
+  height: 50vh;
+  border: .1rem solid black;
+}
+
+#content {
+  border: .1rem solid black;
+}
+
+#content-preview {
+  height: 20vh;
+}

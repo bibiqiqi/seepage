@@ -1,0 +1,20 @@
+#editor-browse-search {
+  height: 84vh;
+}
+
+#editor-browse-search form {
+  font-size: .5rem;
+}
+
+#editor-browse {
+  border: .1rem solid black;
+  height: 32vh;
+}
+
+#editor-search {
+  height: 42vh;
+}
+
+#editor-find-results {
+  height: 100vh;
+}
