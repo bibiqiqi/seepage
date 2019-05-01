@@ -89,7 +89,9 @@ class EditorViewEdit extends React.Component {
             </div>
             <div
               id="edit-category"
-              className="assign-category hidden">
+              className="assign-category hidden"
+              name="category"
+            >
               <legend>Category</legend>
               {categoryInputs}
             </div>

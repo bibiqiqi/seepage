@@ -5,7 +5,8 @@ import {reduxForm, Field} from 'redux-form';
 import Logo from '../logo';
 import LabeledInput from '../labeled-input';
 import TagsInput from './editor-tags-input';
-import {required, nonEmpty, email} from '../../validators';
+//import renderDropZone from './editor-dropzone';
+import {required, nonEmpty} from '../../validators';
 
 import './editor-upload.css';
 
@@ -49,6 +50,7 @@ class EditorUpload extends React.Component {
           <span className="back">E</span>
           <form
             className="clear-fix"
+            enctype="multipart/form-data"
             onSubmit={this.props.handleSubmit(values => this.onSubmit(values))}
           >
             {successMessage}
@@ -70,16 +72,20 @@ class EditorUpload extends React.Component {
               validate={[required, nonEmpty]}
             />
             <Field
-              name="uploadArt"
+              name="content"
               component={LabeledInput}
+              multiple
               type="file"
-              label="Upload Art"
             />
             <div className="assign-category">
               <legend>Category</legend>
               {categoryInputs}
             </div>
-            <TagsInput />
+            <Field
+              name="tags"
+              component={TagsInput}
+              type="text"
+            />
             <button
               className="float-right"
               type="submit"
