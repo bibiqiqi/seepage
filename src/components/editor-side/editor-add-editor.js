@@ -1,17 +1,24 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
-import {reduxForm, Field} from 'redux-form';
-
+import {Field, reduxForm, focus} from 'redux-form';
+import {registerEditor} from '../../actions/register';
+import {login} from '../../actions/auth';
 import Logo from '../logo';
 import LabeledInput from '../labeled-input';
+import {required, nonEmpty, matches, length, isTrimmed, email} from '../../validators';
+const passwordLength = length({min: 10, max: 72})
+const matchesPassword = matches('password');
 
 class EditorAddEditor extends React.Component {
   onSubmit(values){
     console.log(values);
-    {/* AJAX call with new editor info
-      if successful,
-      this.props.dispatch(addEditor())
-    */}
+    const {email, firstName, lastName, password} = values;
+    const editor = {email, firstName, lastName, password};
+    return this.props
+     //{/*registerEditor makes ajax call to post to /register endpoint*/}
+      .dispatch(registerEditor(editor))
+      //{/*login() makes ajax call to post to /auth endpoint*/}
+      .then(() => this.props.dispatch(login(email, password)));
   }
   render(){
 {/*
@@ -49,6 +56,7 @@ class EditorAddEditor extends React.Component {
               type="email"
               label="Email"
               placeholder="EddieEditor@places.com"
+              validate={[required, nonEmpty, isTrimmed, email]}
             />
             <Field
               name="firstName"
@@ -56,6 +64,7 @@ class EditorAddEditor extends React.Component {
               type="text"
               label="First Name"
               placeholder="Eddie"
+              validate={[required, nonEmpty, isTrimmed]}
             />
             <Field
               name="lastName"
@@ -63,22 +72,26 @@ class EditorAddEditor extends React.Component {
               type="text"
               label="Last Name"
               placeholder="Editor"
+              validate={[required, nonEmpty, isTrimmed]}
             />
             <Field
               name="password"
               component={LabeledInput}
               type="password"
               label="Password"
+              validate={[required, passwordLength, isTrimmed]}
             />
             <Field
               name="passwordVer"
               component={LabeledInput}
               type="password"
-              label="Password"
+              label="Password Verification"
+              validate={[required, nonEmpty, matchesPassword]}
             />
             <button
               type="submit"
               className="float-right"
+              disabled={this.props.pristine || this.props.submitting}
             >Submit
             </button>
           </form>

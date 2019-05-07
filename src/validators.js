@@ -11,8 +11,6 @@ export const nonEmpty = value =>
 export const email = value =>
     /^\S+@\S+$/.test(value) ? undefined : 'Must be a valid email address';
 
-// TODO: add all validators to form fields
-
 //login validators
 export const isTrimmed = value =>
     value.trim() === value ? undefined : 'Cannot start or end with whitespace';

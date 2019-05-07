@@ -4,14 +4,12 @@ import {reduxForm, Field} from 'redux-form';
 import Logo from '../logo';
 import LabeledInput from '../labeled-input';
 import {required, nonEmpty, email} from '../../validators';
+import {login} from '../../actions/auth';
 
 class EditorLogin extends React.Component {
   onSubmit(values){
     console.log(values);
-    {/* AJAX call with login info
-      if successful,
-      this.props.dispatch(editorLogIn())
-    */}
+    this.props.dispatch(login(values.username, values.password));
   }
   render(){
     let successMessage;
