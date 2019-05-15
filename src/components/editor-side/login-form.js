@@ -1,30 +1,31 @@
 import React from 'react';
-import {reduxForm, Field} from 'redux-form';
+import {reduxForm, Field, focus} from 'redux-form';
 
 import Logo from '../logo';
-import LabeledInput from '../labeled-input';
+import LabeledInput from '../redux-labeled-input';
 import {required, nonEmpty, email} from '../../validators';
 import {login} from '../../actions/auth';
 
-class EditorLogin extends React.Component {
+export class EditorLoginForm extends React.Component {
   onSubmit(values){
-    console.log(values);
-    this.props.dispatch(login(values.username, values.password));
+    //console.log(values);
+    //{/*login() makes ajax call to post to /auth endpoint*/}
+    this.props.dispatch(login(values.email, values.password));
   }
-  render(){
+  render() {
     let successMessage;
     if (this.props.submitSucceeded) {
       successMessage = (
         <div className="message message-success">
           Message submitted successfully
         </div>
-      );
+      )
     }
     let errorMessage;
     if (this.props.error) {
       errorMessage = (
         <div className="message message-error">{this.props.error}</div>
-      );
+      )
     }
 
     return (
@@ -73,10 +74,15 @@ class EditorLogin extends React.Component {
           </form>
         </main>
       </section>
+
     )
   }
 }
 
 export default reduxForm({
-  form: 'editorLogin'
-})(EditorLogin);
+  form: 'editorLogin',
+  onSubmitFail: (errors, dispatch) => {
+    console.log('failure! and the errors are:', errors);
+    dispatch(focus('login', 'username'))
+  }
+})(EditorLoginForm);

@@ -1,17 +1,30 @@
 import {createStore, combineReducers, applyMiddleware} from 'redux';
+import {composeWithDevTools} from 'redux-devtools-extension';
 import {reducer as formReducer} from 'redux-form';
 import thunk from 'redux-thunk';
+
 import authReducer from './reducers/auth';
+import contentReducer from './reducers/content';
 import {loadAuthToken} from './local-storage';
+import {FILTER_CONTENT_SUCCESS} from './actions/content';
 
 import {setAuthToken, refreshAuthToken} from './actions/auth';
 
 const store = createStore(
   combineReducers({
-    form: formReducer,
-    auth: authReducer
-  }),
-  applyMiddleware(thunk)
+    // form: formReducer.plugin({
+    //   editorFind: (state, action) => {
+    //     switch(action.type) {
+    //       case FILTER_CONTENT_SUCCESS :
+    //         return undefined;
+    //       default:
+    //       return state;
+    //     }
+    //   }
+    // }),
+    auth: authReducer,
+    content: contentReducer,
+  }), composeWithDevTools(applyMiddleware(thunk))
 );
 
 const authToken = loadAuthToken();

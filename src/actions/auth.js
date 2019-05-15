@@ -22,8 +22,9 @@ export const authRequest = () => ({
 });
 
 export const AUTH_SUCCESS = 'AUTH_SUCCESS';
-export const authSuccess = (currentUser) => ({
-  type: AUTH_SUCCESS
+export const authSuccess = (currentEditor) => ({
+  type: AUTH_SUCCESS,
+  currentEditor
 });
 
 export const AUTH_ERROR = 'AUTH_ERROR';
@@ -33,16 +34,17 @@ export const authError = error => ({
 });
 
 const storeAuthInfo = (authToken, dispatch) => {
-    const decodedToken = jwtDecode(authToken);
-    dispatch(setAuthToken(authToken));
-    dispatch(authSuccess(decodedToken.user));
-    saveAuthToken(authToken);
+  //console.log('the authToken sent to storeAuthInfo is:', authToken);
+  const decodedToken = jwtDecode(authToken);
+  dispatch(setAuthToken(authToken));
+  dispatch(authSuccess(decodedToken.user));
+  saveAuthToken(authToken);
 }
 
 export const login = (email, password) => dispatch => {
   //sets loading state to true;
+  //console.log(email, password);
   dispatch(authRequest());
-  //ajax request
   return (
     fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
@@ -56,7 +58,7 @@ export const login = (email, password) => dispatch => {
     })
     .then(res => normalizeResponseErrors(res))
     .then(res => res.json())
-    .then(({authToken}) => storeAuthInfo(authToken), dispatch))
+    .then(({authToken}) => storeAuthInfo(authToken, dispatch))
     .catch(err => {
       const {code} = err;
       const message =
@@ -65,12 +67,13 @@ export const login = (email, password) => dispatch => {
           : 'Unable to login, please try again';
       dispatch(authError(err));
       return Promise.reject(
-          new SubmissionError({
-            _error: message
-          })
-      )
+        new SubmissionError({
+          _error: message
+        })
+      );
     })
-}
+  );
+};
 
 export const refreshAuthToken = () => (dispatch, getState) => {
     dispatch(authRequest());
@@ -84,7 +87,9 @@ export const refreshAuthToken = () => (dispatch, getState) => {
     })
         .then(res => normalizeResponseErrors(res))
         .then(res => res.json())
-        .then(({authToken}) => storeAuthInfo(authToken, dispatch))
+        .then(({authToken}) => {
+          storeAuthInfo(authToken, dispatch);
+        })
         .catch(err => {
             // We couldn't get a refresh token because our current credentials
             // are invalid or expired, or something else went wrong, so clear
