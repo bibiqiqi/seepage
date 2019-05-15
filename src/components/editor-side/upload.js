@@ -4,11 +4,11 @@ import {reduxForm, Field} from 'redux-form';
 
 import Logo from '../logo';
 import LabeledInput from '../labeled-input';
-import TagsInput from './editor-tags-input';
-//import renderDropZone from './editor-dropzone';
+import TagsInput from './tags-input';
+//import renderDropZone from './dropzone';
 import {required, nonEmpty} from '../../validators';
 
-import './editor-upload.css';
+import './upload.css';
 
 class EditorUpload extends React.Component {
   onSubmit(values){

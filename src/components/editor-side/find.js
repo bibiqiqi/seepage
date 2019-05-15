@@ -5,7 +5,7 @@ import {reduxForm, Field} from 'redux-form';
 import Logo from '../logo';
 import LabeledInput from '../labeled-input';
 
-import './editor-find.css';
+import './find.css';
 
 class EditorFind extends React.Component {
   onSubmit(values){

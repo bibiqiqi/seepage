@@ -29,9 +29,9 @@ export default class EditorHome extends React.Component {
   const buttons = buttonValues.map((e) => {
     return (
       <button
-      id={e.id}
-      onClick={this.handleClick.bind(this)}
-      value={e.text}
+        id={e.id}
+        onClick={this.handleClick.bind(this)}
+        value={e.text}
       >
       {e.text}</button>
     )

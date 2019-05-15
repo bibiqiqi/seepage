@@ -4,7 +4,7 @@ import {reduxForm, Field} from 'redux-form';
 
 import Logo from '../logo';
 import LabeledInput from '../labeled-input';
-import TagsInput from './editor-tags-input';
+import TagsInput from './tags-input';
 
 class EditorViewEdit extends React.Component {
   handleClick(e) {
