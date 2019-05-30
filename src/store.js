@@ -1,19 +1,18 @@
-import {createStore, combineReducers, applyMiddleware, compose} from 'redux';
+import {createStore, combineReducers, applyMiddleware} from 'redux';
 import {composeWithDevTools} from 'redux-devtools-extension';
 import {reducer as formReducer} from 'redux-form';
 import thunk from 'redux-thunk';
 import authReducer from './reducers/auth';
-import mainReducer from './reducers/main';
+import contentReducer from './reducers/content';
 import {loadAuthToken} from './local-storage';
 
 import {setAuthToken, refreshAuthToken} from './actions/auth';
 
-//const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(
   combineReducers({
     form: formReducer,
     auth: authReducer,
-    main: mainReducer,
+    content: contentReducer,
   }), composeWithDevTools(applyMiddleware(thunk))
 );
 

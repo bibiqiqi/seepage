@@ -1,15 +1,14 @@
 import React from 'react';
 import {reduxForm, Field, focus} from 'redux-form';
-import {Redirect, withRouter} from 'react-router-dom';
 
-//import {setLocation} from '../../actions/main';
+import Logo from '../logo';
 import LabeledInput from '../labeled-input';
 import {required, nonEmpty, email} from '../../validators';
 import {login} from '../../actions/auth';
 
 export class EditorLoginForm extends React.Component {
   onSubmit(values){
-    console.log(values);
+    //console.log(values);
     //{/*login() makes ajax call to post to /auth endpoint*/}
     this.props.dispatch(login(values.email, values.password));
   }
@@ -30,46 +29,51 @@ export class EditorLoginForm extends React.Component {
     }
 
     return (
-      <form
-        className="clear-fix"
-        onSubmit={this.props.handleSubmit(values => this.onSubmit(values))}
-      >
-        {successMessage}
-        {errorMessage}
-        <Field
-          name="email"
-          component={LabeledInput}
-          type="email"
-          label="Email"
-          placeholder="EddieEditor@places.com"
-          validate={[required, nonEmpty, email]}
-        />
-        <Field
-          name="password"
-          component={LabeledInput}
-          type="password"
-          label="Password"
-          validate={[required, nonEmpty]}
-        />
-        <Field
-          name="rememberMe"
-          component={LabeledInput}
-          type="checkbox"
-          label="Remember Me"
-        />
-        <button
-          className="float-right"
-          type="submit"
-          id="login-submit"
-        >Enter
-        </button>
-        <Field
-          name="forgot-password"
-          component={LabeledInput}
-          type="checkbox"
-          label="Forgot Password?"
-        />
-      </form>
+      <section id="editor-login" className="page">
+        <Logo/>
+        <main>
+          <form
+            className="clear-fix"
+            onSubmit={this.props.handleSubmit(values => this.onSubmit(values))}
+          >
+            {successMessage}
+            {errorMessage}
+            <Field
+              name="email"
+              component={LabeledInput}
+              type="email"
+              label="Email"
+              placeholder="EddieEditor@places.com"
+              validate={[required, nonEmpty, email]}
+            />
+            <Field
+              name="password"
+              component={LabeledInput}
+              type="password"
+              label="Password"
+              validate={[required, nonEmpty]}
+            />
+            <Field
+              name="rememberMe"
+              component={LabeledInput}
+              type="checkbox"
+              label="Remember Me"
+            />
+            <button
+              className="float-right"
+              type="submit"
+              id="login-submit"
+            >Enter
+            </button>
+            <Field
+              name="forgot-password"
+              component={LabeledInput}
+              type="checkbox"
+              label="Forgot Password?"
+            />
+          </form>
+        </main>
+      </section>
 
     )
   }

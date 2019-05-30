@@ -1,5 +1,6 @@
 export const normalizeResponseErrors = res => {
   //console.log('res sent back from server to client is:', res);
+    //debugger;
     if (!res.ok) {
         if (
             res.headers.has('content-type') &&

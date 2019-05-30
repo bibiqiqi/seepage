@@ -10,7 +10,7 @@ import {required, nonEmpty} from '../../validators';
 
 import './upload.css';
 
-class EditorUpload extends React.Component {
+export class EditorUpload extends React.Component {
   onSubmit(values){
     console.log(values);
     {/* AJAX call to POST upload info;
@@ -32,13 +32,14 @@ class EditorUpload extends React.Component {
       );
     }
     const categories = ['media', 'performance', 'text'];
-      const categoryInputs = categories.map((e) => {
+      const categoryInputs = categories.map((e, i) => {
         return (
           <Field
             name={e}
             component={LabeledInput}
             type="checkbox"
             label={e}
+            key={i}
           />
         )
       });
@@ -50,7 +51,7 @@ class EditorUpload extends React.Component {
           <span className="back">E</span>
           <form
             className="clear-fix"
-            enctype="multipart/form-data"
+            encType="multipart/form-data"
             onSubmit={this.props.handleSubmit(values => this.onSubmit(values))}
           >
             {successMessage}

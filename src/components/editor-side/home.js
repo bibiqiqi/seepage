@@ -1,52 +1,61 @@
 import React from 'react';
-import {Link} from 'react-router-dom';
+import {Link, withRouter} from 'react-router-dom';
+import {connect} from 'react-redux';
 
 import Logo from '../logo';
 
-export default class EditorHome extends React.Component {
+export function  EditorHome(props) {
+  const history = props.history;
+  const currentEditor = props.currentEditor.firstName;
+  const buttonValues = [
+    {
+      id: 'uploadCont',
+      text: 'upload new content',
+      location: '/editor-upload'
+    },
+    {
+      id: 'findCont',
+      text: 'browse or search content',
+      location: '/editor-find'
+    },
+    {
+      id: 'addEditor',
+      text: 'add a new editor profile',
+      location: '/editor-reg-form',
+    }
+  ];
 
-  handleClick(e) {
-    console.log(e.target.value)
-    {/*this.props.dispatch(turnPage())*/};
-  }
-
-  render() {
-    const buttonValues = [
-      {
-        text: 'upload new content',
-        id: 'uploadCont'
-      },
-      {
-        text: 'browse or search content',
-        id: 'findCont'
-      },
-      {
-        text: 'add a new editor profile',
-        id: 'addEditor'
-      }
-    ];
-
-  const buttons = buttonValues.map((e) => {
+  const buttons = buttonValues.map((button, i) => {
     return (
       <button
-        id={e.id}
-        onClick={this.handleClick.bind(this)}
-        value={e.text}
-      >
-      {e.text}</button>
+        id={button.id}
+        onClick={() => {
+          history.push(button.location);
+        }}
+        value={button.text}
+        path={button.location}
+        key={i}
+     >
+      {button.text}
+    </button>
     )
   });
 
-    return (
-      <section id="editor-home" className="page">
-        <Link to="/editor-home"><Logo/></Link>
-        <main>
-          <h3 className="editor-greeting">hello, <span>person</span></h3>
-          <div>
-            {buttons}
-          </div>
-        </main>
-      </section>
-    )
-  }
+  return (
+    <section id="editor-home" className="page">
+      <Link to="/editor-home"><Logo/></Link>
+      <main>
+        <h3 className="editor-greeting">hello, <span>{currentEditor}</span></h3>
+        <div>
+          {buttons}
+        </div>
+      </main>
+    </section>
+  )
 }
+
+const mapStateToProps = state => ({
+  currentEditor: state.auth.currentEditor
+});
+
+export default connect(mapStateToProps)(EditorHome);
