@@ -9,9 +9,11 @@ import LabeledInput from '../labeled-input';
 import './find.css';
 
 const initialState = {
-  artistName: true,
-  title: true,
-  tag: true
+  searchBy: {
+    artistName: true,
+    title: true,
+    tag: true
+  }
 };
 
 class EditorFindForm extends React.Component {
@@ -20,6 +22,7 @@ class EditorFindForm extends React.Component {
     this.state = initialState;
   }
   onSubmit(values){
+    console.log(values);
     this.props.dispatch(filterContent(values));
   }
   dropDownChange(event) {
@@ -28,7 +31,7 @@ class EditorFindForm extends React.Component {
     let newState = Object.assign({}, initialState);
     for (const key in newState) {
       if (key === value) {
-        newState[key] = false;
+        newState.searchBy[key] = false;
         //console.log('new state is:', newState);
         this.setState(newState);
       }

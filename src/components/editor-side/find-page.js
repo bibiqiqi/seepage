@@ -1,7 +1,7 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
 import {connect} from 'react-redux';
-
+import {SubmissionError} from 'redux-form';
 
 import EditorFindForm from './find-form';
 //import EditorFindResults from './find-results';
@@ -24,9 +24,10 @@ class EditorFindPage extends React.Component {
     }
   }
   componentDidMount(){
-    console.log('dispatching fetchContent()');
+    console.log('doing componentDidMount');
     this.props.dispatch(fetchContent());
   }
+
   render(){
     // const resultsArray = [];
     // resultsArray.forEach((e, i) => {
@@ -48,4 +49,4 @@ class EditorFindPage extends React.Component {
   }
 }
 
- export default connect()(EditorFindPage);
+export default connect()(EditorFindPage);
