@@ -20,12 +20,23 @@ class EditorFindPage extends React.Component {
         media: true,
         text: true,
         performance: true
-      }
+      },
+      content: {
+        allContent: '',
+        filteredContent: '',
+        loading: false,
+        error: null,
     }
   }
   componentDidMount(){
     console.log('dispatching fetchContent()');
-    this.props.dispatch(fetchContent());
+    this.fetchContent();
+  }
+  fetchContent() {
+    this.setState(){
+      error: null,
+      loading: true
+    }
   }
   render(){
     // const resultsArray = [];
