@@ -1,48 +1,178 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
-import {reduxForm, Field} from 'redux-form';
+import {connect} from 'react-redux';
+import {ToastContainer, toast} from 'react-toastify';
+//import {u} from 'updeep';
+import cloneDeep from 'clone-deep';
 
+import {fetchContent} from '../../actions/content';
+import Autocomplete from './autocomplete';
 import Logo from '../logo';
-import LabeledInput from '../labeled-input';
+import LabeledInput from '../react-labeled-input';
 import TagsInput from './tags-input';
-//import renderDropZone from './dropzone';
-import {required, nonEmpty} from '../../validators';
-
+import RenderDropZone from './dropzone';
 import './upload.css';
+import {API_BASE_URL} from '../../config';
+import {normalizeResponseErrors} from '../../actions/utils';
 
-export class EditorUpload extends React.Component {
-  onSubmit(values){
-    console.log(values);
-    {/* AJAX call to POST upload info;
-    */}
+const initialState = {
+  uploadForm: {
+    artistName: '',
+    title: '',
+    category: {
+      media: false,
+      performance: false,
+      text: false
+      },
+    files: [],
+    tags: []
+  },
+  errors: {
+    artistName: '',
+    title: '',
+    category: '',
+    files: '',
+    tags: ''
   }
+};
+
+class EditorUpload extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = cloneDeep(initialState);
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  componentDidMount(){
+    console.log('doing componentDidMount');
+    //update the Redux state with current content in DB and map suggestedArtists
+    //and suggestedTags to local state
+    this.props.dispatch(fetchContent("editor"));
+  }
+
+  postEntry(data) {
+    fetch(`${API_BASE_URL}/protected/content`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${this.props.authToken}`,
+      },
+      body: data
+    })
+    .then(data => {
+      //debugger;
+      const upload = cloneDeep(initialState.uploadForm);
+      this.setState({upload});
+      toast.success("content was successfully uploaded");
+
+      console.log('state cleared');
+    })
+    .catch(err => toast.error(err))
+  }
+
+  handleSubmit(event) {
+    console.log('doing handleSubmit');
+    event.preventDefault();
+    //TODO: fix this.state.errors
+    const errors = {...this.state.errors};
+    const upload = Object.assign({}, this.state.uploadForm);
+    //check if each field is in the state and if not, return a warning
+    const {artistName, title, tags, files, category} = upload;
+    //if all the upload values are true
+    if (artistName && title && tags && files && category) {
+      //then make an ajax call with the form data
+      const data = new FormData();
+      //iterate through through properties of the upload state object
+      for (let property in upload) {
+        if ((property === 'files') || (property === 'tags')) {
+          //iterate through array
+          for (var x = 0; x < upload[property].length; x++) {
+            data.append(property, upload[property][x]);
+            console.log('appended a property!');
+          }
+        } else if (property === 'category') {
+          //iterate through the category object to turn it into an array;
+          let categoryArray = [];
+          for (let key in category) {
+            if (category[key] === true) {
+              categoryArray.push(key)
+            }
+          }
+          data.append('category', categoryArray);
+        } else {
+          data.append(property, upload[property]);
+          console.log('appended another value!');
+        }
+      }
+      console.log('data being sent to server is', data)
+      this.postEntry(data);
+    } else { //iterate through the upload object to find which
+      //fields don't have values, update the state and send error messages back to the user
+         for (let property in upload) {
+           //if the value for this property equals false
+          if (!(upload[property])) {
+            //then update the state errors Object
+            errors[property] = `${property} is required`;
+            toast.error(errors[property]);
+          }
+        }
+    }
+  }
+
+  //performing validation on field input before it's submitted
+  handleChange(event) {
+    //debugger;
+    console.log('handleChange happening');
+    const uploadForm = Object.assign({}, this.state.uploadForm);
+    //if event.target doesn't exist, then the change came from file input
+    if (!(event.target)) {
+      console.log('file you selected is', event)
+      uploadForm.files = event;
+      this.setState({uploadForm});
+    } else { //otherwise the change came from either a text input or a checkbox input
+      const key = event.target.name;
+      const value = event.target.value;
+      if (event.target.type === "checkbox") {
+        const checkValue = event.target.checked ? 'checked' : 'unchecked';
+        console.log('you', checkValue, key);
+        //if input is checkbox, then update value to either true or false
+        event.target.checked ? uploadForm.category[key] = true : uploadForm.category[key] = false;
+        this.setState({uploadForm});
+      } else {
+        //otherwise input is a text value, so update the state with current string
+        uploadForm[key] = value;
+        this.setState({uploadForm});
+      }
+    }
+  }
+
+//the react-tags component handles input change and tag suggestions internally, so
+//handleTagSubmit is only called when a full tag string is submitted to this state
+  handleTagSubmit(tags) {
+    const upload = {...this.state.uploadForm};
+    upload.tags = tags;
+    this.setState({upload})
+  }
+
   render() {
-    let successMessage;
-    if (this.props.submitSucceeded) {
-      successMessage = (
-        <div className="message message-success">
-          Message submitted successfully
-        </div>
-      );
-    }
-    let errorMessage;
-    if (this.props.error) {
-      errorMessage = (
-        <div className="message message-error">{this.props.error}</div>
-      );
-    }
-    const categories = ['media', 'performance', 'text'];
-      const categoryInputs = categories.map((e, i) => {
-        return (
-          <Field
-            name={e}
-            component={LabeledInput}
+    const categories = Object.assign({}, this.state.uploadForm.category);
+    let i = 1;
+    const categoryInputs = [];
+    for (let key in categories) {
+      if (categories.hasOwnProperty(key)) {
+        categoryInputs.push(
+          <LabeledInput
+            name={key}
             type="checkbox"
-            label={e}
+            label={key}
             key={i}
+            onChange={this.handleChange}
+            checked={categories[key]}
           />
         )
-      });
+      }
+      i++;
+    }
 
     return (
       <section id="editor-upload" className="page">
@@ -51,41 +181,45 @@ export class EditorUpload extends React.Component {
           <span className="back">E</span>
           <form
             className="clear-fix"
-            encType="multipart/form-data"
-            onSubmit={this.props.handleSubmit(values => this.onSubmit(values))}
+            onSubmit={this.handleSubmit}
+            noValidate
           >
-            {successMessage}
-            {errorMessage}
-            <Field
+            <ToastContainer />
+            <label>Artist Name</label>
+            <Autocomplete
+              className="artistName"
+              suggestions={this.props.suggestedArtists}
               name="artistName"
-              component={LabeledInput}
-              type="text"
-              label="Artist Name"
-              placeholder="Art Vandelay"
-              validate={[required, nonEmpty]}
+              value={this.state.uploadForm.artistName}
+              onChange={this.handleChange}
+              noValidate
             />
-            <Field
+            <LabeledInput
               name="title"
-              component={LabeledInput}
               type="text"
+              value={this.state.uploadForm.title}
               label="Title"
-              placeholder="Arty Art"
-              validate={[required, nonEmpty]}
+              onChange={this.handleChange}
+              noValidate
             />
-            <Field
-              name="content"
-              component={LabeledInput}
-              multiple
-              type="file"
+            <RenderDropZone
+              name="files"
+              onDrop={this.handleChange}
+              files={this.state.uploadForm.files}
             />
             <div className="assign-category">
               <legend>Category</legend>
               {categoryInputs}
             </div>
-            <Field
+            <TagsInput
               name="tags"
-              component={TagsInput}
               type="text"
+              value={this.state.uploadForm.tags}
+              label="Tags"
+              tags={this.state.uploadForm.tags}
+              suggestions={this.props.suggestedTags}
+              noValidate
+              onAddOrDelete={tags => this.handleTagSubmit(tags)}
             />
             <button
               className="float-right"
@@ -100,6 +234,10 @@ export class EditorUpload extends React.Component {
   }
 }
 
-export default reduxForm({
-  form: 'editorUpload'
-})(EditorUpload);
+const mapStateToProps = state => ({
+  authToken: state.auth.authToken,
+  suggestedArtists: state.content.suggestedArtists,
+  suggestedTags: state.content.suggestedTags
+});
+
+export default connect(mapStateToProps)(EditorUpload);

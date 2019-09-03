@@ -1,14 +1,16 @@
 import React from 'react';
 
 export default class LabeledInput extends React.Component {
-  //componentDidUpdate(prevProps) {
+  // componentDidUpdate(prevProps) {
   //  debugger;
   //  if (!prevProps.meta.active && this.props.meta.active) {
   //      this.input.focus();
   //  }
-  //}
-  render() {
+  // } componentDidMount(){
+  //   console.log(this.props);
+  // }
 
+  render() {
     let error;
     if (this.props.meta.touched && this.props.meta.error) {
        error = <div className="form-error">{this.props.meta.error}</div>;
@@ -24,6 +26,8 @@ export default class LabeledInput extends React.Component {
     if (this.props.type === "checkbox") {
       return (
         <label className={this.props.className}>
+        {error}
+        {warning}
           <input
             type="checkbox"
             {...this.props.input}
@@ -31,6 +35,7 @@ export default class LabeledInput extends React.Component {
           {this.props.label}</label>
       )
     } else {
+      //console.log(this.props);
         return (
           <label className={this.props.className}>
             {this.props.label}
@@ -40,7 +45,10 @@ export default class LabeledInput extends React.Component {
               {...this.props.input}
               type={this.props.type}
               placeholder={this.props.placeholder}
-              ref={input => (this.input = input)}
+              ref={input => {
+                //console.log(input);
+                this.input = input}
+              }
             />
           </label>
         )

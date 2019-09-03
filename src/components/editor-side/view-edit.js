@@ -3,7 +3,7 @@ import {Link} from 'react-router-dom';
 import {reduxForm, Field} from 'redux-form';
 
 import Logo from '../logo';
-import LabeledInput from '../labeled-input';
+import LabeledInput from '../redux-labeled-input';
 import TagsInput from './tags-input';
 
 class EditorViewEdit extends React.Component {

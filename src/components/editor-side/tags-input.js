@@ -2,34 +2,45 @@ const React = require('react')
 const ReactTags = require('react-tag-autocomplete')
 
 export default class TagsInput extends React.Component {
-  constructor (props) {
-    super(props)
-
-    this.state = {
-      tags: [
-        { id: 1, name: "postmodernism" },
-        { id: 2, name: "technology" }
-      ]
-    }
+  convertForState(tags) {
+    return tags.map((e, i) => {
+      return e.name
+    })
   }
-  handleDelete (i) {
-    const tags = this.state.tags.slice(0)
-    tags.splice(i, 1)
-    this.setState({ tags })
+  convertForComponent(tags){
+    return tags.map((e, i) => {
+      return {name: e}
+    })
   }
 
-  handleAddition (tag) {
-    const tags = [].concat(this.state.tags, tag)
-    this.setState({ tags })
+  handleDelete(i) {
+    const tags = this.props.tags.slice(0)
+    tags.splice(i, 1);
+    this.props.onAddOrDelete(tags);
   }
+
+  handleAddition(tag) {
+    console.log('doing handleAddition');
+    const newTag = tag.name;
+    const tags = [].concat(...this.props.tags, newTag);
+    this.props.onAddOrDelete(tags);
+  }
+
+  handleValidate(tag) {
+    console.log('doing handleValidate');
+    return !(this.props.tags.includes(tag))
+  }
+
   render () {
     return (
       <ReactTags
-        classNames={{root: 'react-tags', root: this.props.className}}
-        tags={this.state.tags}
+        classNames={{root: 'react-tags'}}
+        tags={this.convertForComponent(this.props.tags)}
+        suggestions={this.props.suggestions ? this.convertForComponent(this.props.suggestions) : [] }
         allowNew={true}
         handleDelete={this.handleDelete.bind(this)}
         handleAddition={this.handleAddition.bind(this)}
+        handleValidate={this.handleValidate.bind(this)}
       />
     )
   }

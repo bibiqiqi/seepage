@@ -1,69 +1,166 @@
 import React from 'react';
-import {reduxForm, Field} from 'redux-form';
+//import {reduxForm, Field, reset} from 'redux-form';
 import {connect} from 'react-redux';
+import * as classnames from 'classnames';
+import cloneDeep from 'clone-deep';
+import {ToastContainer, toast} from 'react-toastify';
 
 import {filterContent} from '../../actions/content';
-
-import LabeledInput from '../labeled-input';
-
+import Autocomplete from './autocomplete';
+import LabeledInput from '../react-labeled-input';
 import './find.css';
 
 const initialState = {
-  searchBy: {
+  findForm: {
+    browseBy: {
+      media: false,
+      performance: false,
+      text: false
+    },
+    searchBy: {
+      artistName: '',
+      title: '',
+      tag: ''
+    }
+  },
+  hidden: {
     artistName: true,
     title: true,
     tag: true
+  },
+  errors: {
+    category: '',
+    artistName: '',
+    title: '',
+    tags: ''
   }
-};
-
+}
 class EditorFindForm extends React.Component {
   constructor(props) {
     super(props);
-    this.state = initialState;
+    this.state = cloneDeep(initialState);
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
-  onSubmit(values){
-    console.log(values);
-    this.props.dispatch(filterContent(values));
+
+  //add feedback to populate toast container
+  handleSubmit(event) {
+    console.log('doing handleSubmit');
+    event.preventDefault();
+    const request = new FormData();
+    //const errors = {...this.state.errors};
+    //const findForm = Object.assign({}, this.state.findForm);
+    const root = event.target.id;
+    if (root === "searchSubmit") {
+      let searchBy;
+      for (let property in this.state.hidden) {
+        if (this.state.hidden[property] === false) {
+          searchBy = property;
+          console.log('you want to search by', searchBy);
+        }
+      }
+      console.log('and you submitted this query:', this.state.findForm.searchBy[searchBy]);
+      request.append(searchBy, this.state.findForm.searchBy[searchBy]);
+    } else {
+      debugger;
+      //iterate through the category object to turn it into an array;
+      let categoryArray = [];
+      for (let key in category) {
+        if (category[key] === true) {
+          categoryArray.push(key)
+        }
+      }
+      request.append('category', categoryArray);
+    }
+    // TODO: figure out what to do after submit
   }
+
+  //performing validation on field input before it's submitted
+  handleChange(event) {
+    //debugger;
+    console.log('handleChange happening');
+    const findForm = Object.assign({}, this.state.findForm);
+    if (event.target) { //then the input didn't come from Autocomplete
+      const key = event.target.name;
+      const value = event.target.value;
+      if (event.target.type === "checkbox") { //user is trying to browse
+        const checkValue = event.target.checked ? 'checked' : 'unchecked';
+        console.log('you', checkValue, key);
+        //if user is submitting a true value for a checkbox
+        //then add the new category value to the state
+        //if it's false, filter out all categories within the state that equal the key submitted by user
+        event.target.checked ? findForm.browseBy[key] = true : findForm.browseBy[key] = false;
+        this.setState({findForm});
+      } else { //user is trying to search and they typed in this value
+        findForm.searchBy[key] = value;
+        this.setState({findForm});
+      }
+    } else {// the input came from autocomplete
+      debugger;
+      findForm.searchBy[event.key] = event.value;
+    }
+  }
+
   dropDownChange(event) {
     //console.log(event.target.value);
     const value = event.target.value;
-    let newState = Object.assign({}, initialState);
-    for (const key in newState) {
+    //console.log('this.state is:', this.state);
+    const initialHidden = {
+      artistName: true,
+      title: true,
+      tag: true
+    }
+    const hidden = Object.assign({}, initialHidden);
+    //console.log('hidden is:', hidden, 'and this.state.hidden is:', initialHidden);
+    for (const key in hidden) {
       if (key === value) {
-        newState.searchBy[key] = false;
-        //console.log('new state is:', newState);
-        this.setState(newState);
+        hidden[key] = false;
+        //console.log('now, hidden is:', hidden, 'and this.state.hidden is:', initialHidden);
+        //initialState is being mutated when newState gets changed;
+        this.setState({hidden});
       }
     }
   }
   render(){
-    let successMessage;
-    if (this.props.submitSucceeded) {
-      successMessage = (
-        <div className="message message-success">
-          Message submitted successfully
-        </div>
-      );
+    // let feedback;
+    // if (this.state.feedback) {
+    //   feedback = (
+    //     <div>{this.state.feedback}</div>
+    //   )
+    // }
+
+    const categories = Object.assign({}, this.state.findForm.browseBy);
+    let i = 1;
+    const categoryInputs = [];
+    for (let key in categories) {
+      if (categories.hasOwnProperty(key)) {
+        categoryInputs.push(
+          <LabeledInput
+            name={key}
+            type="checkbox"
+            label={key}
+            key={i}
+            onChange={this.handleChange}
+            checked={categories[key]}
+          />
+        )
+      }
+      i++;
     }
-    let errorMessage;
-    if (this.props.error) {
-      errorMessage = (
-        <div className="message message-error">{this.props.error}</div>
-      );
-    }
-    const categories = ['media', 'performance', 'text'];
-    const categoryInputs = categories.map((e, i) => {
-      return (
-        <Field
-          name={e}
-          component={LabeledInput}
-          type="checkbox"
-          label={e}
-          key={i}
-        />
-      )
-    });
+
+    // const categories = ['media', 'performance', 'text'];
+    // const categoryInputs = categories.map((e, i) => {
+    //   return (
+    //     <Field
+    //       name={e}
+    //       component={LabeledInput}
+    //       type="checkbox"
+    //       label={e}
+    //       key={i}
+    //       className={"browseBy"}
+    //     />
+    //   )
+    // });
     const optionValues = [
       {
         label: 'Artist Name',
@@ -90,10 +187,9 @@ class EditorFindForm extends React.Component {
     return(
       <form
         className="clear-fix"
-        onSubmit={this.props.handleSubmit(values => this.onSubmit(values))}
+        noValidate
       >
-        {successMessage}
-        {errorMessage}
+        <ToastContainer />
         <div id="editor-browse">
           <h3>Browse By...</h3>
           <div className="assign-category">
@@ -103,48 +199,78 @@ class EditorFindForm extends React.Component {
           <button
             className="float-right"
             type="submit"
-            value="Submit">
+            value="browseBy"
+            onClick={this.handleSubmit}
+          >
             Submit
           </button>
         </div>
         <div id="editor-search">
           <h3>Search By...</h3>
           <div>
-            <Field
+            <select
               name="searchBy"
-              component="select"
               onChange={this.dropDownChange.bind(this)}
             >
               <option />
               {options}
-            </Field>
+            </select>
           </div>
           <div>
-            <Field
+
+            <Autocomplete
+              className={
+                classnames(
+                  'artistName',
+                  'searchBy',
+                  {
+                    hidden: this.state.hidden.artistName
+                  }
+                )
+              }
+              suggestions={this.props.suggestedArtists}
               name="artistName"
-              component={LabeledInput}
-              type="text"
-              placeholder="Art Vandelay"
-              className={this.state.artistName? 'hidden': null}
+              value={this.state.findForm.searchBy.artistName}
+              onChange={this.handleChange}
+              noValidate
             />
-            <Field
+            <Autocomplete
+              className={
+                classnames(
+                  'title',
+                  'searchBy',
+                  {
+                    hidden: this.state.hidden.title
+                  }
+                )
+              }
+              suggestions={this.props.suggestedTitles}
               name="title"
-              component={LabeledInput}
-              type="text"
-              placeholder="Arty Art"
-              className={this.state.title? 'hidden': null}
+              value={this.state.findForm.searchBy.title}
+              onChange={this.handleChange}
+              noValidate
             />
-            <Field
+            <Autocomplete
+              className={
+                classnames(
+                  'tags',
+                  'searchBy',
+                  {
+                    hidden: this.state.hidden.tag
+                  }
+                )
+              }
+              suggestions={this.props.suggestedTags}
               name="tag"
-              component={LabeledInput}
-              type="text"
-              placeholder="posmodernism"
-              className={this.state.tag? 'hidden': null}
+              value={this.state.findForm.searchBy.tags}
+              onChange={this.handleChange}
+              noValidate
             />
             <button
               className="float-right"
               type="submit"
               id="searchSubmit"
+              onClick={this.handleSubmit}
             >Submit
             </button>
           </div>
@@ -154,6 +280,11 @@ class EditorFindForm extends React.Component {
   }
 }
 
-export default EditorFindForm = reduxForm({
-  form: 'editorFind'
-})(EditorFindForm);
+const mapStateToProps = (state) => ({
+    content: state.content.allContent,
+    suggestedArtists: state.content.suggestedArtists,
+    suggestedTitles: state.content.suggestedTitles,
+    suggestedTags: state.content.suggestedTags,
+})
+
+export default connect(mapStateToProps)(EditorFindForm);

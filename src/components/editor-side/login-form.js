@@ -2,7 +2,7 @@ import React from 'react';
 import {reduxForm, Field, focus} from 'redux-form';
 
 import Logo from '../logo';
-import LabeledInput from '../labeled-input';
+import LabeledInput from '../redux-labeled-input';
 import {required, nonEmpty, email} from '../../validators';
 import {login} from '../../actions/auth';
 

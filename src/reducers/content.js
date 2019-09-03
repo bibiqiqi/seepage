@@ -1,36 +1,42 @@
 import {
     FILTER_CONTENT_SUCCESS,
+    FILTER_CONTENT_NONE,
+    FETCH_CONTENT_REQUEST,
     FETCH_CONTENT_SUCCESS,
     FETCH_CONTENT_ERROR,
-    FETCH_CONTENT_REQUEST,
-} from '../actions/content';
+    MAKE_SUGGESTED_ARTISTS,
+    MAKE_SUGGESTED_TITLES,
+    MAKE_SUGGESTED_TAGS
+  }
+from '../actions/content';
 
 const initialState = {
-    allContent: '',
-    filteredContent: '',
+    allContent: null,
+    filteredContent: null,
+    filteredContentNone: null,
+    suggestedArtists: [],
+    suggestedTitles: [],
+    suggestedTags: [],
     loading: false,
     error: null,
-};
-
-export const filterContent = (filterObject) => {
-  console.log(filterObject);
-  // const filteredContent = {};
-  // initialState.allContent.forEach((e,i) => {
-  //   for (const key in e) {
-  //     if (key === value) {
-  //       newState[key] = false;
-  //       //console.log('new state is:', newState);
-  //       this.setState(newState);
-  //     }
-  //   }
-  // })
 };
 
 export default function reducer(state = initialState, action) {
     if (action.type === FILTER_CONTENT_SUCCESS) {
       return Object.assign({}, state, {
        filteredContent: action.filteredContent,
+       filteredContentNone: null,
       })
+    } else if (action.type === FILTER_CONTENT_NONE) {
+        return Object.assign({}, state, {
+         filteredContent: null,
+         filteredContentNone: action.message,
+        })
+    } else if (action.type === FETCH_CONTENT_REQUEST) {
+        return Object.assign({}, state, {
+          loading: true,
+          error: null
+        });
     } else if (action.type === FETCH_CONTENT_SUCCESS) {
         return Object.assign({}, state, {
           allContent: action.content,
@@ -40,10 +46,17 @@ export default function reducer(state = initialState, action) {
         return Object.assign({}, state, {
           error: action.error
         });
-    } else if (action.type === FETCH_CONTENT_REQUEST) {
+    } else if (action.type === MAKE_SUGGESTED_ARTISTS) {
         return Object.assign({}, state, {
-          loading: true,
-          error: null
+          suggestedArtists: action.array
+        });
+    } else if (action.type === MAKE_SUGGESTED_TITLES) {
+        return Object.assign({}, state, {
+          suggestedTitles: action.array
+        });
+    } else if (action.type === MAKE_SUGGESTED_TAGS) {
+        return Object.assign({}, state, {
+          suggestedTags: action.array
         });
     }
     return state;
