@@ -1,7 +1,7 @@
-import React, { Component, Fragment } from "react";
+import React, { Fragment } from "react";
 import PropTypes from "prop-types";
 
-export default class Autocomplete extends Component {
+export default class Autocomplete extends React.Component {
   static propTypes = {
     suggestions: PropTypes.instanceOf(Array)
   };
@@ -169,6 +169,7 @@ export default class Autocomplete extends Component {
     return (
       <Fragment >
         <input
+          placeholder={this.props.placeholder}
           className={this.props.className}
           name={this.props.name}
           type="text"

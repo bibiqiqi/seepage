@@ -7,7 +7,6 @@ import EditorLoginForm from './editor-side/login-form';
 import EditorHome from './editor-side/home';
 import EditorUpload from './editor-side/upload';
 import EditorFindPage from './editor-side/find-page';
-import EditorViewEdit from './editor-side/view-edit';
 import EditorRegForm from './editor-side/registration-form';
 
 export function App(props) {
@@ -30,7 +29,6 @@ export function App(props) {
           )}/>
           <Route exact path="/editor-upload" render={() => <EditorUpload/>} />
           <Route exact path="/editor-find" render={() => <EditorFindPage/>} />
-          <Route exact path="/editor-view-edit" render={() => <EditorViewEdit/>}/>
           <Route exact path="/editor-reg-form" render={() => <EditorRegForm/>} />
         </section>
       </div>

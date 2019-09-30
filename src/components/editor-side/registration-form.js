@@ -3,7 +3,7 @@ import {Field, reduxForm, focus} from 'redux-form';
 
 import {registerEditor} from '../../actions/register';
 import {login} from '../../actions/auth';
-import LabeledInput from '../redux-labeled-input';
+import LabeledInput from '../labeled-input-redux';
 import {required, nonEmpty, matches, length, isTrimmed, email} from '../../validators';
 const passwordLength = length({min: 10, max: 72})
 const matchesPassword = matches('password');

@@ -3,18 +3,6 @@ import {SubmissionError} from 'redux-form';
 import {API_BASE_URL} from '../config';
 import {normalizeResponseErrors} from './utils';
 
-export const FILTER_CONTENT_SUCCESS = 'FILTER_CONTENT_SUCCESS';
-export const filterContentSuccess = filteredContent => ({
-  type: FILTER_CONTENT_SUCCESS,
-  filteredContent
-});
-
-export const FILTER_CONTENT_NONE = 'FILTER_CONTENT_NONE';
-export const filterContentNone = message => ({
-  type: FILTER_CONTENT_NONE,
-  message
-});
-
 export const FETCH_CONTENT_REQUEST = 'FETCH_CONTENT';
 export const fetchContentRequest = () => ({
   type: FETCH_CONTENT_REQUEST,
@@ -31,6 +19,19 @@ export const fetchContentError = error => ({
   type: FETCH_CONTENT_ERROR,
   error
 });
+
+export const FILTER_CONTENT_SUCCESS = 'FILTER_CONTENT_SUCCESS';
+export const filterContentSuccess = filteredContent => ({
+  type: FILTER_CONTENT_SUCCESS,
+  filteredContent
+});
+
+export const FILTER_CONTENT_NONE = 'FILTER_CONTENT_NONE';
+export const filterContentNone = message => ({
+  type: FILTER_CONTENT_NONE,
+  message
+});
+
 
 export const MAKE_SUGGESTED_ARTISTS = 'MAKE_SUGGESTED_ARTISTS';
 export const makeSuggestedArtists = array => ({
@@ -57,7 +58,7 @@ export const fetchContent = (rootRequest) => (dispatch) => {
     .then(res => normalizeResponseErrors(res))
     .then(res => res.clone().json())
     .then(data => dispatch(fetchContentSuccess(data)))
-    .then((content) => {
+    .then(content => {
       if(rootRequest === 'editor') {
        dispatch(makeSuggestedContent(content));
       }
@@ -75,23 +76,26 @@ export const fetchContent = (rootRequest) => (dispatch) => {
 export const filterContent = (filterObject) => (dispatch, getState) => {
   console.log(filterObject);
   const state = getState();
-  const contents = state.content.allContent.contents;
+  const contents = state.content.allContent;
   const noResults = "your query didn't match any results";
   let filteredResults = [];
   if ('browseBy' in filterObject) {
+    const results = [];
     const {browseBy} = filterObject;
     contents.forEach((e) => {
       browseBy.forEach((x) => {
-        if (e.category === x) {
-          filteredResults.push(e);
+        if (e.category.includes(x)) {
+          results.push(e);
         }
       })
     })
+    filteredResults = Array.from(new Set(results));
   } else {
     const {searchBy} = filterObject;
-    const query = filterObject[searchBy].toLowerCase();
+    const parameter = Object.keys(searchBy)[0];
+    const query = searchBy[Object.keys(searchBy)[0]].toLowerCase();
      contents.forEach((e) => {
-        if (e[searchBy].toLowerCase() === query){
+        if (e[parameter].toLowerCase() === query){
           filteredResults.push(e);
         };
      })
@@ -101,7 +105,8 @@ export const filterContent = (filterObject) => (dispatch, getState) => {
 
 export const makeSuggestedContent = (content) => (dispatch) => {
   console.log('makeSuggestedContent is happening');
-  const contents = content.content.contents;
+  //debugger;
+  const contents = content.content;
   let allArtists = [], allTitles = [], allTags = [];
   //consolidate all artists, tags, and titles into an array
   contents.map((e) => {
@@ -111,17 +116,17 @@ export const makeSuggestedContent = (content) => (dispatch) => {
       allTags.push(x);
     })
   });
-  //console.log('allArtists is', allArtists);
-  //console.log('allTitles is', allTitles);
-  //console.log('allTags is', allTags);
+  console.log('allArtists is', allArtists);
+  console.log('allTitles is', allTitles);
+  console.log('allTags is', allTags);
   //filtering out all the duplicates in the array
-  const suggestedTitles = [...new Set(allTitles)];
-  //console.log('suggestedTitles is', suggestedTitles);
+  const suggestedTitles = Array.from([...new Set(allTitles)]);
+  console.log('suggestedTitles is', suggestedTitles);
   dispatch(makeSuggestedTitles(suggestedTitles));
-  const suggestedTags = [...new Set(allTags)];
-  //console.log('suggestedTags is', suggestedTags);
+  const suggestedTags = Array.from([...new Set(allTags)]);
+  console.log('suggestedTags is', suggestedTags);
   dispatch(makeSuggestedTags(suggestedTags));
-  const suggestedArtists = [...new Set(allArtists)];
-  //console.log('suggestedArtists is', suggestedArtists);
+  const suggestedArtists = Array.from([...new Set(allArtists)]);
+  console.log('suggestedArtists is', suggestedArtists);
   dispatch(makeSuggestedArtists(suggestedArtists));
 }

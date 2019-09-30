@@ -93,11 +93,16 @@ main {
 }
 
 .exit {
-  font-family:wingdings2;
+  font-family: wingdings2;
 }
 
 .edit {
-  font-family:wingdings2;
+  font-family: wingdings2;
+  font-size: .75rem;
+}
+
+.submit-edit {
+  font-family: wingdings;
   font-size: .75rem;
 }
 
