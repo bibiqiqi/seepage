@@ -12,16 +12,7 @@ import {setAuthToken, refreshAuthToken} from './actions/auth';
 
 const store = createStore(
   combineReducers({
-    // form: formReducer.plugin({
-    //   editorFind: (state, action) => {
-    //     switch(action.type) {
-    //       case FILTER_CONTENT_SUCCESS :
-    //         return undefined;
-    //       default:
-    //       return state;
-    //     }
-    //   }
-    // }),
+    form: formReducer,
     auth: authReducer,
     content: contentReducer,
   }), composeWithDevTools(applyMiddleware(thunk))

@@ -1,13 +1,11 @@
 import React from 'react';
-//import {reduxForm, Field, reset} from 'redux-form';
 import {connect} from 'react-redux';
 import * as classnames from 'classnames';
 import cloneDeep from 'clone-deep';
-import {ToastContainer, toast} from 'react-toastify';
 
-import {filterContent} from '../../actions/content';
+import {filterContent, fetchContent} from '../../actions/content';
 import Autocomplete from './autocomplete';
-import LabeledInput from '../react-labeled-input';
+import Categories from './categories-controlled-inputs';
 import './find.css';
 
 const initialState = {
@@ -43,26 +41,34 @@ class EditorFindForm extends React.Component {
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  //add feedback to populate toast container
+  componentDidMount(){
+    console.log('doing componentDidMount');
+    //update the Redux state with current content in DB and map suggestedArtists
+    //suggestedTitles, and suggestedTags to local state
+    this.props.dispatch(fetchContent("editor"));
+  }
+
+  // TODO: add validation checking before user's form is submitting
   handleSubmit(event) {
     console.log('doing handleSubmit');
     event.preventDefault();
-    const request = new FormData();
+    //debugger;
     //const errors = {...this.state.errors};
-    //const findForm = Object.assign({}, this.state.findForm);
+    let filterObject = {};
     const root = event.target.id;
     if (root === "searchSubmit") {
-      let searchBy;
-      for (let property in this.state.hidden) {
-        if (this.state.hidden[property] === false) {
-          searchBy = property;
+      let searchBy = {};
+      //iterating through hidden state to see which parameter user is searching by
+      for (let key in this.state.hidden) {
+        if (this.state.hidden[key] === false) {
+          searchBy[key] = this.state.findForm.searchBy[key];
           console.log('you want to search by', searchBy);
         }
       }
-      console.log('and you submitted this query:', this.state.findForm.searchBy[searchBy]);
-      request.append(searchBy, this.state.findForm.searchBy[searchBy]);
+      filterObject.searchBy = searchBy;
     } else {
-      debugger;
+      //debugger;
+      const category = Object.assign({}, this.state.findForm.browseBy);
       //iterate through the category object to turn it into an array;
       let categoryArray = [];
       for (let key in category) {
@@ -70,9 +76,9 @@ class EditorFindForm extends React.Component {
           categoryArray.push(key)
         }
       }
-      request.append('category', categoryArray);
+      filterObject.browseBy = categoryArray;
     }
-    // TODO: figure out what to do after submit
+    this.props.dispatch(filterContent(filterObject));
   }
 
   //performing validation on field input before it's submitted
@@ -96,7 +102,7 @@ class EditorFindForm extends React.Component {
         this.setState({findForm});
       }
     } else {// the input came from autocomplete
-      debugger;
+      //debugger;
       findForm.searchBy[event.key] = event.value;
     }
   }
@@ -122,45 +128,7 @@ class EditorFindForm extends React.Component {
     }
   }
   render(){
-    // let feedback;
-    // if (this.state.feedback) {
-    //   feedback = (
-    //     <div>{this.state.feedback}</div>
-    //   )
-    // }
 
-    const categories = Object.assign({}, this.state.findForm.browseBy);
-    let i = 1;
-    const categoryInputs = [];
-    for (let key in categories) {
-      if (categories.hasOwnProperty(key)) {
-        categoryInputs.push(
-          <LabeledInput
-            name={key}
-            type="checkbox"
-            label={key}
-            key={i}
-            onChange={this.handleChange}
-            checked={categories[key]}
-          />
-        )
-      }
-      i++;
-    }
-
-    // const categories = ['media', 'performance', 'text'];
-    // const categoryInputs = categories.map((e, i) => {
-    //   return (
-    //     <Field
-    //       name={e}
-    //       component={LabeledInput}
-    //       type="checkbox"
-    //       label={e}
-    //       key={i}
-    //       className={"browseBy"}
-    //     />
-    //   )
-    // });
     const optionValues = [
       {
         label: 'Artist Name',
@@ -189,13 +157,12 @@ class EditorFindForm extends React.Component {
         className="clear-fix"
         noValidate
       >
-        <ToastContainer />
         <div id="editor-browse">
           <h3>Browse By...</h3>
-          <div className="assign-category">
-            <legend>Category</legend>
-            {categoryInputs}
-          </div>
+          <Categories
+            categories={this.state.findForm.browseBy}
+            onChange={e => this.handleChange(e)}
+          />
           <button
             className="float-right"
             type="submit"
@@ -281,7 +248,6 @@ class EditorFindForm extends React.Component {
 }
 
 const mapStateToProps = (state) => ({
-    content: state.content.allContent,
     suggestedArtists: state.content.suggestedArtists,
     suggestedTitles: state.content.suggestedTitles,
     suggestedTags: state.content.suggestedTags,

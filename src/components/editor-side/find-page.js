@@ -5,16 +5,10 @@ import {connect} from 'react-redux';
 
 import EditorFindForm from './find-form';
 import EditorFindResults from './find-results';
-import {fetchContent} from '../../actions/content';
 import Logo from '../logo';
 import './find.css';
 
 class EditorFindPage extends React.Component {
-
-  componentDidMount(){
-    //console.log('doing componentDidMount');
-    this.props.dispatch(fetchContent("editor"))
-  }
 
   render(){
     return (

@@ -2,13 +2,13 @@ import React from 'react';
 import {reduxForm, Field, focus} from 'redux-form';
 
 import Logo from '../logo';
-import LabeledInput from '../redux-labeled-input';
+import LabeledInput from '../labeled-input-redux';
 import {required, nonEmpty, email} from '../../validators';
 import {login} from '../../actions/auth';
 
 export class EditorLoginForm extends React.Component {
   onSubmit(values){
-    //console.log(values);
+    console.log('login values being submitted to server are', values);
     //{/*login() makes ajax call to post to /auth endpoint*/}
     this.props.dispatch(login(values.email, values.password));
   }
@@ -52,12 +52,6 @@ export class EditorLoginForm extends React.Component {
               type="password"
               label="Password"
               validate={[required, nonEmpty]}
-            />
-            <Field
-              name="rememberMe"
-              component={LabeledInput}
-              type="checkbox"
-              label="Remember Me"
             />
             <button
               className="float-right"
