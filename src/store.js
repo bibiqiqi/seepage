@@ -6,7 +6,6 @@ import thunk from 'redux-thunk';
 import authReducer from './reducers/auth';
 import contentReducer from './reducers/content';
 import {loadAuthToken} from './local-storage';
-import {FILTER_CONTENT_SUCCESS} from './actions/content';
 
 import {setAuthToken, refreshAuthToken} from './actions/auth';
 

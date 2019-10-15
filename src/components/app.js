@@ -1,6 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {BrowserRouter as Router, Route, Redirect} from 'react-router-dom';
+
 import CoverPage from './user-side/cover-page';
 import Home from './user-side/home';
 import EditorLoginForm from './editor-side/login-form';

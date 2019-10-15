@@ -3,7 +3,7 @@ import {SubmissionError} from 'redux-form';
 import {API_BASE_URL} from '../config';
 import {normalizeResponseErrors} from './utils';
 
-export const FETCH_CONTENT_REQUEST = 'FETCH_CONTENT';
+export const FETCH_CONTENT_REQUEST = 'FETCH_CONTENT_REQUEST';
 export const fetchContentRequest = () => ({
   type: FETCH_CONTENT_REQUEST,
 });
@@ -20,6 +20,23 @@ export const fetchContentError = error => ({
   error
 });
 
+export const FETCH_THUMBNAILS_REQUEST = 'FETCH_THUMBNAILS_REQUEST';
+export const fetchThumbNailsRequest = () => ({
+  type: FETCH_THUMBNAILS_REQUEST,
+});
+
+export const FETCH_THUMBNAILS_SUCCESS = 'FETCH_THUMBNAILS_SUCCESS';
+export const fetchThumbNailsSuccess = thumbNails => ({
+  type: FETCH_THUMBNAILS_SUCCESS,
+  thumbNails
+});
+
+export const FETCH_THUMBNAILS_ERROR = 'FETCH_THUMBNAILS_ERROR';
+export const fetchThumbNailsError = error => ({
+  type: FETCH_THUMBNAILS_ERROR,
+  error
+});
+
 export const FILTER_CONTENT_SUCCESS = 'FILTER_CONTENT_SUCCESS';
 export const filterContentSuccess = filteredContent => ({
   type: FILTER_CONTENT_SUCCESS,
@@ -32,6 +49,11 @@ export const filterContentNone = message => ({
   message
 });
 
+export const EDIT_FILTERED_CONTENT_SUCCESS = 'EDIT_FILTERED_CONTENT_SUCCESS';
+export const editFilteredContentSuccess = editedFilteredContent => ({
+  type: EDIT_FILTERED_CONTENT_SUCCESS,
+  editedFilteredContent
+});
 
 export const MAKE_SUGGESTED_ARTISTS = 'MAKE_SUGGESTED_ARTISTS';
 export const makeSuggestedArtists = array => ({
@@ -73,6 +95,41 @@ export const fetchContent = (rootRequest) => (dispatch) => {
     })
 };
 
+function arrayBufferToBase64(buffer) {
+      var binary = '';
+      var bytes = [].slice.call(new Uint8Array(buffer));
+      bytes.forEach((b) => binary += String.fromCharCode(b));
+      return window.btoa(binary);
+  };
+
+export const fetchThumbNails = (contentId) => (dispatch) => {
+  console.log("doing fetchThumbnails");
+  dispatch(fetchThumbNailsRequest());
+  return fetch(`${API_BASE_URL}/content/thumbnails/${contentId}`)
+    .then(res => normalizeResponseErrors(res))
+    .then(res => res.clone().json())
+    .then(data => {
+      //debugger;
+      const base64Flag = 'data:image/jpeg;base64, ';
+      const thumbNails = data.thumbNails.map((e) => {
+        const thumbNail = {};
+        thumbNail.id = e._id;
+        const imageStr = arrayBufferToBase64(e.data.data);
+        thumbNail.src = base64Flag + imageStr;
+        return thumbNail
+     });
+     dispatch(fetchThumbNailsSuccess(thumbNails));
+    })
+    .catch(err => {
+      dispatch(fetchThumbNailsError(err));
+      return Promise.reject(
+        new SubmissionError({
+          _error: err
+        })
+      );
+    })
+};
+
 export const filterContent = (filterObject) => (dispatch, getState) => {
   console.log(filterObject);
   const state = getState();
@@ -100,7 +157,19 @@ export const filterContent = (filterObject) => (dispatch, getState) => {
         };
      })
   };
+  //debugger;
   filteredResults[0]? dispatch(filterContentSuccess(filteredResults)) : dispatch(filterContentNone(noResults));
+};
+
+export const editFilteredContent = (contentId, editObject) => (dispatch, getState) => {
+  console.log('running editFilteredContent to delete the following content from filteredContent state', contentId);
+  const state = getState();
+  const filteredContent = state.content.filteredContent;
+  const deletionIndex = filteredContent.findIndex((e) => {
+    return e.contentId = contentId;
+  });
+  filteredContent.splice(deletionIndex, 1);
+  dispatch(editFilteredContentSuccess(filteredContent));
 };
 
 export const makeSuggestedContent = (content) => (dispatch) => {
@@ -116,17 +185,17 @@ export const makeSuggestedContent = (content) => (dispatch) => {
       allTags.push(x);
     })
   });
-  console.log('allArtists is', allArtists);
-  console.log('allTitles is', allTitles);
-  console.log('allTags is', allTags);
+  //console.log('allArtists is', allArtists);
+  //console.log('allTitles is', allTitles);
+  //console.log('allTags is', allTags);
   //filtering out all the duplicates in the array
   const suggestedTitles = Array.from([...new Set(allTitles)]);
-  console.log('suggestedTitles is', suggestedTitles);
+  //console.log('suggestedTitles is', suggestedTitles);
   dispatch(makeSuggestedTitles(suggestedTitles));
   const suggestedTags = Array.from([...new Set(allTags)]);
-  console.log('suggestedTags is', suggestedTags);
+  //console.log('suggestedTags is', suggestedTags);
   dispatch(makeSuggestedTags(suggestedTags));
   const suggestedArtists = Array.from([...new Set(allArtists)]);
-  console.log('suggestedArtists is', suggestedArtists);
+  //console.log('suggestedArtists is', suggestedArtists);
   dispatch(makeSuggestedArtists(suggestedArtists));
 }
