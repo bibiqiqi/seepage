@@ -20,7 +20,6 @@ export default class RenderDropZone extends React.Component {
             </div>
             <aside>
               <h4>Files</h4>
-              <ul>{files}</ul>
             </aside>
           </section>
         )}

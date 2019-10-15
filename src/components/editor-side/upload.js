@@ -1,9 +1,11 @@
-import React from 'react';
+import React, {Fragment} from 'react';
 import {Link} from 'react-router-dom';
 import {connect} from 'react-redux';
+import * as classnames from 'classnames';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import cloneDeep from 'clone-deep';
+import merge from 'deepmerge';
 
 import {API_BASE_URL} from '../../config';
 import Logo from '../logo';
@@ -29,6 +31,7 @@ const initialState = {
     files: [],
     tags: []
   },
+  thumbNailUrls: [],
   ajax: {
     loading: false,
     success: null
@@ -48,6 +51,9 @@ class EditorUpload extends React.Component {
     this.state = cloneDeep(initialState);
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleRemoveClick = this.handleRemoveClick.bind(this);
+    this.renderRemoveSymbol = this.renderRemoveSymbol.bind(this);
+    this.onCreateObjectUrl = this.onCreateObjectUrl.bind(this);
   }
 
   componentDidMount(){
@@ -55,10 +61,11 @@ class EditorUpload extends React.Component {
     //update the Redux state with current content in DB and map suggestedArtists
     //and suggestedTags to local state
     this.props.dispatch(fetchContent("editor"));
+    //debugger;
   }
 
   postEntry(data) {
-    debugger;
+    //debugger;
     const ajax = {loading: true};
     this.setState({ajax});
     fetch(`${API_BASE_URL}/protected/content`, {
@@ -77,7 +84,6 @@ class EditorUpload extends React.Component {
         success: true
       }
       this.setState(state);
-
       //console.log('state cleared');
     })
     .catch(err => {
@@ -106,6 +112,7 @@ class EditorUpload extends React.Component {
       const data = new FormData();
       //iterate through through properties of the upload state object
       for (let key in upload) {
+        //debugger;
         if ((key === 'files') || (key === 'tags')) {
           //iterate through array
           for (var x = 0; x < upload[key].length; x++) {
@@ -128,6 +135,11 @@ class EditorUpload extends React.Component {
         }
       }
       //console.log('data being sent to server is', data);
+      let thumbNailUrls = state.thumbNailUrls.map(e => {
+        window.URL.revokeObjectURL(e);
+      });
+      thumbNailUrls = [];
+      this.setState({thumbNailUrls})
       this.postEntry(data);
     } else { //iterate through the upload object to find which
       //fields don't have values, update the state and send error messages back to the user
@@ -138,22 +150,28 @@ class EditorUpload extends React.Component {
             validation[key] = `${key} is required`;
           }
         }
-        this.setState({validation});
-
+      this.setState({validation});
     }
   }
 
+  onCreateObjectUrl(object) {
+    return (window.URL) ? window.URL.createObjectURL(object) : window.webkitURL.createObjectURL(object);
+  }
   //performing validation on field input before it's submitted
   handleChange(event) {
-    //debugger;
     //console.log('handleChange happening');
     const uploadForm = cloneDeep(this.state.uploadForm);
+    const thumbNailUrls = Object.assign([], this.state.thumbNailUrls);
     const validation = initialState.validation;
     this.setState({validation});
     //if event.target doesn't exist, then the change came from file input
     if (!(event.target)) {
-      uploadForm.files = event;
-      this.setState({uploadForm});
+      ///debugger;
+      event.forEach(e => {
+        uploadForm.files.push(e);
+        thumbNailUrls.push(this.onCreateObjectUrl(e));
+      })
+      this.setState({uploadForm, thumbNailUrls}, () => {console.log('updated the state with files and thumbNailUrls', this.state)});
     } else { //otherwise the change came from either a text input or a checkbox input
       const key = event.target.name;
       const value = event.target.value;
@@ -180,6 +198,31 @@ class EditorUpload extends React.Component {
     this.setState({uploadForm})
   }
 
+  handleRemoveClick(e) {
+    //1.define the index of the thumbnail that was selected to remove
+    //2. if the thumbnail that was chosen is already in the db, keep it in the state so the server can use the id to remove it
+    // else, if it's not in the db, remove it from the state
+    //3. update the state
+    //debugger;
+    const index = e.currentTarget.className.slice(25);
+    const state = cloneDeep(this.state);
+    const {uploadForm, thumbNailUrls} = state;
+    uploadForm.files.splice(index, 1);
+    thumbNailUrls.splice(index, 1);
+    this.setState({uploadForm, thumbNailUrls}, () => {console.log('updated the state with files and thumbNailUrls', this.state)});
+    //this.setState({uploadForm}, () => {console.log('handleRemoveClick() ran and the updated state is:', this.state.uploadForm.files)});
+  }
+
+  renderRemoveSymbol(index) {
+    //console.log('value being passed to renderDeleteSymbol is', value);
+     return(
+       <span
+         className = {classnames('exit', 'remove-files', `remove-${index}`)}
+         onClick = {(e) => this.handleRemoveClick(e)}
+       >T</span>
+     )
+   }
+
   render() {
     const validation = Object.assign({}, this.state.validation);
     Object.values(validation).forEach(e => {
@@ -193,17 +236,36 @@ class EditorUpload extends React.Component {
         toast('loading');
     }
     if (ajax.success === true) {
+      //debugger;
       toast.success('content was successfully uploaded');
     } else if (ajax.success == false) {
       toast.error('an error has occured whle trying to upload your content');
     }
-
+    const thumbNails = this.state.thumbNailUrls.map((e, i) => {
+      //debugger;
+      return (
+        <div
+          className='thumbNail'
+          key={i}
+        >
+         <img
+           src={e}
+           id={`thumbnail_${i}`}
+         >
+         </img>
+         {this.renderRemoveSymbol(i)}
+       </div>
+      )
+    });
     return (
       <section id="editor-upload" className="page">
         <Link to="/editor-home"><Logo/></Link>
         <main>
           <span className="back">E</span>
-          <ToastContainer autoClose={5000}/>
+          <ToastContainer
+            autoClose={5000}
+            hideProgressBar
+          />
           <form
             className="clear-fix"
             onSubmit={this.handleSubmit}
@@ -215,7 +277,7 @@ class EditorUpload extends React.Component {
               suggestions={this.props.suggestedArtists}
               name="artistName"
               value={this.state.uploadForm.artistName}
-              onChange={this.handleChange}
+              onChange={e => this.handleChange(e)}
               noValidate
             />
             <LabeledInput
@@ -226,11 +288,14 @@ class EditorUpload extends React.Component {
               onChange={this.handleChange}
               noValidate
             />
-            <RenderDropZone
-              name="files"
-              onDrop={this.handleChange}
-              files={this.state.uploadForm.files}
-            />
+            <Fragment>
+              <RenderDropZone
+                name="files"
+                onDrop={this.handleChange}
+                files={this.state.uploadForm.files}
+              />
+              {thumbNails}
+            </Fragment>
             <Categories
               categories={this.state.uploadForm.category}
               onChange={e => this.handleChange(e)}

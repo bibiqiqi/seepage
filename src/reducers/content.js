@@ -1,9 +1,13 @@
 import {
+    EDIT_FILTERED_CONTENT_SUCCESS,
     FILTER_CONTENT_SUCCESS,
     FILTER_CONTENT_NONE,
     FETCH_CONTENT_REQUEST,
     FETCH_CONTENT_SUCCESS,
     FETCH_CONTENT_ERROR,
+    FETCH_THUMBNAILS_REQUEST,
+    FETCH_THUMBNAILS_SUCCESS,
+    FETCH_THUMBNAILS_ERROR,
     MAKE_SUGGESTED_ARTISTS,
     MAKE_SUGGESTED_TITLES,
     MAKE_SUGGESTED_TAGS
@@ -12,6 +16,7 @@ from '../actions/content';
 
 const initialState = {
     allContent: [],
+    thumbNails: [],
     filteredContent: [],
     filteredContentNone: '',
     suggestedArtists: [],
@@ -35,6 +40,20 @@ export default function reducer(state = initialState, action) {
   } else if (action.type === FETCH_CONTENT_ERROR) {
       return Object.assign({}, state, {
         error: action.error
+     })
+  } else if (action.type === FETCH_THUMBNAILS_REQUEST) {
+      return Object.assign({}, state, {
+        loading: true,
+        error: null
+      })
+  } else if (action.type === FETCH_THUMBNAILS_SUCCESS) {
+      return Object.assign({}, state, {
+        thumbNails: action.thumbNails,
+        error: null
+      })
+  } else if (action.type === FETCH_THUMBNAILS_ERROR) {
+      return Object.assign({}, state, {
+        error: action.error
       })
   } else if (action.type === FILTER_CONTENT_SUCCESS) {
       return Object.assign({}, state, {
@@ -43,8 +62,11 @@ export default function reducer(state = initialState, action) {
       })
   } else if (action.type === FILTER_CONTENT_NONE) {
       return Object.assign({}, state, {
-       filteredContent: null,
        filteredContentNone: action.message,
+      })
+  } else if (action.type === EDIT_FILTERED_CONTENT_SUCCESS) {
+      return Object.assign({}, state, {
+       filteredContent: action.editedFilteredContent,
       })
   } else if (action.type === MAKE_SUGGESTED_ARTISTS) {
       return Object.assign({}, state, {

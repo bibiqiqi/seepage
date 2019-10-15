@@ -19,7 +19,8 @@ const initialState = {
       artistName: '',
       title: '',
       tag: ''
-    }
+    },
+    filterObject: null
   },
   hidden: {
     artistName: true,
@@ -43,13 +44,15 @@ class EditorFindForm extends React.Component {
 
   componentDidMount(){
     console.log('doing componentDidMount');
-    //update the Redux state with current content in DB and map suggestedArtists
+    //updates the Redux state with current content in DB and map suggestedArtists
     //suggestedTitles, and suggestedTags to local state
     this.props.dispatch(fetchContent("editor"));
   }
 
   // TODO: add validation checking before user's form is submitting
   handleSubmit(event) {
+    const state = cloneDeep(this.state);
+    const findForm = state.findForm;
     console.log('doing handleSubmit');
     event.preventDefault();
     //debugger;
@@ -59,16 +62,16 @@ class EditorFindForm extends React.Component {
     if (root === "searchSubmit") {
       let searchBy = {};
       //iterating through hidden state to see which parameter user is searching by
-      for (let key in this.state.hidden) {
-        if (this.state.hidden[key] === false) {
-          searchBy[key] = this.state.findForm.searchBy[key];
+      for (let key in state.hidden) {
+        if (state.hidden[key] === false) {
+          searchBy[key] = findForm.searchBy[key];
           console.log('you want to search by', searchBy);
         }
       }
       filterObject.searchBy = searchBy;
     } else {
       //debugger;
-      const category = Object.assign({}, this.state.findForm.browseBy);
+      const category = Object.assign({}, findForm.browseBy);
       //iterate through the category object to turn it into an array;
       let categoryArray = [];
       for (let key in category) {
@@ -78,6 +81,9 @@ class EditorFindForm extends React.Component {
       }
       filterObject.browseBy = categoryArray;
     }
+    findForm.filterObject = filterObject;
+    this.setState({findForm});
+    //debugger;
     this.props.dispatch(filterContent(filterObject));
   }
 
@@ -128,7 +134,6 @@ class EditorFindForm extends React.Component {
     }
   }
   render(){
-
     const optionValues = [
       {
         label: 'Artist Name',

@@ -20,8 +20,6 @@ export default class Autocomplete extends React.Component {
       filteredSuggestions: [],
       // Whether or not the suggestion list is shown
       showSuggestions: false,
-      // What the user has entered
-      userInput: ""
     };
   }
 
@@ -35,7 +33,6 @@ export default class Autocomplete extends React.Component {
         activeSuggestion: 0,
         filteredSuggestions: [],
         showSuggestions: false,
-        userInput: ""
       });
     } else {
       return null;
@@ -46,7 +43,7 @@ export default class Autocomplete extends React.Component {
   onChange = e => {
     this.props.onChange(e);
     const { suggestions } = this.props;
-    const userInput = e.currentTarget.value;
+    const userInput = this.props.value;
     // Filter our suggestions that don't contain the user's input
     const filteredSuggestions = suggestions.filter(
       suggestion =>
@@ -59,8 +56,8 @@ export default class Autocomplete extends React.Component {
       activeSuggestion: 0,
       filteredSuggestions,
       showSuggestions: true,
-      userInput: e.currentTarget.value
     });
+    this.props.onChange(userInput);
   };
 
   // Event fired when the user clicks on a suggestion
@@ -76,7 +73,6 @@ export default class Autocomplete extends React.Component {
       activeSuggestion: 0,
       filteredSuggestions: [],
       showSuggestions: false,
-      userInput: value
     });
   };
 
@@ -169,13 +165,12 @@ export default class Autocomplete extends React.Component {
     return (
       <Fragment >
         <input
-          placeholder={this.props.placeholder}
           className={this.props.className}
           name={this.props.name}
           type="text"
-          onChange={onChange}
+          onChange={e => this.props.onChange(e)}
           onKeyDown={onKeyDown}
-          value={userInput}
+          value={this.props.value}
         />
         {suggestionsListComponent}
       </Fragment>

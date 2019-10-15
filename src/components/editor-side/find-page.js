@@ -2,6 +2,8 @@ import React from 'react';
 import {Link} from 'react-router-dom';
 import {SubmissionError} from 'redux-form';
 import {connect} from 'react-redux';
+import {ToastContainer, toast} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import EditorFindForm from './find-form';
 import EditorFindResults from './find-results';
@@ -16,6 +18,10 @@ class EditorFindPage extends React.Component {
         <Link to="/editor-home"><Logo/></Link>
         <main id="editor-browse-search">
           <span className="back">E</span>
+          <ToastContainer
+            hideProgressBar
+            autoClose={5000}
+          />
           <EditorFindForm/>
           <EditorFindResults/>
         </main>
