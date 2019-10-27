@@ -43,30 +43,31 @@ class EditorFindResults extends React.Component {
   constructor(props) {
     super(props);
     this.state = cloneDeep(initialState);
-    this.handleMouseOver = this.handleMouseOver.bind(this);
-    this.handleMouseOut = this.handleMouseOut.bind(this);
     this.handleEditClick = this.handleEditClick.bind(this);
     this.renderReadOrEdit = this.renderReadOrEdit.bind(this);
     this.handleEditFormExit = this.handleEditFormExit.bind(this);
     this.handlePatchCompletion = this.handlePatchCompletion.bind(this);
     this.handleDeleteClick = this.handleDeleteClick.bind(this);
     this.handleDeleteConfirm = this.handleDeleteConfirm.bind(this);
+    this.handleViewArt = this.handleViewArt.bind(this);
+    this.handleFileViewerExit = this.handleFileViewerExit.bind(this);
   }
 
-  fetchFile(contentId, key) {
+  fetchFile(thumbNailId) {
     const file = cloneDeep(this.state.file);
     //("doing fetchFile");
     file.loading = true;
     this.setState({file});
-    return fetch(`${API_BASE_URL}/content/files/${contentId}/${key}`)
+    return fetch(`${API_BASE_URL}/content/files/${thumbNailId}`)
       .then(res => normalizeResponseErrors(res))
       .then(res => res.blob())
       .then(blob => {
-        file.url = URL.createObjectURL(blob);
         file.loading = false;
+        file.url = URL.createObjectURL(blob);
         this.setState({file});
       })
       .catch(err => {
+        file.loading = false;
         file.error = err;
         this.setState({file});
       })
@@ -95,13 +96,6 @@ class EditorFindResults extends React.Component {
             error: null
           },
           hidden: {
-            editSymbol: {
-              artistName: true,
-              title: true,
-              categories: true,
-              tags: true,
-              files: true
-            },
             editForm: true
           }
         }
@@ -128,24 +122,6 @@ class EditorFindResults extends React.Component {
    };
  }
 
-  handleMouseOver(e){
-    //debugger;
-    const name = e.currentTarget.title;
-    const hidden = Object.assign({}, this.state.hidden);
-    hidden.editSymbol[name] = false;
-    this.setState({hidden});
-    //this.setState({hidden}, () => {console.log('handleMouseOver() ran and the updated state is:', this.state.hidden.editSymbol)});
-  }
-
-  handleMouseOut(e){
-    //debugger;
-    const name = e.currentTarget.title;
-    const hidden = Object.assign({}, this.state.hidden);
-    hidden.editSymbol[name] = true;
-    this.setState({hidden});
-    //this.setState({hidden}, () => {console.log('handleMouseOut() ran and the updated state is:', this.state.hidden.editSymbol)});
-  }
-
   handleEditClick(e) {
     //debugger;
     const value = e.currentTarget.className.slice(10);
@@ -157,12 +133,12 @@ class EditorFindResults extends React.Component {
   }
 
   handleDeleteClick(e) {
+    console.log('handleDeleteClick() running');
     const value = e.currentTarget.className.slice(14);
-    //debugger;
     const hidden = Object.assign({}, this.state.hidden);
     const deleteConfirm = hidden.deleteConfirm ? '' : value;
     hidden.deleteConfirm = deleteConfirm;
-    this.setState({hidden}, () => {console.log('handleDeleteClick() ran and the updated state is:', this.state)});
+    this.setState({hidden}, () => {console.log('handleDeleteClick() ran and the updated state is:', this.state.hidden.deleteConfirm)});
   }
 
   handleEditFormExit(e) {
@@ -172,31 +148,46 @@ class EditorFindResults extends React.Component {
     //this.setState({hidden}, () => {console.log('handleEditFormExit() ran and the updated state is:', this.state.hidden.editForm)});
   }
 
-  handleDeleteConfirm(){
+  handleDeleteConfirm(e){
+    console.log('handleDeleteConfirm() running');
+    //debugger;
     const newState = cloneDeep(this.state);
     newState.collapsible = {key: null, open: false};
     newState.hidden.deleteConfirm = '';
     this.setState((prevState) => {
       return merge(prevState, newState)
-    });
+    }, () => console.log('handleDeleteConfirm() ran and the updated state is', this.state.hidden.deleteConfirm));
   }
 
   handleViewArt(e) {
-    //debugger;
-    //const key = e.currentTarget.id.slice(10);
+    debugger;
+    const key = e.currentTarget.id.slice(10);
+    const thumbNailId = this.props.thumbNails[key].id;
+    this.fetchFile(thumbNailId);
+  }
+
+  handleFileViewerExit(){
+    const file = cloneDeep(this.state.file);
+    file.url = null;
+    file.error = null;
+    this.setState({file}, () => {console.log('handleFileViewerExit ran and the updated state is:', this.state.file)});
   }
 
   handlePatchCompletion() {
     const hidden = Object.assign({}, this.state.hidden);
     hidden.editForm = '';
-    this.setState({hidden}, () => {console.log('handlePatchCompletion() ran and the updated state is:', this.state.hidden)});
+    const collapsible = {
+      key: null,
+      open: false,
+    };
+    this.setState({hidden, collapsible}, () => {console.log('handlePatchCompletion() ran and the updated state is:', this.state)});
   }
 
   renderEditSymbol(value) {
     //console.log('value being passed to renderEditSymbol is', value);
      return(
        <span
-         className = {classnames('edit', `edit-${value}`, {hidden: this.state.hidden.editSymbol[value]})}
+         className = {classnames('edit', `edit-${value}`)}
          onClick = {(e) => this.handleEditClick(e)}
        >$</span>
      )
@@ -212,29 +203,29 @@ class EditorFindResults extends React.Component {
     }
 
     renderDeleteState(index){
-      console.log('renderDeleteState() is running and passing this index', index);
+      //console.log('renderDeleteState() is running and passing this index', index);
       if (this.state.hidden.deleteConfirm === index.toString()) {
-        console.log('...and returning a DeleteConfirmation component');
+        //console.log('...and returning a DeleteConfirmation component');
         return (
           <DeleteConfirmation
             contentId={this.state.contentId}
             onDeleteExit={(e) => this.handleDeleteClick(e)}
             index={index}
-            onDeleteConfirm={this.handleDeleteConfirm()}
+            onDeleteConfirm={(e) => this.handleDeleteConfirm(e)}
           />
         )
       } else {
-        console.log('and not returning a DeleteConfirmation component');
+        //console.log('...and not returning a DeleteConfirmation component');
         return null;
       }
     }
 
    //defining the state of the thumbnails (dependent on whether user has clicked on the content)
    renderThumbNailState() {
-     console.log('renderThumbNailState() running');
+     //console.log('renderThumbNailState() running');
      //if this.state.editForm equals 'files', then render component as a EditForm
      if (this.state.hidden.editForm === 'files') {
-       console.log('...and renderThumbNailState is rendering an edit component');
+       //console.log('...and renderThumbNailState is rendering an edit component');
        return (
          <EditorEditForm
            contentId={this.state.contentId}
@@ -250,8 +241,6 @@ class EditorFindResults extends React.Component {
            return (
              <div
                className='thumbNail'
-               onMouseOver={this.handleMouseOver}
-               onMouseOut={this.handleMouseOut}
                title='files'
              >
               <img
@@ -265,7 +254,7 @@ class EditorFindResults extends React.Component {
             </div>
            )
          });
-         console.log('...and returning these thumbNails:', thumbNails);
+         //console.log('...and returning these thumbNails:', thumbNails);
          return thumbNails
        } else {
          return null;
@@ -280,14 +269,17 @@ class EditorFindResults extends React.Component {
      } else if (this.state.file.url) {
          return <EditorFileViewer
                  url={this.state.file.url}
+                 handleExitClick={this.handleFileViewerExit}
                  />
      } else if (this.state.file.error) {
        return toast.error('sorry, there was an error retrieving the file');
-     };
+     } else {
+       return null
+     }
    }
 
    renderReadOrEdit(collapsibleKey, string, field, value){
-     console.log('running renderReadOrEdit() and the values passed are:', string, field, value);
+     //console.log('running renderReadOrEdit() and the values passed are:', string, field, value);
      let renderedValue;
      if ((field === 'artistName') || (field === 'title')) {
        renderedValue = value;
@@ -297,7 +289,7 @@ class EditorFindResults extends React.Component {
        renderedValue = value.map((tag, index) => <p key={index}>{tag}</p>);
      }
      if ((this.state.hidden.editForm === field) && (this.state.collapsible.key === collapsibleKey)) {
-      console.log('...and renderReadOrEdit is rendering an edit component');
+      //console.log('...and renderReadOrEdit is rendering an edit component');
       return (
         <EditorEditForm
           contentId={this.state.contentId}
@@ -309,12 +301,10 @@ class EditorFindResults extends React.Component {
         />
         )
       } else {
-       console.log('...and renderReadOrEdit is rendering a read component');
+       //console.log('...and renderReadOrEdit is rendering a read component');
        return (
          <h3
            title={field}
-           onMouseOver={this.handleMouseOver}
-           onMouseOut={this.handleMouseOut}
          >{string}: {renderedValue}{this.renderEditSymbol(field)}
          </h3>
        )
@@ -335,7 +325,7 @@ class EditorFindResults extends React.Component {
         i++;
        }
 
-       console.log('items that are being sent to this collapsible are:', details);
+       //console.log('items that are being sent to this collapsible are:', details);
        return (
          <li key={index} className='result'>
            <Collapsible
@@ -361,9 +351,9 @@ class EditorFindResults extends React.Component {
     if ((this.props.filteredContent.length === 0) && (!this.props.filteredContentNone)) {
       return null
     //if filteredContent is populated, then user has submitted query and we can render component
-  } else if (this.props.filteredContent.length > 0) {
+  } else if ((this.props.filteredContent.length > 0) && (!this.props.filteredContentNone)) {
       const results = this.renderResults(this.props.filteredContent);
-      console.log('results being sent to this components render are:', results);
+      //console.log('results being sent to this components render are:', results);
       return (
         <div>
          <h3>Results</h3>

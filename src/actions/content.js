@@ -49,12 +49,6 @@ export const filterContentNone = message => ({
   message
 });
 
-export const EDIT_FILTERED_CONTENT_SUCCESS = 'EDIT_FILTERED_CONTENT_SUCCESS';
-export const editFilteredContentSuccess = editedFilteredContent => ({
-  type: EDIT_FILTERED_CONTENT_SUCCESS,
-  editedFilteredContent
-});
-
 export const MAKE_SUGGESTED_ARTISTS = 'MAKE_SUGGESTED_ARTISTS';
 export const makeSuggestedArtists = array => ({
   type: MAKE_SUGGESTED_ARTISTS,
@@ -74,25 +68,31 @@ export const makeSuggestedTags = array => ({
 });
 
 export const fetchContent = (rootRequest) => (dispatch) => {
-  console.log("doing fetchContent");
-  dispatch(fetchContentRequest());
-  return fetch(`${API_BASE_URL}/content`)
-    .then(res => normalizeResponseErrors(res))
-    .then(res => res.clone().json())
-    .then(data => dispatch(fetchContentSuccess(data)))
-    .then(content => {
-      if(rootRequest === 'editor') {
-       dispatch(makeSuggestedContent(content));
-      }
-    })
-    .catch(err => {
-      dispatch(fetchContentError(err));
-      return Promise.reject(
-        new SubmissionError({
-          _error: err
-        })
-      );
-    })
+  //console.log("doing fetchContent");
+  //debugger;
+  return new Promise(function(resolve, reject) {
+    dispatch(fetchContentRequest());
+    return fetch(`${API_BASE_URL}/content`)
+      .then(res => normalizeResponseErrors(res))
+      .then(res => res.clone().json())
+      .then(data => dispatch(fetchContentSuccess(data)))
+      .then(content => {
+        if(rootRequest === 'editor') {
+         const contents = content.content;
+         dispatch(makeSuggestedContent(contents));
+        }
+        resolve(content);
+      })
+      .catch(err => {
+        dispatch(fetchContentError(err));
+        return Promise.reject(
+          new SubmissionError({
+            _error: err
+          })
+        );
+      })
+    }
+  )
 };
 
 function arrayBufferToBase64(buffer) {
@@ -130,8 +130,8 @@ export const fetchThumbNails = (contentId) => (dispatch) => {
     })
 };
 
-export const filterContent = (filterObject) => (dispatch, getState) => {
-  console.log(filterObject);
+export const filterContent = (filterObject, updatedContent) => (dispatch, getState) => {
+  console.log('doing filterContent and heres the filterObject you sent', filterObject);
   const state = getState();
   const contents = state.content.allContent;
   const noResults = "your query didn't match any results";
@@ -157,37 +157,53 @@ export const filterContent = (filterObject) => (dispatch, getState) => {
         };
      })
   };
-  //debugger;
   filteredResults[0]? dispatch(filterContentSuccess(filteredResults)) : dispatch(filterContentNone(noResults));
 };
 
-export const editFilteredContent = (contentId, editObject) => (dispatch, getState) => {
-  console.log('running editFilteredContent to delete the following content from filteredContent state', contentId);
-  const state = getState();
-  const filteredContent = state.content.filteredContent;
-  const deletionIndex = filteredContent.findIndex((e) => {
-    return e.contentId = contentId;
-  });
-  filteredContent.splice(deletionIndex, 1);
-  dispatch(editFilteredContentSuccess(filteredContent));
+const findIndexAndSplice = (arrayOfData, contentId, editObject) => {
+  console.log('running findIndexAndSplice with', arrayOfData);
+  return new Promise(function(resolve, reject) {
+    const startingIndex = arrayOfData.findIndex((e) => {
+      return e.contentId = contentId;
+    });
+    editObject ? arrayOfData.splice(startingIndex, 1, editObject) : arrayOfData.splice(startingIndex, 1) ;
+    resolve(arrayOfData);
+  })
+}
+//gets called after user makes an edit or a delete.
+//if there's an editObject passed in, then the user made an edit, otherwise, they made a delete
+export const editContentInState = (contentId, editObject) => (dispatch, getState) => {
+  //debugger;
+  return new Promise(function(resolve, reject) {
+    console.log('running editContentInState()');
+    const state = getState();
+    const allContent = state.content.allContent;
+    const filteredContent = state.content.filteredContent;
+    findIndexAndSplice(allContent, contentId, editObject)
+      .then(allContent => {
+        dispatch(fetchContentSuccess(allContent));
+        dispatch(makeSuggestedContent(allContent));
+        findIndexAndSplice(filteredContent, contentId, editObject)
+          .then(filteredContent => {
+            dispatch(filterContentSuccess(filteredContent))
+          })
+     })
+     resolve(console.log('edited Content in State!'));
+  })
 };
 
 export const makeSuggestedContent = (content) => (dispatch) => {
   console.log('makeSuggestedContent is happening');
   //debugger;
-  const contents = content.content;
   let allArtists = [], allTitles = [], allTags = [];
   //consolidate all artists, tags, and titles into an array
-  contents.map((e) => {
+  content.map((e) => {
     allArtists.push(e.artistName);
     allTitles.push(e.title);
     e.tags.map((x) => {
       allTags.push(x);
     })
   });
-  //console.log('allArtists is', allArtists);
-  //console.log('allTitles is', allTitles);
-  //console.log('allTags is', allTags);
   //filtering out all the duplicates in the array
   const suggestedTitles = Array.from([...new Set(allTitles)]);
   //console.log('suggestedTitles is', suggestedTitles);

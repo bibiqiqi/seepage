@@ -159,6 +159,7 @@ main {
   height: 100px;
   width: 100px;
   position: relative;
+  overflow: hidden;
 }
 
 .thumbNail img {

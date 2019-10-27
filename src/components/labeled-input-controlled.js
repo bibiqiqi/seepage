@@ -36,6 +36,7 @@ export default class LabeledInput extends React.Component {
                 name={this.props.name}
                 type="text"
                 onChange={(e) => this.props.onChange(e)}
+                autocomplete="off"
               />
             </label>
          )

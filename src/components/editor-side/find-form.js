@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 import * as classnames from 'classnames';
 import cloneDeep from 'clone-deep';
 
-import {filterContent, fetchContent} from '../../actions/content';
+import {filterContent, fetchContent, editFilteredContentReport} from '../../actions/content';
 import Autocomplete from './autocomplete';
 import Categories from './categories-controlled-inputs';
 import './find.css';
@@ -19,8 +19,7 @@ const initialState = {
       artistName: '',
       title: '',
       tag: ''
-    },
-    filterObject: null
+    }
   },
   hidden: {
     artistName: true,
@@ -81,9 +80,6 @@ class EditorFindForm extends React.Component {
       }
       filterObject.browseBy = categoryArray;
     }
-    findForm.filterObject = filterObject;
-    this.setState({findForm});
-    //debugger;
     this.props.dispatch(filterContent(filterObject));
   }
 
@@ -253,6 +249,9 @@ class EditorFindForm extends React.Component {
 }
 
 const mapStateToProps = (state) => ({
+    loading: state.content.loading,
+    error: state.content.error,
+    editFilteredContent: state.content.editFilteredContent,
     suggestedArtists: state.content.suggestedArtists,
     suggestedTitles: state.content.suggestedTitles,
     suggestedTags: state.content.suggestedTags,
