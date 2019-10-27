@@ -6,7 +6,7 @@ import {API_BASE_URL} from '../../config';
 import {normalizeResponseErrors} from '../../actions/utils';
 import {toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {editFilteredContent, fetchContent} from '../../actions/content';
+import {editContentInState, fetchContent} from '../../actions/content';
 
 const initialState = {
   ajax: {
@@ -37,12 +37,12 @@ class DeleteConfirmation extends React.Component {
       .then(res => normalizeResponseErrors(res))
       .then(res => {
         console.log('delete was a success', res);
+        //debugger;
         ajax.loading = false;
         ajax.success = true;
         this.setState({ajax});
-        //debugger;
+        this.props.dispatch(editContentInState(this.props.contentId));
         this.props.onDeleteConfirm();
-        this.props.dispatch(editFilteredContent(this.props.contentId));
       })
       .catch(err => {
         ajax.loading = false;
@@ -62,7 +62,7 @@ class DeleteConfirmation extends React.Component {
    }
 
    renderDeleteState() {
-     debugger;
+     //debugger;
      if ((!(this.state.ajax.loading)) && (this.state.ajax.success === null)) {
        return (
          <div
@@ -71,7 +71,7 @@ class DeleteConfirmation extends React.Component {
            {this.renderRemoveSymbol()}
            <h3>Are You Sure You Want to Erase This Content?</h3>
            <button
-             onClick={this.deleteContent()}
+             onClick={this.deleteContent}
            >
              Yes
            </button>
@@ -91,7 +91,6 @@ class DeleteConfirmation extends React.Component {
        )
      }
    }
-
 
    render(){
      return this.renderDeleteState();

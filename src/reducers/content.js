@@ -1,5 +1,4 @@
 import {
-    EDIT_FILTERED_CONTENT_SUCCESS,
     FILTER_CONTENT_SUCCESS,
     FILTER_CONTENT_NONE,
     FETCH_CONTENT_REQUEST,
@@ -33,6 +32,7 @@ export default function reducer(state = initialState, action) {
         error: null
       })
   } else if (action.type === FETCH_CONTENT_SUCCESS) {
+    console.log('updating fetchContent in Redux State');
       return Object.assign({}, state, {
         allContent: action.content,
         error: null
@@ -56,6 +56,7 @@ export default function reducer(state = initialState, action) {
         error: action.error
       })
   } else if (action.type === FILTER_CONTENT_SUCCESS) {
+    console.log('updating filteredContent in Redux State');
       return Object.assign({}, state, {
        filteredContent: action.filteredContent,
        filteredContentNone: null,
@@ -64,19 +65,18 @@ export default function reducer(state = initialState, action) {
       return Object.assign({}, state, {
        filteredContentNone: action.message,
       })
-  } else if (action.type === EDIT_FILTERED_CONTENT_SUCCESS) {
-      return Object.assign({}, state, {
-       filteredContent: action.editedFilteredContent,
-      })
   } else if (action.type === MAKE_SUGGESTED_ARTISTS) {
+    console.log('updating suggestedArtists in Redux State');
       return Object.assign({}, state, {
         suggestedArtists: action.array
       })
   } else if (action.type === MAKE_SUGGESTED_TITLES) {
+    console.log('updating suggestedTitles in Redux State');
       return Object.assign({}, state, {
         suggestedTitles: action.array
       })
   } else if (action.type === MAKE_SUGGESTED_TAGS) {
+    console.log('updating suggestedTags in Redux State');
       return Object.assign({}, state, {
         suggestedTags: action.array
       })

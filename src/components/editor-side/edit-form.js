@@ -7,6 +7,8 @@ import merge from 'deepmerge';
 import * as classnames from 'classnames';
 import {toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import {normalizeResponseErrors} from '../../actions/utils';
+import {editContentInState} from '../../actions/content';
 
 import {API_BASE_URL} from '../../config';
 import Autocomplete from './autocomplete';
@@ -48,7 +50,7 @@ class EditorEditForm extends React.Component {
     this.handleRemoveClick = this.handleRemoveClick.bind(this);
   }
 
-  patchEntry(data) {
+  patchEntry(data, field) {
     //debugger;
     console.log('running patchEntry');
     const ajax = {
@@ -56,20 +58,35 @@ class EditorEditForm extends React.Component {
       success: null
     };
     this.setState({ajax}, () => {console.log('patch request is happening and now state is:', this.state.ajax)});
-    fetch(`${API_BASE_URL}/protected/content/${this.props.contentId}`, {
+    let contentType, body;
+    if(field === 'files') {
+      contentType = "multipart/form-data";
+      body = data;
+    } else {
+      contentType = 'application/json;charset=utf-8';
+      body = JSON.stringify(data);
+    }
+    fetch(`${API_BASE_URL}/protected/${field}/${this.props.contentId}`, {
       method: 'PATCH',
       headers: {
+        'Content-Type': contentType,
         Authorization: `Bearer ${this.props.authToken}`,
       },
-      body: data
+      body: body
     })
+    .then(res => normalizeResponseErrors(res))
+    .then(res => res.clone().json())
     .then(data => {
       const ajax = {
         loading: false,
         success: true
       }
-      this.setState({ajax}, () => {console.log('patch was successful and now state is:', this.state.ajax)});
-      this.props.onPatchCompletion();
+      this.props.dispatch(editContentInState(this.props.contentId, data))
+        .then(resolve => {
+          debugger;
+          this.setState({ajax}, () => {console.log('patch was successful and now local state is:', this.state.ajax)});
+          this.props.onPatchCompletion();
+        })
     })
     .catch(err => {
       const ajax = {
@@ -85,8 +102,7 @@ class EditorEditForm extends React.Component {
     event.preventDefault();
     const upload = this.state.uploadForm;
     const key = this.props.name;
-    let submitValue;
-
+    let data;
     if (key === 'files') {
       let totalFiles; //for validation, to ensure that there is at least 1 file for this entry
       let filesEdit = [];
@@ -100,42 +116,47 @@ class EditorEditForm extends React.Component {
         }
       })
       if (totalFiles < 1) { //validation check to make sure field isn't empty
-        this.setState({validationError: true});
+        toast.error('You can\'t submit a blank field')
       } else {
-        submitValue = filesEdit;
+        data = new FormData();
+        data.append(key, filesEdit);
+        this.patchEntry(data, 'files');
       }
-    } else if (key === 'tags') {
-      if (upload.tags.length < 1) { //validation check to make sure field isn't empty
-        this.setState({validationError: true});
-      } else {
-        submitValue = upload.tags;
-      }
-    } else if (key === 'category') {
-      let categoryEdit = [];
-      for (let key in upload.category) {
-        if (upload.category[key] === true) {
-          categoryEdit.push(key);
-        };
-      }
-      if (categoryEdit.length < 1) {  //validation check to make sure field isn't empty
-         this.setState({validationError: true});
-       } else {
-         submitValue = categoryEdit;
-       }
-    } else { //the value is a string (either artistName or title)
-      if (!upload[key]) {  //validation check to make sure field isn't empty
-         this.setState({validationError: true});
-       } else {
-         submitValue = upload[key];
-       }
-    }
-    if (this.state.validationError) {
-      toast.error('You can\'t submit a blank field')
     } else {
-      const data = new FormData();
-      data.append(key, submitValue);
-      this.patchEntry(data);
-      this.setState({validtionError: false})
+      if (key === 'tags') {
+        if (upload.tags.length < 1) { //validation check to make sure field isn't empty
+          this.setState({validationError: true});
+        } else {
+          data = {};
+          data[key] = upload.tags;
+        }
+      } else if (key === 'category') {
+        let categoryEdit = [];
+        for (let key in upload.category) {
+          if (upload.category[key] === true) {
+            categoryEdit.push(key);
+          };
+        }
+        if (categoryEdit.length < 1) {  //validation check to make sure field isn't empty
+           this.setState({validationError: true});
+         } else {
+           data = {};
+           data[key] = categoryEdit;
+         }
+      } else { //the value is a string (either artistName or title)
+        if (!upload[key]) {  //validation check to make sure field isn't empty
+           this.setState({validationError: true});
+         } else {
+           data = {};
+           data[key] = upload[key];
+         }
+      }
+      if (this.state.validationError) {
+        toast.error('You can\'t submit a blank field')
+      } else {
+        //debugger;
+        this.patchEntry(data, 'content');
+      }
     }
   }
 
@@ -143,6 +164,7 @@ class EditorEditForm extends React.Component {
   handleChange(event) {
     //debugger;
     console.log('handleChange happening');
+    this.setState({validationError: false});
     const uploadForm = cloneDeep(this.state.uploadForm);
     if (!(event.target)) {
       const file = {
@@ -162,6 +184,7 @@ class EditorEditForm extends React.Component {
         this.setState({uploadForm}, () => {console.log('handleChange() ran and the updated state is:', this.state.uploadForm)});
       } else {
         //otherwise input is a text value, so update the state with current string
+        //debugger;
         uploadForm[key] = value;
         this.setState({uploadForm}, () => {'handleChange updated the state and now its:', this.state.uploadForm});
       }
@@ -181,7 +204,6 @@ class EditorEditForm extends React.Component {
     //2. if the thumbnail that was chosen is already in the db, keep it in the state so the server can use the id to remove it
     // else, if it's not in the db, remove it from the state
     //3. update the state
-    //debugger;
     const index = e.currentTarget.className.slice(25);
     const uploadForm = cloneDeep(this.state.uploadForm);
     const selectedFile = uploadForm.files[index];

@@ -32,10 +32,6 @@ const initialState = {
     tags: []
   },
   thumbNailUrls: [],
-  ajax: {
-    loading: false,
-    success: null
-  },
   validation: {
     artistName: '',
     title: '',
@@ -66,8 +62,7 @@ class EditorUpload extends React.Component {
 
   postEntry(data) {
     //debugger;
-    const ajax = {loading: true};
-    this.setState({ajax});
+    toast('loading');
     fetch(`${API_BASE_URL}/protected/content`, {
       method: 'POST',
       headers: {
@@ -76,23 +71,16 @@ class EditorUpload extends React.Component {
       body: data
     })
     .then(data => {
-      //debugger;
+      this.setState((prevState) => {
+        return initialState;
+      });
       toast.dismiss();
-      const state = cloneDeep(initialState);
-      state.ajax = {
-        loading: false,
-        success: true
-      }
-      this.setState(state);
-      //console.log('state cleared');
+      toast('you successfully made a post');
     })
     .catch(err => {
       toast.dismiss();
-      const ajax = {
-        loading: false,
-        success: false
-      };
-      this.setState({ajax});
+      toast.error('an error has occured whle trying to upload your content');
+
     })
   }
 
@@ -164,6 +152,7 @@ class EditorUpload extends React.Component {
     const thumbNailUrls = Object.assign([], this.state.thumbNailUrls);
     const validation = initialState.validation;
     this.setState({validation});
+    const ajax = {loading: false, success: null};
     //if event.target doesn't exist, then the change came from file input
     if (!(event.target)) {
       ///debugger;
@@ -231,16 +220,6 @@ class EditorUpload extends React.Component {
       }
     })
 
-    const ajax = Object.assign({}, this.state.ajax);
-    if (ajax.loading === true) {
-        toast('loading');
-    }
-    if (ajax.success === true) {
-      //debugger;
-      toast.success('content was successfully uploaded');
-    } else if (ajax.success == false) {
-      toast.error('an error has occured whle trying to upload your content');
-    }
     const thumbNails = this.state.thumbNailUrls.map((e, i) => {
       //debugger;
       return (
