@@ -1,6 +1,6 @@
-import React from 'react';
+import React, {Fragment} from 'react';
 import {connect} from 'react-redux';
-import {BrowserRouter as Router, Route, Redirect} from 'react-router-dom';
+import {BrowserRouter as Router, Route} from 'react-router-dom';
 
 import CoverPage from './user-side/cover-page';
 import Home from './user-side/home';
@@ -11,6 +11,28 @@ import EditorFindPage from './editor-side/find-page';
 import EditorRegForm from './editor-side/registration-form';
 
 export function App(props) {
+
+  function renderEditorSide() {
+    //if editor is already logged in, redirect any login urls to the editor home page
+    if (props.loggedIn) {
+      const urlPaths = ["/editor-home", "/editor-login"];
+      return (
+        <Fragment>
+          <Route exact path={urlPaths} component={EditorHome}/>
+          <Route exact path="/editor-upload" component={EditorUpload}/>
+          <Route exact path="/editor-find" component={EditorFindPage}/>
+          <Route exact path="/editor-reg-form" component={EditorRegForm}/>
+        </Fragment>
+      )
+    } else {
+      //otherwise, redirect all attempts to navigate to the editor pages to the login page
+      const urlPaths = ["/editor-login", "/editor-upload", "/editor-find", "/editor-reg-form", "editor-home" ];
+      return (
+        <Route path={urlPaths} component={EditorLoginForm}/>
+      )
+    }
+  }
+
   return (
     <Router>
       <div className="app">
@@ -18,19 +40,8 @@ export function App(props) {
           <Route exact path="/" component={CoverPage} />
           <Route exact path="/home" component={Home} />
         </section>
-
         <section className="editor-side">
-          <Route exact path="/editor-home" component={EditorHome} />
-          <Route exact path="/editor-login" render={() => (
-            props.loggedIn ? (
-              <Redirect to="/editor-home"/>
-            ) : (
-              <EditorLoginForm/>
-            )
-          )}/>
-          <Route exact path="/editor-upload" render={() => <EditorUpload/>} />
-          <Route exact path="/editor-find" render={() => <EditorFindPage/>} />
-          <Route exact path="/editor-reg-form" render={() => <EditorRegForm/>} />
+          {renderEditorSide()}
         </section>
       </div>
     </Router>
@@ -38,7 +49,7 @@ export function App(props) {
 }
 
 const mapStateToProps = state => ({
-  loggedIn: state.auth.currentEditor !== null
+  loggedIn: state.auth.currentEditor
 });
 
 export default connect(mapStateToProps)(App);

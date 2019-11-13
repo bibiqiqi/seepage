@@ -1,21 +1,19 @@
 import React, {Fragment} from 'react';
-import {Link} from 'react-router-dom';
+import {Link, NavLink} from 'react-router-dom';
 import {connect} from 'react-redux';
 import * as classnames from 'classnames';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import cloneDeep from 'clone-deep';
-import merge from 'deepmerge';
 
 import {API_BASE_URL} from '../../config';
 import Logo from '../logo';
 import Autocomplete from './autocomplete';
-import Categories from './categories-controlled-inputs';
+import Categories from './categories';
 import LabeledInput from '../labeled-input-controlled';
 import TagsInput from './tags-input';
 import RenderDropZone from './dropzone';
 import {fetchContent} from '../../actions/content';
-import {normalizeResponseErrors} from '../../actions/utils';
 import './upload.css';
 
 
@@ -50,6 +48,7 @@ class EditorUpload extends React.Component {
     this.handleRemoveClick = this.handleRemoveClick.bind(this);
     this.renderRemoveSymbol = this.renderRemoveSymbol.bind(this);
     this.onCreateObjectUrl = this.onCreateObjectUrl.bind(this);
+    this.handleValidation = this.handleValidation.bind(this);
   }
 
   componentDidMount(){
@@ -57,20 +56,19 @@ class EditorUpload extends React.Component {
     //update the Redux state with current content in DB and map suggestedArtists
     //and suggestedTags to local state
     this.props.dispatch(fetchContent("editor"));
-    //debugger;
   }
 
   postEntry(data) {
-    //debugger;
     toast('loading');
     fetch(`${API_BASE_URL}/protected/content`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${this.props.authToken}`,
+        Authorization: `Bearer ${this.props.authToken}`
       },
       body: data
     })
-    .then(data => {
+    .then(res => {
+      console.log('did the dang thing', res);
       this.setState((prevState) => {
         return initialState;
       });
@@ -85,27 +83,20 @@ class EditorUpload extends React.Component {
   }
 
   handleSubmit(event) {
-    //debugger;
     //console.log('doing handleSubmit');
     event.preventDefault();
     const state = cloneDeep(this.state);
     const upload = state.uploadForm;
-    const validation = state.validation;
-    //debugger;
-    //check if each field is in the state and if not, return a warning
+    const validationObject = state.validation;
     const {artistName, title, tags, files, category} = upload;
-    //if all the upload values are true
+    //if all the upload values are defined
     if (artistName && title && tags && files && category) {
-      //then make an ajax call with the form data
+      //then pluck the values for a formData() object
       const data = new FormData();
-      //iterate through through properties of the upload state object
       for (let key in upload) {
-        //debugger;
         if ((key === 'files') || (key === 'tags')) {
-          //iterate through array
           for (var x = 0; x < upload[key].length; x++) {
             data.append(key, upload[key][x]);
-            //console.log('appended a key!');
           }
         } else if (key === 'category') {
           //iterate through the category object to turn it into an array;
@@ -116,46 +107,63 @@ class EditorUpload extends React.Component {
             }
           }
           data.append('category', categoryArray);
-        } else { //the value is a string (either artistName or title)
-          //debugger;
+        } else {//the value is a string (either artistName or title)
           data.append(key, upload[key]);
-          //console.log('appended another value!');
         }
       }
-      //console.log('data being sent to server is', data);
+      //release existing object URLs, for optimal performance and memory usage
       let thumbNailUrls = state.thumbNailUrls.map(e => {
-        window.URL.revokeObjectURL(e);
+        return window.URL.revokeObjectURL(e);
       });
       thumbNailUrls = [];
       this.setState({thumbNailUrls})
       this.postEntry(data);
-    } else { //iterate through the upload object to find which
-      //fields don't have values, update the state and send error messages back to the user
-         for (let key in upload) {
-           //if the value for this key equals false
-          if (!(upload.hasOwnProperty[key])) {
-            //then update the state validation Object
-            validation[key] = `${key} is required`;
+    } else {
+      //if any of the upload values are not defined, update the state for validation object and return feedback to user
+      const validation = this.handleValidation(upload, validationObject)
+       this.setState({validation});
+    }
+  }
+
+  handleValidation(uploadObject, validationObject) {
+    //iterate through the upload object to find which
+    //fields don't have values and return a validation object
+    const validationString = (validationProperty) => `${validationProperty} is required`;
+     for (let property in uploadObject) {
+       //if the value for this key is undefined
+        if (property === 'artistName') {
+          validationObject[property] = validationString('artist name');
+        } else if (typeof uploadObject[property] === 'string') { //title
+          if(!uploadObject[property]) {
+            validationObject[property] = validationString(property);
+          }
+        } else if (Array.isArray(uploadObject[property])) {
+          console.log(`${property} is an array`);
+          if (!uploadObject[property].length) { //tags and files
+            validationObject[property] = validationString(property);
+          }
+        } else if (typeof uploadObject[property] === 'object') { //category
+          console.log(`${property} is an object`);
+          if (Object.values(uploadObject[property]).every(e => e === false)) {
+            validationObject[property] = validationString(property);
           }
         }
-      this.setState({validation});
-    }
+     }
+    return validationObject;
   }
 
   onCreateObjectUrl(object) {
     return (window.URL) ? window.URL.createObjectURL(object) : window.webkitURL.createObjectURL(object);
   }
-  //performing validation on field input before it's submitted
+
   handleChange(event) {
-    //console.log('handleChange happening');
+    //immediately updates the state with change in update
     const uploadForm = cloneDeep(this.state.uploadForm);
     const thumbNailUrls = Object.assign([], this.state.thumbNailUrls);
     const validation = initialState.validation;
     this.setState({validation});
-    const ajax = {loading: false, success: null};
     //if event.target doesn't exist, then the change came from file input
     if (!(event.target)) {
-      ///debugger;
       event.forEach(e => {
         uploadForm.files.push(e);
         thumbNailUrls.push(this.onCreateObjectUrl(e));
@@ -165,9 +173,7 @@ class EditorUpload extends React.Component {
       const key = event.target.name;
       const value = event.target.value;
       if (event.target.type === "checkbox") {
-        const checkValue = event.target.checked ? 'checked' : 'unchecked';
-        //console.log('you', checkValue, key);
-        //if input is checkbox, then update value to either true or false
+        //if input type is checkbox, then update value to either true or false
         event.target.checked ? uploadForm.category[key] = true : uploadForm.category[key] = false;
         this.setState({uploadForm});
       } else {
@@ -181,29 +187,23 @@ class EditorUpload extends React.Component {
 //the react-tags component handles input change and tag suggestions internally, so
 //handleTagSubmit is only called when a full tag string is submitted to this state
   handleTagSubmit(tags) {
-    //debugger;
     const uploadForm = Object.assign({}, this.state.uploadForm);
     uploadForm.tags = tags;
     this.setState({uploadForm})
   }
 
   handleRemoveClick(e) {
-    //1.define the index of the thumbnail that was selected to remove
-    //2. if the thumbnail that was chosen is already in the db, keep it in the state so the server can use the id to remove it
-    // else, if it's not in the db, remove it from the state
-    //3. update the state
-    //debugger;
+    //selected to remove a file i the current edit form
     const index = e.currentTarget.className.slice(25);
     const state = cloneDeep(this.state);
     const {uploadForm, thumbNailUrls} = state;
     uploadForm.files.splice(index, 1);
     thumbNailUrls.splice(index, 1);
     this.setState({uploadForm, thumbNailUrls}, () => {console.log('updated the state with files and thumbNailUrls', this.state)});
-    //this.setState({uploadForm}, () => {console.log('handleRemoveClick() ran and the updated state is:', this.state.uploadForm.files)});
   }
 
   renderRemoveSymbol(index) {
-    //console.log('value being passed to renderDeleteSymbol is', value);
+    //renders the symbol for removing files that are in the current edit form
      return(
        <span
          className = {classnames('exit', 'remove-files', `remove-${index}`)}
@@ -221,7 +221,6 @@ class EditorUpload extends React.Component {
     })
 
     const thumbNails = this.state.thumbNailUrls.map((e, i) => {
-      //debugger;
       return (
         <div
           className='thumbNail'
@@ -230,6 +229,7 @@ class EditorUpload extends React.Component {
          <img
            src={e}
            id={`thumbnail_${i}`}
+           alt={`file ${i}`}
          >
          </img>
          {this.renderRemoveSymbol(i)}
@@ -240,7 +240,11 @@ class EditorUpload extends React.Component {
       <section id="editor-upload" className="page">
         <Link to="/editor-home"><Logo/></Link>
         <main>
-          <span className="back">E</span>
+          <NavLink
+            to='editor-home'
+            className="back"
+          >E
+          </NavLink>
           <ToastContainer
             autoClose={5000}
             hideProgressBar
@@ -291,7 +295,7 @@ class EditorUpload extends React.Component {
             />
             <button
               className="float-right"
-              type="submit"
+              type="button"
               id="uploadContent"
             >
             Submit</button>

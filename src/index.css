@@ -99,6 +99,7 @@ main {
 
 .exit {
   font-family: wingdings2;
+  background-color: white;
 }
 
 .edit {
@@ -106,11 +107,44 @@ main {
   font-size: .75rem;
 }
 
+.exit-gallery,
 .edit-files,
 .remove-files {
   position: absolute;
   top: 0;
   right: 0;
+}
+
+.gallery {
+  position: relative;
+}
+
+.art {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}
+
+.arrow {
+  font-family: wingdings;
+  display: none;
+  position: absolute;
+  z-index: 5;
+  top: 50%
+}
+
+.slider-back {
+  left: 0;
+}
+
+.slider-forward {
+  right: 0;
+}
+
+.gallery:hover
+.arrow {
+  display: block;
 }
 
 .submit-edit {
@@ -170,6 +204,7 @@ main {
 #editor-upload main,
 #editor-find main,
 #editor-find-results main,
-#editor-view-edit main {
+#editor-view-edit main, 
+#editor-reg main {
   position: relative;
 }

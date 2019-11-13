@@ -1,41 +1,30 @@
-import React, { Fragment } from "react";
+import React from "react";
 import {connect} from 'react-redux';
 import Collapsible from 'react-collapsible';
-import {SubmissionError} from 'redux-form';
 import cloneDeep from 'clone-deep';
 import merge from 'deepmerge';
 import * as classnames from 'classnames';
-import {toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import {API_BASE_URL} from '../../config';
 import {fetchThumbNails} from '../../actions/content';
-import {normalizeResponseErrors} from '../../actions/utils';
-import EditorFileViewer from './file-viewer.js';
+import EditorGallery from './gallery.js';
 import EditorEditForm from './edit-form.js';
 import DeleteConfirmation from './delete-confirmation.js';
 
 const initialState = {
   contentId: '',
-  file: {
-    url: null,
-    loading: false,
-    error: null
-  },
   collapsible: {
     key: null,
     open: false,
   },
   hidden: {
-    editSymbol: {
-      artistName: true,
-      title: true,
-      categories: true,
-      tags: true,
-      files: true
-    },
     editForm: '',
-    deleteConfirm: ''
+    deleteConfirm: '',
+    gallery: {
+      open: false,
+      firstArtIndex: null,
+      thumbNailIds: null
+    }
   }
 }
 
@@ -49,54 +38,35 @@ class EditorFindResults extends React.Component {
     this.handlePatchCompletion = this.handlePatchCompletion.bind(this);
     this.handleDeleteClick = this.handleDeleteClick.bind(this);
     this.handleDeleteConfirm = this.handleDeleteConfirm.bind(this);
-    this.handleViewArt = this.handleViewArt.bind(this);
-    this.handleFileViewerExit = this.handleFileViewerExit.bind(this);
+    this.handleGalleryClick = this.handleGalleryClick.bind(this);
+    this.handleGalleryExit = this.handleGalleryExit.bind(this);
   }
 
-  fetchFile(thumbNailId) {
-    const file = cloneDeep(this.state.file);
-    //("doing fetchFile");
-    file.loading = true;
-    this.setState({file});
-    return fetch(`${API_BASE_URL}/content/files/${thumbNailId}`)
-      .then(res => normalizeResponseErrors(res))
-      .then(res => res.blob())
-      .then(blob => {
-        file.loading = false;
-        file.url = URL.createObjectURL(blob);
-        this.setState({file});
-      })
-      .catch(err => {
-        file.loading = false;
-        file.error = err;
-        this.setState({file});
-      })
-  };
-
   handleCollapsibleClick(contentId, key){
-    //debugger;
     const collapsible = cloneDeep(this.state.collapsible);
     //if a user clicks a collapsible and one of them is open...
     if (collapsible.open) {
       //test to see if the one that's open equals the one clicked
       if (key === collapsible.key) {
         collapsible.open = false
-        //if so, update the state to reflect none of the collapsibles are open
+        //if so, update the state to reflect that the user is closing that collapsible
         this.setState({collapsible})
-      } else { //if not, that means the user is trying to open a different collapsible
+      } else {
+        //if not, that means the user is trying to open a different collapsible
         //so, update the state and call fetchThumbnails for the new collapsible
         const newCollapsible = {
           contentId: contentId,
           collapsible: {
             key: key
           },
-          file: {
-            url: null,
-            loading: false,
-            error: null
-          },
           hidden: {
-            editForm: true
+            editForm: '',
+            deleteConfirm: '',
+            gallery: {
+              open: false,
+              firstArtIndex: null,
+              thumbNailIds: null
+            }
           }
         }
         this.setState((prevState) => {
@@ -108,6 +78,7 @@ class EditorFindResults extends React.Component {
       }
     //if user clicks a collapsible that's closed...
     } else {
+      //update the state to relect that a collapsible is open and with the corresponding key
       const newState = {
         contentId: contentId,
         collapsible: {
@@ -115,6 +86,7 @@ class EditorFindResults extends React.Component {
           open: true
         }
       }
+      //...and dispatch fetchThumbNails
       this.props.dispatch(fetchThumbNails(contentId));
       this.setState((prevState) => {
         return merge(prevState, newState)
@@ -123,25 +95,27 @@ class EditorFindResults extends React.Component {
  }
 
   handleEditClick(e) {
-    //debugger;
+    //when user wants to edit a field
+    //update the state to reveal an EditorEditForm component
     const value = e.currentTarget.className.slice(10);
     const hidden = Object.assign({}, this.state.hidden);
     hidden.editForm = value;
-    hidden.editSymbol[value] = true;
-    //this.setState({hidden});
-    this.setState({hidden}, () => {console.log('handleEditClick() ran and the updated state is:', this.state.hidden.editForm)});
+    this.setState({hidden}, () => {console.log('handleEditClick() ran and the updated state is:', this.state.hidden)});
   }
 
   handleDeleteClick(e) {
-    console.log('handleDeleteClick() running');
+    //when user wants to delete a complete content entry
+    //update the state to reveal a DeleteConfirmation component
     const value = e.currentTarget.className.slice(14);
     const hidden = Object.assign({}, this.state.hidden);
     const deleteConfirm = hidden.deleteConfirm ? '' : value;
     hidden.deleteConfirm = deleteConfirm;
-    this.setState({hidden}, () => {console.log('handleDeleteClick() ran and the updated state is:', this.state.hidden.deleteConfirm)});
+    this.setState({hidden}, () => {console.log('handleDeleteClick() ran and the updated state is:', this.state.hidden)});
   }
 
   handleEditFormExit(e) {
+    //when user wants to exit the EditorEditForm component
+    //update the state to hide the EditorEditForm component and reveal the read-only code
     const hidden = Object.assign({}, this.state.hidden);
     hidden.editForm = false;
     this.setState({hidden});
@@ -149,31 +123,44 @@ class EditorFindResults extends React.Component {
   }
 
   handleDeleteConfirm(e){
-    console.log('handleDeleteConfirm() running');
-    //debugger;
+    //when user confirms their request to delete a full content entry
+    //updates the state to hide the DeleteConfirmation component
     const newState = cloneDeep(this.state);
     newState.collapsible = {key: null, open: false};
     newState.hidden.deleteConfirm = '';
     this.setState((prevState) => {
       return merge(prevState, newState)
-    }, () => console.log('handleDeleteConfirm() ran and the updated state is', this.state.hidden.deleteConfirm));
+    }, () => console.log('handleDeleteConfirm() ran and the updated state is', this.state.hidden));
   }
 
-  handleViewArt(e) {
-    debugger;
-    const key = e.currentTarget.id.slice(10);
-    const thumbNailId = this.props.thumbNails[key].id;
-    this.fetchFile(thumbNailId);
+  handleGalleryClick(e) {
+    //updates the state with the objectId of the thumbNail that was chosen
+    //and an array of the objectIds of all the other thumbNails so they can be sent to gallery component
+    //and reveals the EditorGallery component
+    const hidden = cloneDeep(this.state.hidden);
+    hidden.gallery.firstArtIndex = e.currentTarget.id.slice(10);
+    hidden.gallery.thumbNailIds = this.props.thumbNails.map(e => {
+      return e.id
+    })
+    hidden.gallery.open = true;
+    this.setState({hidden}, () => {console.log('handleGalleryClick ran and the updated state is:', this.state.hidden.gallery)});
   }
 
-  handleFileViewerExit(){
-    const file = cloneDeep(this.state.file);
-    file.url = null;
-    file.error = null;
-    this.setState({file}, () => {console.log('handleFileViewerExit ran and the updated state is:', this.state.file)});
+  handleGalleryExit(){
+    //when user wants to exit the gallery
+    //updates the state to hide the EditorGallery component
+    const hidden = cloneDeep(this.state.hidden);
+    hidden.gallery = {
+      open: false,
+      firstArtIndex: '',
+      thumbNailIds: null
+    }
+    this.setState({hidden}, () => {console.log('handleGalleryExit ran and the updated state is:', this.state.hidden.gallery)});
   }
 
   handlePatchCompletion() {
+    //gets called by child EditorEditForm component once a successful PATCH request has completed
+    //hides the EditorEditForm component
     const hidden = Object.assign({}, this.state.hidden);
     hidden.editForm = '';
     const collapsible = {
@@ -184,7 +171,7 @@ class EditorFindResults extends React.Component {
   }
 
   renderEditSymbol(value) {
-    //console.log('value being passed to renderEditSymbol is', value);
+    //renders the pencil edit symbol for each field and holds event listener
      return(
        <span
          className = {classnames('edit', `edit-${value}`)}
@@ -194,6 +181,7 @@ class EditorFindResults extends React.Component {
    }
 
    renderDeleteSymbol(value) {
+     //renders the garbage can delete symbol for each content entry
       return(
         <span
           className = {classnames('delete', `delete-${value}`)}
@@ -203,7 +191,7 @@ class EditorFindResults extends React.Component {
     }
 
     renderDeleteState(index){
-      //console.log('renderDeleteState() is running and passing this index', index);
+      //determines whether to render or hide DeleteConfirmation component
       if (this.state.hidden.deleteConfirm === index.toString()) {
         //console.log('...and returning a DeleteConfirmation component');
         return (
@@ -220,10 +208,8 @@ class EditorFindResults extends React.Component {
       }
     }
 
-   //defining the state of the thumbnails (dependent on whether user has clicked on the content)
-   renderThumbNailState() {
-     //console.log('renderThumbNailState() running');
-     //if this.state.editForm equals 'files', then render component as a EditForm
+   renderThumbNailState(content) {
+     //renders the state of the thumbnails, dependent on whether user has clicked on the content
      if (this.state.hidden.editForm === 'files') {
        //console.log('...and renderThumbNailState is rendering an edit component');
        return (
@@ -236,25 +222,24 @@ class EditorFindResults extends React.Component {
          )
      } else {
        if (this.props.thumbNails){
+         //if the redux state of thumbNails is populated, then generate html from them
          const thumbNails = this.props.thumbNails.map((e, i) => {
-           //debugger;
            return (
              <div
                className='thumbNail'
-               title='files'
              >
               <img
                 key={i}
                 src={e.src}
                 id={`thumbnail_${i}`}
-                onClick={this.handleViewArt}
+                alt={`thumbnail ${i} for ${content.title}, by ${content.artist}`}
+                onClick={this.handleGalleryClick}
               >
               </img>
               {this.renderEditSymbol('files')}
             </div>
            )
          });
-         //console.log('...and returning these thumbNails:', thumbNails);
          return thumbNails
        } else {
          return null;
@@ -262,24 +247,26 @@ class EditorFindResults extends React.Component {
      }
    }
 
-   //defining the state of the fileViewer (dependent on whether user has clicked on a thumbnail)
-   renderFileViewerState() {
-     if (this.state.file.loading){
-       return toast('loading');;
-     } else if (this.state.file.url) {
-         return <EditorFileViewer
-                 url={this.state.file.url}
-                 handleExitClick={this.handleFileViewerExit}
-                 />
-     } else if (this.state.file.error) {
-       return toast.error('sorry, there was an error retrieving the file');
+   renderGalleryState(result) {
+     //determines whether to render EditorGallery component or hide it
+     //dependent on whether use has clicked on a thumb nail
+     if (this.state.hidden.gallery.open) {
+       return (
+         <EditorGallery
+           firstArtIndex={this.state.hidden.gallery.firstArtIndex}
+           thumbNailIds={this.state.hidden.gallery.thumbNailIds}
+           onExitClick={this.handleGalleryExit}
+           alt={`file for ${result.title} by ${result.artist}`}
+          />
+       )
      } else {
        return null
      }
    }
 
    renderReadOrEdit(collapsibleKey, string, field, value){
-     //console.log('running renderReadOrEdit() and the values passed are:', string, field, value);
+     //gets called for each field except for thumbNails and files
+     //and determines whether to render as an EditorEditForm component or read-only
      let renderedValue;
      if ((field === 'artistName') || (field === 'title')) {
        renderedValue = value;
@@ -289,7 +276,6 @@ class EditorFindResults extends React.Component {
        renderedValue = value.map((tag, index) => <p key={index}>{tag}</p>);
      }
      if ((this.state.hidden.editForm === field) && (this.state.collapsible.key === collapsibleKey)) {
-      //console.log('...and renderReadOrEdit is rendering an edit component');
       return (
         <EditorEditForm
           contentId={this.state.contentId}
@@ -301,7 +287,6 @@ class EditorFindResults extends React.Component {
         />
         )
       } else {
-       //console.log('...and renderReadOrEdit is rendering a read component');
        return (
          <h3
            title={field}
@@ -312,8 +297,8 @@ class EditorFindResults extends React.Component {
    }
 
    renderResults(filteredContent) {
-     //debugger;
-     console.log('renderResults() running')
+     //maps through all the filtered results from user's query and calls other functions to
+     //render all of the code within a collapsible
      const strings = ['id', 'Artist Name', 'Title', 'Categories', 'Tags'];
      return filteredContent.map((result, index) => {
        let details = [];
@@ -324,8 +309,6 @@ class EditorFindResults extends React.Component {
          }
         i++;
        }
-
-       //console.log('items that are being sent to this collapsible are:', details);
        return (
          <li key={index} className='result'>
            <Collapsible
@@ -335,8 +318,8 @@ class EditorFindResults extends React.Component {
            >
            {this.renderDeleteSymbol(index)}
            {details}
-           {this.renderThumbNailState()}
-           {this.renderFileViewerState()}
+           {this.renderGalleryState(result)}
+           {this.renderThumbNailState(result)}
            {this.renderDeleteState(index)}
            </Collapsible>
          </li>
@@ -345,15 +328,12 @@ class EditorFindResults extends React.Component {
    }
 
   render(){
-    //debugger;
-    ////the overall collapsible component
     //if both filteredContent and filteredContentNone are false, then user hasn't submitted query
     if ((this.props.filteredContent.length === 0) && (!this.props.filteredContentNone)) {
       return null
     //if filteredContent is populated, then user has submitted query and we can render component
   } else if ((this.props.filteredContent.length > 0) && (!this.props.filteredContentNone)) {
       const results = this.renderResults(this.props.filteredContent);
-      //console.log('results being sent to this components render are:', results);
       return (
         <div>
          <h3>Results</h3>

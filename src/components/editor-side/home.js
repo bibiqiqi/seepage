@@ -1,13 +1,13 @@
 import React from 'react';
-import {Link, withRouter} from 'react-router-dom';
+import {Link} from 'react-router-dom';
 import {connect} from 'react-redux';
 
 import Logo from '../logo';
 
-export function  EditorHome(props) {
+function EditorHome(props) {
   const history = props.history;
   const currentEditor = props.currentEditor.firstName;
-  const buttonValues = [
+  const buttonDetails = [
     {
       id: 'uploadCont',
       text: 'upload new content',
@@ -25,7 +25,7 @@ export function  EditorHome(props) {
     }
   ];
 
-  const buttons = buttonValues.map((button, i) => {
+  const buttons = buttonDetails.map((button, i) => {
     return (
       <button
         id={button.id}
@@ -54,8 +54,8 @@ export function  EditorHome(props) {
   )
 }
 
-const mapStateToProps = state => ({
-  currentEditor: state.auth.currentEditor
-});
+ const mapStateToProps = state => ({
+   currentEditor: state.auth.currentEditor
+ });
 
-export default connect(mapStateToProps)(EditorHome);
+ export default connect(mapStateToProps)(EditorHome);

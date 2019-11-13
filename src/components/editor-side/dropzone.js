@@ -3,11 +3,6 @@ import React from 'react';
 
 export default class RenderDropZone extends React.Component {
   render() {
-    const files = this.props.files.map((file, i) => (
-      <li id={file.name} key={i}>
-        {file.name} - {file.size} bytes
-      </li>
-    ));
 
     return (
       <Dropzone

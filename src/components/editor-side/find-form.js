@@ -2,10 +2,11 @@ import React from 'react';
 import {connect} from 'react-redux';
 import * as classnames from 'classnames';
 import cloneDeep from 'clone-deep';
+import {toast} from 'react-toastify';
 
-import {filterContent, fetchContent, editFilteredContentReport} from '../../actions/content';
+import {filterBySearch, filterByBrowse, fetchContent} from '../../actions/content';
 import Autocomplete from './autocomplete';
-import Categories from './categories-controlled-inputs';
+import Categories from './categories';
 import './find.css';
 
 const initialState = {
@@ -25,20 +26,17 @@ const initialState = {
     artistName: true,
     title: true,
     tag: true
-  },
-  errors: {
-    category: '',
-    artistName: '',
-    title: '',
-    tags: ''
   }
 }
+
 class EditorFindForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = cloneDeep(initialState);
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleBrowse = this.handleBrowse.bind(this);
+    this.handleSearch = this.handleSearch.bind(this);
   }
 
   componentDidMount(){
@@ -48,50 +46,78 @@ class EditorFindForm extends React.Component {
     this.props.dispatch(fetchContent("editor"));
   }
 
-  // TODO: add validation checking before user's form is submitting
   handleSubmit(event) {
-    const state = cloneDeep(this.state);
-    const findForm = state.findForm;
-    console.log('doing handleSubmit');
+    //called for submitting search or browse
+    //determines whether to call handleBrowse or handleSearch
     event.preventDefault();
-    //debugger;
-    //const errors = {...this.state.errors};
-    let filterObject = {};
+    const state = cloneDeep(this.state);
+    const hidden = state.hidden;
+    const findForm = state.findForm;
     const root = event.target.id;
-    if (root === "searchSubmit") {
-      let searchBy = {};
-      //iterating through hidden state to see which parameter user is searching by
-      for (let key in state.hidden) {
-        if (state.hidden[key] === false) {
-          searchBy[key] = findForm.searchBy[key];
-          console.log('you want to search by', searchBy);
-        }
-      }
-      filterObject.searchBy = searchBy;
-    } else {
-      //debugger;
-      const category = Object.assign({}, findForm.browseBy);
-      //iterate through the category object to turn it into an array;
-      let categoryArray = [];
-      for (let key in category) {
-        if (category[key] === true) {
-          categoryArray.push(key)
-        }
-      }
-      filterObject.browseBy = categoryArray;
+    const validationString = (validationProperty) => `${validationProperty} is required`;
+    const showAutoSuggestions = false;
+    this.setState({showAutoSuggestions}, () => console.log('updated state and showAutoSuggestions is', this.state.showAutoSuggestions));
+    if (root === "searchSubmit") { //user is trying to search by field
+      this.handleSearch(findForm.searchBy, validationString, hidden);
+    } else { //user is trying to browse by category
+      this.handleBrowse(findForm.browseBy, validationString);
     }
-    this.props.dispatch(filterContent(filterObject));
   }
 
-  //performing validation on field input before it's submitted
+  handleBrowse(browseByState, renderValString) {
+    //iterate through the category object to turn it into an array
+    let browseByArray = [];
+    for (let key in browseByState) {
+      if (browseByState[key] === true) {
+        browseByArray.push(key)
+      }
+    }
+    //if user chose a category, dispatch filterByBrowse
+    if (browseByArray.length) {
+      this.props.dispatch(filterByBrowse(browseByArray));
+    } else {
+      //otherwise, return a validation warning
+      const validation = renderValString('choosing a category');
+      toast.warn(validation);
+    }
+  }
+
+  handleSearch(searchByState, renderValString, hidden) {
+    let searchByObject = {};
+    let validation;
+    //iterating through hidden state to see which parameter user is searching by
+    for (let key in hidden) {
+      if (hidden[key] === false) {
+        searchByObject[key] = searchByState[key];
+        console.log('you want to search by', searchByObject);
+      }
+    }
+    //if user didn't choose a search field
+    if(!Object.keys(searchByObject).length) {
+      validation = renderValString('choosing a search field');
+    } else if(!Object.values(searchByObject)[0]) {
+      //or enter a search query
+      validation = renderValString('entering a search query');
+    }
+    if(validation) {
+      //...return a validation warning
+      toast.warn(validation);
+    } else {
+      ///otherwise, dispatch filterBySearch action
+      this.props.dispatch(filterBySearch(searchByObject));
+    }
+  }
+
   handleChange(event) {
-    //debugger;
+    //update the state with user's input upon input
     console.log('handleChange happening');
     const findForm = Object.assign({}, this.state.findForm);
-    if (event.target) { //then the input didn't come from Autocomplete
+    if (event.target) {
+      //then the input didn't come from Autocomplete
       const key = event.target.name;
       const value = event.target.value;
-      if (event.target.type === "checkbox") { //user is trying to browse
+      if (event.target.type === "checkbox") {
+        //user is trying to browse
         const checkValue = event.target.checked ? 'checked' : 'unchecked';
         console.log('you', checkValue, key);
         //if user is submitting a true value for a checkbox
@@ -99,12 +125,13 @@ class EditorFindForm extends React.Component {
         //if it's false, filter out all categories within the state that equal the key submitted by user
         event.target.checked ? findForm.browseBy[key] = true : findForm.browseBy[key] = false;
         this.setState({findForm});
-      } else { //user is trying to search and they typed in this value
+      } else {
+        //user is trying to search and they typed in this value
         findForm.searchBy[key] = value;
         this.setState({findForm});
       }
-    } else {// the input came from autocomplete
-      //debugger;
+    } else {
+      // the input came from autocomplete
       findForm.searchBy[event.key] = event.value;
     }
   }
@@ -129,6 +156,7 @@ class EditorFindForm extends React.Component {
       }
     }
   }
+
   render(){
     const optionValues = [
       {
@@ -153,7 +181,8 @@ class EditorFindForm extends React.Component {
         </option>
       )
     });
-    return(
+
+    return (
       <form
         className="clear-fix"
         noValidate
@@ -166,8 +195,8 @@ class EditorFindForm extends React.Component {
           />
           <button
             className="float-right"
-            type="submit"
             value="browseBy"
+            type="button"
             onClick={this.handleSubmit}
           >
             Submit
@@ -236,8 +265,8 @@ class EditorFindForm extends React.Component {
             />
             <button
               className="float-right"
-              type="submit"
               id="searchSubmit"
+              type="button"
               onClick={this.handleSubmit}
             >Submit
             </button>
