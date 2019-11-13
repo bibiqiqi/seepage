@@ -44,9 +44,8 @@ export const filterContentSuccess = filteredContent => ({
 });
 
 export const FILTER_CONTENT_NONE = 'FILTER_CONTENT_NONE';
-export const filterContentNone = message => ({
+export const filterContentNone = () => ({
   type: FILTER_CONTENT_NONE,
-  message
 });
 
 export const MAKE_SUGGESTED_ARTISTS = 'MAKE_SUGGESTED_ARTISTS';
@@ -95,7 +94,7 @@ export const fetchContent = (rootRequest) => (dispatch) => {
   )
 };
 
-function arrayBufferToBase64(buffer) {
+export const arrayBufferToBase64 = (buffer) => {
       var binary = '';
       var bytes = [].slice.call(new Uint8Array(buffer));
       bytes.forEach((b) => binary += String.fromCharCode(b));
@@ -130,38 +129,43 @@ export const fetchThumbNails = (contentId) => (dispatch) => {
     })
 };
 
-export const filterContent = (filterObject, updatedContent) => (dispatch, getState) => {
-  console.log('doing filterContent and heres the filterObject you sent', filterObject);
+export const filterBySearch = (searchBy) => (dispatch, getState) => {
+  console.log('doing filterBySearch and heres the search object you sent', searchBy);
   const state = getState();
   const contents = state.content.allContent;
   const noResults = "your query didn't match any results";
   let filteredResults = [];
-  if ('browseBy' in filterObject) {
-    const results = [];
-    const {browseBy} = filterObject;
-    contents.forEach((e) => {
-      browseBy.forEach((x) => {
-        if (e.category.includes(x)) {
-          results.push(e);
-        }
-      })
-    })
-    filteredResults = Array.from(new Set(results));
-  } else {
-    const {searchBy} = filterObject;
-    const parameter = Object.keys(searchBy)[0];
-    const query = searchBy[Object.keys(searchBy)[0]].toLowerCase();
-     contents.forEach((e) => {
-        if (e[parameter].toLowerCase() === query){
-          filteredResults.push(e);
-        };
-     })
-  };
+  const parameter = Object.keys(searchBy)[0];
+  const query = searchBy[Object.keys(searchBy)[0]].toLowerCase();
+  contents.forEach((e) => {
+    if (e[parameter].toLowerCase() === query){
+      filteredResults.push(e);
+    };
+  })
   filteredResults[0]? dispatch(filterContentSuccess(filteredResults)) : dispatch(filterContentNone(noResults));
-};
+}
+
+export const filterByBrowse = (browseBy) => (dispatch, getState) => {
+  console.log('doing filterByBrowse and heres the browse object you sent', browseBy);
+  const state = getState();
+  const contents = state.content.allContent;
+  const noResults = "your query didn't match any results";
+  const results = [];
+  let filteredResults = [];
+  contents.forEach((e) => {
+    browseBy.forEach((x) => {
+      if (e.category.includes(x)) {
+        results.push(e);
+      }
+    })
+  })
+  filteredResults = Array.from(new Set(results));
+  filteredResults[0]? dispatch(filterContentSuccess(filteredResults)) : dispatch(filterContentNone(noResults));
+}
 
 const findIndexAndSplice = (arrayOfData, contentId, editObject) => {
-  console.log('running findIndexAndSplice with', arrayOfData);
+  debugger;
+  //console.log('running findIndexAndSplice with', arrayOfData);
   return new Promise(function(resolve, reject) {
     const startingIndex = arrayOfData.findIndex((e) => {
       return e.contentId = contentId;
@@ -173,7 +177,7 @@ const findIndexAndSplice = (arrayOfData, contentId, editObject) => {
 //gets called after user makes an edit or a delete.
 //if there's an editObject passed in, then the user made an edit, otherwise, they made a delete
 export const editContentInState = (contentId, editObject) => (dispatch, getState) => {
-  //debugger;
+  debugger;
   return new Promise(function(resolve, reject) {
     console.log('running editContentInState()');
     const state = getState();
@@ -188,7 +192,7 @@ export const editContentInState = (contentId, editObject) => (dispatch, getState
             dispatch(filterContentSuccess(filteredContent))
           })
      })
-     resolve(console.log('edited Content in State!'));
+     resolve(console.log('edited Content in Redux State!'));
   })
 };
 
@@ -197,10 +201,10 @@ export const makeSuggestedContent = (content) => (dispatch) => {
   //debugger;
   let allArtists = [], allTitles = [], allTags = [];
   //consolidate all artists, tags, and titles into an array
-  content.map((e) => {
+  content.forEach(function(e) {
     allArtists.push(e.artistName);
     allTitles.push(e.title);
-    e.tags.map((x) => {
+    e.tags.forEach(function(x) {
       allTags.push(x);
     })
   });

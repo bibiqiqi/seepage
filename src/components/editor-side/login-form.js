@@ -6,7 +6,7 @@ import LabeledInput from '../labeled-input-redux';
 import {required, nonEmpty, email} from '../../validators';
 import {login} from '../../actions/auth';
 
-export class EditorLoginForm extends React.Component {
+class EditorLoginForm extends React.Component {
   onSubmit(values){
     console.log('login values being submitted to server are', values);
     //{/*login() makes ajax call to post to /auth endpoint*/}
@@ -68,7 +68,6 @@ export class EditorLoginForm extends React.Component {
           </form>
         </main>
       </section>
-
     )
   }
 }

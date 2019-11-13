@@ -2,8 +2,8 @@ import LabeledInput from '../labeled-input-controlled';
 import React from 'react';
 
 export default function Categories(props) {
+  //generates html for Label-Input pairs for an array of categories passed via propss
   const categories = props.categories;
-  //console.log('categories props are', categories);
   let i = 1;
   const categoryInputs = [];
   for (let key in categories) {

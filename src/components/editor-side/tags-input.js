@@ -4,7 +4,8 @@ const ReactTags = require('react-tag-autocomplete')
 export default class TagsInput extends React.Component {
 
   convertForComponent(tags){
-    //console.log('doing convertForComponent with these tags', tags)
+    //converts the tags, passed from the parent, from an array of strings
+    // to an array of objects with key of "name" to fit the need of react-tag-autocomplete
     return tags.map((e, i) => {
       return {name: e}
     })
@@ -13,21 +14,17 @@ export default class TagsInput extends React.Component {
   handleDelete(i) {
     const tags = this.props.tags.slice(0)
     tags.splice(i, 1);
-    console.log('doing handleDelete with this tag', tags);
     this.props.onAddOrDelete(tags);
   }
 
   handleAddition(tag) {
-    //console.log('doing handleAddition with this tag', tag);
     const newTag = tag.name;
     const tags = [].concat(...this.props.tags, newTag);
     this.props.onAddOrDelete(tags);
   }
 
-//eliminates duplicate tags on the entry
   handleValidate(tag) {
-    //console.log('doing handleValidate with this tag', tag);
-    //console.log('returning', !(this.props.tags.includes(tag)));
+    //eliminates duplicate tags on the entry
     return !(this.props.tags.includes(tag))
   }
 

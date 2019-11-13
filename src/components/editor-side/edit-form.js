@@ -1,32 +1,39 @@
 import React, { Fragment } from "react";
 import {connect} from 'react-redux';
-import {Link} from 'react-router-dom';
-import {reduxForm, Field} from 'redux-form';
 import cloneDeep from 'clone-deep';
 import merge from 'deepmerge';
 import * as classnames from 'classnames';
 import {toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {normalizeResponseErrors} from '../../actions/utils';
-import {editContentInState} from '../../actions/content';
+import {editContentInState, fetchThumbNailsSuccess, arrayBufferToBase64} from '../../actions/content';
 
 import {API_BASE_URL} from '../../config';
 import Autocomplete from './autocomplete';
-import Categories from './categories-controlled-inputs';
+import Categories from './categories';
 import LabeledInput from '../labeled-input-controlled';
 import TagsInput from './tags-input';
 import RenderDropZone from './dropzone';
 
 const initialState = {
   uploadForm: {},
-  ajax: {
+  asyncCall: {
     loading: false,
     success: null
   },
-  validationError: false
+  validationError: false,
 }
 
 class EditorEditForm extends React.Component {
+  //renders an "editor form" that is just one input field, depending on which value (artistName, title, category, tags, files) the user wants to edit
+  //performs async PATCH request
+  //props passed from EditorFindRequest:
+  // contentId={this.state.contentId}
+  // onExit={this.handleEditFormExit}
+  // name={field}
+  // onPatchCompletion={this.handlePatchCompletion}
+  // placeholder={renderedValue}
+  // label={string}
   constructor(props) {
     super(props);
     this.state = merge(
@@ -40,7 +47,10 @@ class EditorEditForm extends React.Component {
             performance: false,
             text: false
             },
-          files: this.props.thumbNails,
+          files: {
+            totalFiles: this.props.thumbNails.length,
+            filesEdits: this.props.thumbNails
+          },
           tags: []
         }
       }
@@ -51,75 +61,102 @@ class EditorEditForm extends React.Component {
   }
 
   patchEntry(data, field) {
-    //debugger;
     console.log('running patchEntry');
-    const ajax = {
+    const asyncCall = {
       loading: true,
       success: null
     };
-    this.setState({ajax}, () => {console.log('patch request is happening and now state is:', this.state.ajax)});
-    let contentType, body;
+    this.setState({asyncCall}, () => {console.log('patch request is happening and now state is:', this.state.asyncCall)});
+    let body, headers;
     if(field === 'files') {
-      contentType = "multipart/form-data";
+      headers = {
+        Authorization : `Bearer ${this.props.authToken}`
+      };
       body = data;
     } else {
-      contentType = 'application/json;charset=utf-8';
+      headers = {
+        'Content-Type': 'application/json',
+        Authorization : `Bearer ${this.props.authToken}`
+      };
       body = JSON.stringify(data);
     }
     fetch(`${API_BASE_URL}/protected/${field}/${this.props.contentId}`, {
       method: 'PATCH',
-      headers: {
-        'Content-Type': contentType,
-        Authorization: `Bearer ${this.props.authToken}`,
-      },
+      headers: headers,
       body: body
     })
     .then(res => normalizeResponseErrors(res))
     .then(res => res.clone().json())
     .then(data => {
-      const ajax = {
+      //debugger;
+      const asyncCall = {
         loading: false,
         success: true
       }
-      this.props.dispatch(editContentInState(this.props.contentId, data))
-        .then(resolve => {
-          debugger;
-          this.setState({ajax}, () => {console.log('patch was successful and now local state is:', this.state.ajax)});
-          this.props.onPatchCompletion();
-        })
+      if(Array.isArray(data)) { //you edited a file, so current thumbNails in state need to be updated
+       const base64Flag = 'data:image/jpeg;base64, ';
+       const thumbNails = data.map((e) => {
+         const thumbNail = {};
+         thumbNail.id = e._id;
+         const imageStr = arrayBufferToBase64(e.data.data);
+         thumbNail.src = base64Flag + imageStr;
+         return thumbNail
+       });
+       this.props.dispatch(fetchThumbNailsSuccess(thumbNails));
+       this.setState({asyncCall}, () => {console.log('patch was successful and now local state is:', this.state.asyncCall)});
+       this.props.onPatchCompletion();
+     } else { //you edited a field, so content in state needs to be updated
+       this.props.dispatch(editContentInState(this.props.contentId, data))
+         .then(resolve => {
+           this.setState({asyncCall}, () => {console.log('patch was successful and now local state is:', this.state.asyncCall)});
+           this.props.onPatchCompletion();
+         })
+     }
     })
     .catch(err => {
-      const ajax = {
+      const asyncCall = {
         loading: false,
         success: false
       };
-      this.setState({ajax}, () => {console.log('patch wasnt successful and now state is:', this.state.ajax)});
+      this.setState({asyncCall}, () => {console.log('patch wasnt successful and now state is:', this.state.asyncCall)});
     })
   }
 
   handleSubmit(event) {
-    console.log('doing handleSubmit');
+    //debugger;
     event.preventDefault();
     const upload = this.state.uploadForm;
     const key = this.props.name;
     let data;
+    console.log('doing handleSubmit() and the state is', upload.files);
     if (key === 'files') {
-      let totalFiles; //for validation, to ensure that there is at least 1 file for this entry
+      let totalFiles = upload.files.totalFiles; //for validation, to ensure that there is at least 1 file for this entry
       let filesEdit = [];
-      upload.files.forEach(e => {
+      let totalEdits = 0;
+      upload.files.filesEdits.forEach(e => {
         if (e.file) {  //the file isn't already in the db, so it tells the server to upload it
           filesEdit.push(e.file);
-          totalFiles++;
+          ++totalFiles;
+          ++totalEdits;
+        } else if((e.id) && (!e.remove)){
+          ++totalFiles;
         } else if (e.id && e.remove) { //the user wants to remove one of the files in the db
           filesEdit.push(e.id);
-          totalFiles--;
+          --totalFiles;
+          ++totalEdits;
         }
       })
+      console.log('you chose to submit a files edit, and your submitting the following filesEdit array', filesEdit, 'and you have the following totalFiles', totalFiles);
       if (totalFiles < 1) { //validation check to make sure field isn't empty
-        toast.error('You can\'t submit a blank field')
+        toast.warn('The content has to have at least one file');
+      } else if (totalEdits < 1) {
+        toast.warn('You can\'t submit an edit request without any edits');
       } else {
+        //debugger;
         data = new FormData();
-        data.append(key, filesEdit);
+        filesEdit.forEach(e => {
+          data.append('files', e);
+        });
         this.patchEntry(data, 'files');
       }
     } else {
@@ -171,8 +208,9 @@ class EditorEditForm extends React.Component {
         src: URL.createObjectURL(event[0]),
         file: event[0]
       };
-      uploadForm.files.push(file);
-      this.setState({uploadForm}, () => {'handleChange updated the state and now its:', this.state.uploadForm});
+      uploadForm.files.filesEdits.push(file);
+      ++uploadForm.files.totalFiles;
+      this.setState({uploadForm}, () => {console.log('handleChange updated the state and now its:', this.state.uploadForm)});
     } else { //otherwise the change came from either a text input or a checkbox input
       const key = event.target.name;
       const value = event.target.value;
@@ -186,7 +224,7 @@ class EditorEditForm extends React.Component {
         //otherwise input is a text value, so update the state with current string
         //debugger;
         uploadForm[key] = value;
-        this.setState({uploadForm}, () => {'handleChange updated the state and now its:', this.state.uploadForm});
+        this.setState({uploadForm}, () => {console.log('handleChange updated the state and now its:', this.state.uploadForm)});
       }
     }
   }
@@ -206,12 +244,14 @@ class EditorEditForm extends React.Component {
     //3. update the state
     const index = e.currentTarget.className.slice(25);
     const uploadForm = cloneDeep(this.state.uploadForm);
-    const selectedFile = uploadForm.files[index];
+    const selectedFile = uploadForm.files.filesEdits[index];
+    console.log('handleRemoveClick() happening. state is', uploadForm.files);
     if (selectedFile.id) {
       selectedFile.remove = true;
     } else if (selectedFile.file) {
-      uploadForm.files.splice(index, 1);
+      uploadForm.files.filesEdits.splice(index, 1);
     }
+    --uploadForm.files.totalFiles;
     this.setState({uploadForm}, () => {console.log('handleRemoveClick() ran and the updated state is:', this.state.uploadForm.files)});
   }
 
@@ -219,8 +259,8 @@ class EditorEditForm extends React.Component {
     //console.log('value being passed to renderDeleteSymbol is', value);
      return(
        <span
-         className = {classnames('exit', 'remove-files', `remove-${index}`)}
-         onClick = {(e) => this.handleRemoveClick(e)}
+        className = {classnames('exit', 'remove-files', `remove-${index}`)}
+        onClick = {(e) => this.handleRemoveClick(e)}
        >T</span>
      )
    }
@@ -228,7 +268,7 @@ class EditorEditForm extends React.Component {
   renderEditField(){
     //debugger;
     //console.log('reached renderEditField()');
-    if ((!(this.state.ajax.loading)) && (this.state.ajax.success === null)) {
+    if ((!(this.state.asyncCall.loading)) && (this.state.asyncCall.success === null)) {
       if (this.props.name === 'artistName') {
         return (
           <Fragment>
@@ -278,7 +318,7 @@ class EditorEditForm extends React.Component {
         )
       } else if (this.props.name === 'files') {
         //debugger;
-        const thumbNails = this.state.uploadForm.files.map((e, i) => {
+        const thumbNails = this.state.uploadForm.files.filesEdits.map((e, i) => {
           if(!(e.remove)) {
             return (
               <div
@@ -288,11 +328,14 @@ class EditorEditForm extends React.Component {
                <img
                  src={e.src}
                  id={`thumbnail_${i}`}
+                 alt={`thumbnail ${i}`}
                >
                </img>
                {this.renderRemoveSymbol(i)}
              </div>
             )
+          } else {
+            return null
           }
         });
         return(
@@ -300,20 +343,20 @@ class EditorEditForm extends React.Component {
             <RenderDropZone
               name={this.props.name}
               onDrop={this.handleChange}
-              files={this.state.uploadForm.files}
+              files={this.state.uploadForm.files.filesEdits}
             />
             {thumbNails}
           </Fragment>
         )
       }
-    } else if (this.state.ajax.loading) {
+    } else if (this.state.asyncCall.loading) {
       return toast('loading');
-    } else if (this.state.ajax.success) {
+    } else if (this.state.asyncCall.success) {
       return (
         toast.dismiss(),
         toast('success!')
       )
-    } else if (this.state.ajax.success === false ) {
+    } else if (this.state.asyncCall.success === false ) {
       return (
         toast.dismiss(),
         toast.error('there was an error updating the content')

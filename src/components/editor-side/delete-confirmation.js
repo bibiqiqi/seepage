@@ -6,14 +6,21 @@ import {API_BASE_URL} from '../../config';
 import {normalizeResponseErrors} from '../../actions/utils';
 import {toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {editContentInState, fetchContent} from '../../actions/content';
+import {editContentInState} from '../../actions/content';
 
 const initialState = {
-  ajax: {
+  asyncCall: {
     loading: false,
     success: null
   }
 }
+
+//performs async DELETE request
+//props passed from EditorFindResults are:
+  // contentId={this.state.contentId}
+  // onDeleteExit={(e) => this.handleDeleteClick(e)}
+  // index={index}
+  // onDeleteConfirm={(e) => this.handleDeleteConfirm(e)}
 
 class DeleteConfirmation extends React.Component {
   constructor(props) {
@@ -25,9 +32,8 @@ class DeleteConfirmation extends React.Component {
   }
 
   deleteContent() {
-    //debugger;
-    const ajax = {loading: true, success: null}
-    this.setState({ajax});
+    const asyncCall = {loading: true, success: null}
+    this.setState({asyncCall});
     return fetch(`${API_BASE_URL}/protected/content/${this.props.contentId}`, {
       method: 'DELETE',
       headers: {
@@ -38,16 +44,17 @@ class DeleteConfirmation extends React.Component {
       .then(res => {
         console.log('delete was a success', res);
         //debugger;
-        ajax.loading = false;
-        ajax.success = true;
-        this.setState({ajax});
-        this.props.dispatch(editContentInState(this.props.contentId));
-        this.props.onDeleteConfirm();
+        asyncCall.loading = false;
+        asyncCall.success = true;
+        this.setState({asyncCall});
+        this.props.dispatch(editContentInState(this.props.contentId))
+          .then(() => this.props.onDeleteConfirm())
+
       })
       .catch(err => {
-        ajax.loading = false;
-        ajax.success = false;
-        this.setState({ajax});
+        asyncCall.loading = false;
+        asyncCall.success = false;
+        this.setState({asyncCall});
       })
   };
 
@@ -62,8 +69,7 @@ class DeleteConfirmation extends React.Component {
    }
 
    renderDeleteState() {
-     //debugger;
-     if ((!(this.state.ajax.loading)) && (this.state.ajax.success === null)) {
+     if ((!(this.state.asyncCall.loading)) && (this.state.asyncCall.success === null)) {
        return (
          <div
          className="pop-up"
@@ -77,14 +83,14 @@ class DeleteConfirmation extends React.Component {
            </button>
          </div>
        )
-     } else if (this.state.ajax.loading) {
+     } else if (this.state.asyncCall.loading) {
        return toast('loading');
-     } else if (this.state.ajax.success) {
+     } else if (this.state.asyncCall.success) {
        return (
          toast.dismiss(),
          toast('success!')
        )
-     } else if (this.state.ajax.success === false ) {
+     } else if (this.state.asyncCall.success === false ) {
        return (
          toast.dismiss(),
          toast.error('there was an error updating the content')
