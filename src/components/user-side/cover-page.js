@@ -1,8 +1,8 @@
 import React from 'react';
-import Logo from '../logo';
+import Logo from '../multi-side/logo';
 
 import './cover-page.css';
-import '../logo.css';
+import '../multi-side/logo.css';
 
 export default class CoverPage extends React.Component {
   handleClick(e) {

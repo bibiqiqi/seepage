@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import casual from 'casual-browserify';
-// {/*randomData takes in nodes, width, height and returns:
+// {/*generateData takes in nodes, width, height and returns:
 //   {nodes, links}
 
 function createTagPool(){
@@ -76,14 +76,21 @@ export default function generateData(width, height) {
   //if target node doesn't equal source node and it contains the current source tag, and
   //there is no link for this pair of nodes yet, create a link element
           let link = links.find(function(link) {
+            //iterates through links array to see if link that is currently being made has already been generated
             return (link.key === `${sourceNode.key}, ${targetNode.key}`) || link.key === `${targetNode.key}, ${sourceNode.key}`
           });
 
           if (t!=s && _.contains(nodes[t].tags, sourceTag) && link !== undefined) {
+            //if both nodes are unique from each other,
+            //and the target tags array contains the current source tag,
+            //and there was already a link for this current combination of source and target node,
+            //then decrease the distance for this combination of nodes
             //links[link.index].strength = (links[link.index].strength) + .1;
             links[link.index].distance = (links[link.index].distance) / 2;
           }
           else if (t!=s && _.contains(nodes[t].tags, sourceTag)) {
+            //otherwise, if the first 2 conditions are met BUT
+            //the link has not been generated, then generate the link
             links.push({index: l, source: sourceNode.index, target: targetNode.index , key: `${sourceNode.key}, ${targetNode.key}`, strength: .10, distance: 400 });
             l++;
           }

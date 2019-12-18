@@ -5,17 +5,19 @@ import * as classnames from 'classnames';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import cloneDeep from 'clone-deep';
+import VideoThumbnail from 'react-video-thumbnail'; // use npm published version
 
+import TextIcon from '../../text-icon.jpg';
+import VideoIcon from '../../video-icon.png';
 import {API_BASE_URL} from '../../config';
-import Logo from '../logo';
+import Logo from '../multi-side/logo';
 import Autocomplete from './autocomplete';
 import Categories from './categories';
-import LabeledInput from '../labeled-input-controlled';
+import LabeledInput from '../multi-side/labeled-input-controlled';
 import TagsInput from './tags-input';
 import RenderDropZone from './dropzone';
-import {fetchContent} from '../../actions/content';
+import {fetchContent} from '../../actions/content/multi-side';
 import './upload.css';
-
 
 const initialState = {
   uploadForm: {
@@ -49,6 +51,7 @@ class EditorUpload extends React.Component {
     this.renderRemoveSymbol = this.renderRemoveSymbol.bind(this);
     this.onCreateObjectUrl = this.onCreateObjectUrl.bind(this);
     this.handleValidation = this.handleValidation.bind(this);
+    this.renderThumbNailState = this.renderThumbNailState.bind(this);
   }
 
   componentDidMount(){
@@ -77,7 +80,7 @@ class EditorUpload extends React.Component {
     })
     .catch(err => {
       toast.dismiss();
-      toast.error('an error has occured whle trying to upload your content');
+      toast.error('an error has occured while trying to upload your content');
 
     })
   }
@@ -158,16 +161,26 @@ class EditorUpload extends React.Component {
 
   handleChange(event) {
     //immediately updates the state with change in update
-    const uploadForm = cloneDeep(this.state.uploadForm);
-    const thumbNailUrls = Object.assign([], this.state.thumbNailUrls);
+    const {uploadForm, thumbNailUrls} = cloneDeep(this.state);
     const validation = initialState.validation;
     this.setState({validation});
     //if event.target doesn't exist, then the change came from file input
     if (!(event.target)) {
-      event.forEach(e => {
-        uploadForm.files.push(e);
-        thumbNailUrls.push(this.onCreateObjectUrl(e));
-      })
+      const placeholderPaths = {
+        video: VideoIcon,
+        pdf: TextIcon
+      }
+      event.forEach(file => {
+        const thumbNailObject = {};
+        thumbNailObject.type = file.type;
+        uploadForm.files.push(file);
+        if((file.type.includes('image')) || (file.type.includes('video'))) {
+          thumbNailObject.url = this.onCreateObjectUrl(file);
+        } else if (file.type.includes('pdf')) {
+          thumbNailObject.url = placeholderPaths.pdf;
+        }
+        thumbNailUrls.push(thumbNailObject);
+      });
       this.setState({uploadForm, thumbNailUrls}, () => {console.log('updated the state with files and thumbNailUrls', this.state)});
     } else { //otherwise the change came from either a text input or a checkbox input
       const key = event.target.name;
@@ -212,7 +225,45 @@ class EditorUpload extends React.Component {
      )
    }
 
+  renderThumbNailState() {
+    if(this.state.thumbNailUrls){
+      const thumbNails = this.state.thumbNailUrls.map((e, i) => {
+        let thumbNail;
+        if(e.type.includes('video')) {
+          thumbNail =
+            <VideoThumbnail
+              videoUrl={e.url}
+              width={100}
+            />
+        } else {
+          thumbNail =
+            <img
+              key={i}
+              src={e.url}
+              id={`thumbnail_${i}`}
+              alt={`thumbnail ${i} for your current upload`}
+            >
+            </img>
+        }
+        return (
+          <Fragment>
+            {this.renderRemoveSymbol(i)}
+            <div
+              className='thumbNail'
+            >
+            {thumbNail}
+           </div>
+          </Fragment>
+        )
+      });
+      return thumbNails;
+    } else {
+      return null
+    }
+  }
+
   render() {
+
     const validation = Object.assign({}, this.state.validation);
     Object.values(validation).forEach(e => {
       if (e) {
@@ -220,22 +271,6 @@ class EditorUpload extends React.Component {
       }
     })
 
-    const thumbNails = this.state.thumbNailUrls.map((e, i) => {
-      return (
-        <div
-          className='thumbNail'
-          key={i}
-        >
-         <img
-           src={e}
-           id={`thumbnail_${i}`}
-           alt={`file ${i}`}
-         >
-         </img>
-         {this.renderRemoveSymbol(i)}
-       </div>
-      )
-    });
     return (
       <section id="editor-upload" className="page">
         <Link to="/editor-home"><Logo/></Link>
@@ -251,7 +286,6 @@ class EditorUpload extends React.Component {
           />
           <form
             className="clear-fix"
-            onSubmit={this.handleSubmit}
             noValidate
           >
             <label>Artist Name</label>
@@ -260,7 +294,7 @@ class EditorUpload extends React.Component {
               suggestions={this.props.suggestedArtists}
               name="artistName"
               value={this.state.uploadForm.artistName}
-              onChange={e => this.handleChange(e)}
+              onChange={this.handleChange}
               noValidate
             />
             <LabeledInput
@@ -271,17 +305,17 @@ class EditorUpload extends React.Component {
               onChange={this.handleChange}
               noValidate
             />
-            <Fragment>
-              <RenderDropZone
+             <Fragment>
+               <RenderDropZone
                 name="files"
                 onDrop={this.handleChange}
                 files={this.state.uploadForm.files}
               />
-              {thumbNails}
+              {this.renderThumbNailState()}
             </Fragment>
             <Categories
               categories={this.state.uploadForm.category}
-              onChange={e => this.handleChange(e)}
+              onChange={this.handleChange}
             />
             <TagsInput
               name="tags"
@@ -297,6 +331,7 @@ class EditorUpload extends React.Component {
               className="float-right"
               type="button"
               id="uploadContent"
+              onClick={this.handleSubmit}
             >
             Submit</button>
           </form>
@@ -308,8 +343,8 @@ class EditorUpload extends React.Component {
 
 const mapStateToProps = state => ({
   authToken: state.auth.authToken,
-  suggestedArtists: state.content.suggestedArtists,
-  suggestedTags: state.content.suggestedTags
+  suggestedArtists: state.editorContent.suggestedArtists,
+  suggestedTags: state.editorContent.suggestedTags
 });
 
 export default connect(mapStateToProps)(EditorUpload);

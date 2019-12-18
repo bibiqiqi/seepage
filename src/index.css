@@ -34,6 +34,10 @@ ul {
   padding-inline-start: .5rem;
 }
 
+li {
+  list-style: none;
+}
+
 a {
   text-decoration: none;
 }
@@ -78,7 +82,6 @@ main {
 .page {
   height: 100vh;
   width: 100vw;
-  border: .01rem solid black;
 }
 
 .check {
@@ -109,14 +112,17 @@ main {
 
 .exit-gallery,
 .edit-files,
-.remove-files {
+.remove-files
+.exit-search-results {
   position: absolute;
   top: 0;
   right: 0;
 }
 
 .gallery {
-  position: relative;
+  position: absolute;
+  width: 100%;
+  z-index: 10
 }
 
 .art {
@@ -200,11 +206,21 @@ main {
   max-width: 100%
 }
 
+.uploaded-file {
+  font-family: wingdings;
+  font-size: 3rem;
+}
+
+.custom-file-container {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
 
 #editor-upload main,
 #editor-find main,
 #editor-find-results main,
-#editor-view-edit main, 
+#editor-view-edit main,
 #editor-reg main {
   position: relative;
 }

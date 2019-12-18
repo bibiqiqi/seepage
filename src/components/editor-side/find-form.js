@@ -4,7 +4,9 @@ import * as classnames from 'classnames';
 import cloneDeep from 'clone-deep';
 import {toast} from 'react-toastify';
 
-import {filterBySearch, filterByBrowse, fetchContent} from '../../actions/content';
+import {fetchContent} from '../../actions/content/multi-side';
+import {filterBySearch, filterByBrowse} from '../../actions/content/editor-side';
+
 import Autocomplete from './autocomplete';
 import Categories from './categories';
 import './find.css';
@@ -278,12 +280,12 @@ class EditorFindForm extends React.Component {
 }
 
 const mapStateToProps = (state) => ({
-    loading: state.content.loading,
-    error: state.content.error,
-    editFilteredContent: state.content.editFilteredContent,
-    suggestedArtists: state.content.suggestedArtists,
-    suggestedTitles: state.content.suggestedTitles,
-    suggestedTags: state.content.suggestedTags,
+    loading: state.editorContent.loading,
+    error: state.editorContent.error,
+    editFilteredContent: state.editorContent.editFilteredContent,
+    suggestedArtists: state.editorContent.suggestedArtists,
+    suggestedTitles: state.editorContent.suggestedTitles,
+    suggestedTags: state.editorContent.suggestedTags,
 })
 
 export default connect(mapStateToProps)(EditorFindForm);

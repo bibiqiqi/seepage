@@ -2,13 +2,13 @@ import React, {Fragment} from 'react';
 import {connect} from 'react-redux';
 import {BrowserRouter as Router, Route} from 'react-router-dom';
 
-import CoverPage from './user-side/cover-page';
-import Home from './user-side/home';
-import EditorLoginForm from './editor-side/login-form';
-import EditorHome from './editor-side/home';
-import EditorUpload from './editor-side/upload';
-import EditorFindPage from './editor-side/find-page';
-import EditorRegForm from './editor-side/registration-form';
+import CoverPage from '../user-side/cover-page';
+import Home from '../user-side/home';
+import EditorLoginForm from '../editor-side/login-form';
+import EditorHome from '../editor-side/home';
+import EditorUpload from '../editor-side/upload';
+import EditorFindPage from '../editor-side/find-page';
+import EditorRegForm from '../editor-side/registration-form';
 
 export function App(props) {
 

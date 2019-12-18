@@ -1,4 +1,4 @@
-import LabeledInput from '../labeled-input-controlled';
+import LabeledInput from '../multi-side/labeled-input-controlled';
 import React from 'react';
 
 export default function Categories(props) {
