@@ -4,12 +4,11 @@ import Collapsible from 'react-collapsible';
 import cloneDeep from 'clone-deep';
 import merge from 'deepmerge';
 import * as classnames from 'classnames';
-import 'react-toastify/dist/ReactToastify.css';
 
-import {fetchThumbNails} from '../../actions/content';
-import EditorGallery from './gallery.js';
-import EditorEditForm from './edit-form.js';
-import DeleteConfirmation from './delete-confirmation.js';
+import {fetchFileIds} from '../../actions/content/multi-side';
+import ThumbNails from '../multi-side/thumb-nails';
+import EditorEditForm from './edit-form';
+import DeleteConfirmation from './delete-confirmation';
 
 const initialState = {
   contentId: '',
@@ -19,12 +18,7 @@ const initialState = {
   },
   hidden: {
     editForm: '',
-    deleteConfirm: '',
-    gallery: {
-      open: false,
-      firstArtIndex: null,
-      thumbNailIds: null
-    }
+    deleteConfirm: ''
   }
 }
 
@@ -38,11 +32,15 @@ class EditorFindResults extends React.Component {
     this.handlePatchCompletion = this.handlePatchCompletion.bind(this);
     this.handleDeleteClick = this.handleDeleteClick.bind(this);
     this.handleDeleteConfirm = this.handleDeleteConfirm.bind(this);
-    this.handleGalleryClick = this.handleGalleryClick.bind(this);
-    this.handleGalleryExit = this.handleGalleryExit.bind(this);
   }
 
-  handleCollapsibleClick(contentId, key){
+  componentDidUpdate(prevProps){
+    if(this.props.fileObjects !== prevProps.fileObjects) {
+      this.forceUpdate();
+    }
+  }
+
+  handleCollapsibleClick(contentId, key, contentType){
     const collapsible = cloneDeep(this.state.collapsible);
     //if a user clicks a collapsible and one of them is open...
     if (collapsible.open) {
@@ -74,7 +72,7 @@ class EditorFindResults extends React.Component {
         });
         collapsible.key = key;
         this.setState({collapsible});
-        this.props.dispatch(fetchThumbNails(contentId));
+        this.props.dispatch(fetchFileIds(contentId, "editor"));
       }
     //if user clicks a collapsible that's closed...
     } else {
@@ -86,8 +84,9 @@ class EditorFindResults extends React.Component {
           open: true
         }
       }
-      //...and dispatch fetchThumbNails
-      this.props.dispatch(fetchThumbNails(contentId));
+      //...and dispatch fetchFileIds
+      console.log('calling fetchFileIds');
+      this.props.dispatch(fetchFileIds(contentId, "editor"));
       this.setState((prevState) => {
         return merge(prevState, newState)
       });
@@ -131,31 +130,6 @@ class EditorFindResults extends React.Component {
     this.setState((prevState) => {
       return merge(prevState, newState)
     }, () => console.log('handleDeleteConfirm() ran and the updated state is', this.state.hidden));
-  }
-
-  handleGalleryClick(e) {
-    //updates the state with the objectId of the thumbNail that was chosen
-    //and an array of the objectIds of all the other thumbNails so they can be sent to gallery component
-    //and reveals the EditorGallery component
-    const hidden = cloneDeep(this.state.hidden);
-    hidden.gallery.firstArtIndex = e.currentTarget.id.slice(10);
-    hidden.gallery.thumbNailIds = this.props.thumbNails.map(e => {
-      return e.id
-    })
-    hidden.gallery.open = true;
-    this.setState({hidden}, () => {console.log('handleGalleryClick ran and the updated state is:', this.state.hidden.gallery)});
-  }
-
-  handleGalleryExit(){
-    //when user wants to exit the gallery
-    //updates the state to hide the EditorGallery component
-    const hidden = cloneDeep(this.state.hidden);
-    hidden.gallery = {
-      open: false,
-      firstArtIndex: '',
-      thumbNailIds: null
-    }
-    this.setState({hidden}, () => {console.log('handleGalleryExit ran and the updated state is:', this.state.hidden.gallery)});
   }
 
   handlePatchCompletion() {
@@ -209,6 +183,7 @@ class EditorFindResults extends React.Component {
     }
 
    renderThumbNailState(content) {
+     console.log('calling renderThumbNailState');
      //renders the state of the thumbnails, dependent on whether user has clicked on the content
      if (this.state.hidden.editForm === 'files') {
        //console.log('...and renderThumbNailState is rendering an edit component');
@@ -221,46 +196,15 @@ class EditorFindResults extends React.Component {
          />
          )
      } else {
-       if (this.props.thumbNails){
-         //if the redux state of thumbNails is populated, then generate html from them
-         const thumbNails = this.props.thumbNails.map((e, i) => {
-           return (
-             <div
-               className='thumbNail'
-             >
-              <img
-                key={i}
-                src={e.src}
-                id={`thumbnail_${i}`}
-                alt={`thumbnail ${i} for ${content.title}, by ${content.artist}`}
-                onClick={this.handleGalleryClick}
-              >
-              </img>
-              {this.renderEditSymbol('files')}
-            </div>
-           )
-         });
-         return thumbNails
+       if(this.props.fileObjects) {
+         return (
+           <ThumbNails
+            content={content}
+           />
+         )
        } else {
-         return null;
+         return null
        }
-     }
-   }
-
-   renderGalleryState(result) {
-     //determines whether to render EditorGallery component or hide it
-     //dependent on whether use has clicked on a thumb nail
-     if (this.state.hidden.gallery.open) {
-       return (
-         <EditorGallery
-           firstArtIndex={this.state.hidden.gallery.firstArtIndex}
-           thumbNailIds={this.state.hidden.gallery.thumbNailIds}
-           onExitClick={this.handleGalleryExit}
-           alt={`file for ${result.title} by ${result.artist}`}
-          />
-       )
-     } else {
-       return null
      }
    }
 
@@ -299,7 +243,7 @@ class EditorFindResults extends React.Component {
    renderResults(filteredContent) {
      //maps through all the filtered results from user's query and calls other functions to
      //render all of the code within a collapsible
-     const strings = ['id', 'Artist Name', 'Title', 'Categories', 'Tags'];
+     const strings = ['id', 'Artist Name', 'Title', 'Categories', 'Tags', 'Files'];
      return filteredContent.map((result, index) => {
        let details = [];
        let i = 0;
@@ -314,11 +258,10 @@ class EditorFindResults extends React.Component {
            <Collapsible
              open={this.state.collapsible.open && this.state.collapsible.key===index}
              trigger={`${result.title} by ${result.artistName}`}
-             handleTriggerClick={(e) => this.handleCollapsibleClick(result.id, index)}
+             handleTriggerClick={(e) => this.handleCollapsibleClick(result.id, index, result.contentType)}
            >
            {this.renderDeleteSymbol(index)}
            {details}
-           {this.renderGalleryState(result)}
            {this.renderThumbNailState(result)}
            {this.renderDeleteState(index)}
            </Collapsible>
@@ -349,9 +292,9 @@ class EditorFindResults extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  filteredContent: state.content.filteredContent,
-  filteredContentNone: state.content.filteredContentNone,
-  thumbNails: state.content.thumbNails
+  filteredContent: state.editorContent.filteredContent,
+  filteredContentNone: state.editorContent.filteredContentNone,
+  fileObjects: state.editorContent.fileIds
 });
 
 export default connect(mapStateToProps)(EditorFindResults);

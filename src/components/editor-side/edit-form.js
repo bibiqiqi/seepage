@@ -6,12 +6,13 @@ import * as classnames from 'classnames';
 import {toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {normalizeResponseErrors} from '../../actions/utils';
-import {editContentInState, fetchThumbNailsSuccess, arrayBufferToBase64} from '../../actions/content';
+import {fetchFileIdsSuccess, arrayBufferToBase64} from '../../actions/content/multi-side';
+import {editContentInState} from '../../actions/content/editor-side';
 
 import {API_BASE_URL} from '../../config';
 import Autocomplete from './autocomplete';
 import Categories from './categories';
-import LabeledInput from '../labeled-input-controlled';
+import LabeledInput from '../multi-side/labeled-input-controlled';
 import TagsInput from './tags-input';
 import RenderDropZone from './dropzone';
 
@@ -48,8 +49,8 @@ class EditorEditForm extends React.Component {
             text: false
             },
           files: {
-            totalFiles: this.props.thumbNails.length,
-            filesEdits: this.props.thumbNails
+            totalFiles: this.props.fileIds.length,
+            filesEdits: this.props.fileIds
           },
           tags: []
         }
@@ -102,7 +103,7 @@ class EditorEditForm extends React.Component {
          thumbNail.src = base64Flag + imageStr;
          return thumbNail
        });
-       this.props.dispatch(fetchThumbNailsSuccess(thumbNails));
+       this.props.dispatch(fetchFileIdsSuccess(thumbNails, "editor"));
        this.setState({asyncCall}, () => {console.log('patch was successful and now local state is:', this.state.asyncCall)});
        this.props.onPatchCompletion();
      } else { //you edited a field, so content in state needs to be updated
@@ -398,10 +399,10 @@ class EditorEditForm extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  thumbNails: state.content.thumbNails,
+  fileIds: state.content.editor.fileIds,
   authToken: state.auth.authToken,
-  suggestedArtists: state.content.suggestedArtists,
-  suggestedTags: state.content.suggestedTags
+  suggestedArtists: state.content.editor.suggestedArtists,
+  suggestedTags: state.content.editor.suggestedTags
 });
 
 export default connect(mapStateToProps)(EditorEditForm);

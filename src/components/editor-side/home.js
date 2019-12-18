@@ -2,7 +2,7 @@ import React from 'react';
 import {Link} from 'react-router-dom';
 import {connect} from 'react-redux';
 
-import Logo from '../logo';
+import Logo from '../multi-side/logo';
 
 function EditorHome(props) {
   const history = props.history;

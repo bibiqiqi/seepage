@@ -3,7 +3,6 @@ import React from 'react';
 
 export default class RenderDropZone extends React.Component {
   render() {
-
     return (
       <Dropzone
         onDrop={this.props.onDrop}>

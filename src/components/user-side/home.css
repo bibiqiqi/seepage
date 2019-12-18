@@ -9,14 +9,6 @@
 }
 
 #tag-map {
-  height: 50vh;
+  height: 100%;
   border: .1rem solid black;
-}
-
-#content {
-  border: .1rem solid black;
-}
-
-#content-preview {
-  height: 20vh;
 }

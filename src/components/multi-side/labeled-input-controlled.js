@@ -3,7 +3,6 @@ import React from 'react';
 export default class LabeledInput extends React.Component {
   render() {
     if (this.props.type === "checkbox") {
-      console.log('checked being sent to labeledinput is:', this.props.checked);
       return (
         <label className={this.props.className}>
           <input
@@ -23,7 +22,7 @@ export default class LabeledInput extends React.Component {
               name={this.props.name}
               type="file"
               multiple={true}
-              ref={input => this.input}
+              onChange={(e) => this.props.onChange(e)}
             />
           </label>
         )
@@ -36,7 +35,8 @@ export default class LabeledInput extends React.Component {
                 value={this.props.value}
                 name={this.props.name}
                 type="text"
-                ref={input => this.input}
+                onChange={(e) => this.props.onChange(e)}
+                autoComplete="off"
               />
             </label>
          )

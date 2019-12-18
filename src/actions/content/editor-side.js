@@ -1,41 +1,4 @@
-import {SubmissionError} from 'redux-form';
-
-import {API_BASE_URL} from '../config';
-import {normalizeResponseErrors} from './utils';
-
-export const FETCH_CONTENT_REQUEST = 'FETCH_CONTENT_REQUEST';
-export const fetchContentRequest = () => ({
-  type: FETCH_CONTENT_REQUEST,
-});
-
-export const FETCH_CONTENT_SUCCESS = 'FETCH_CONTENT_SUCCESS';
-export const fetchContentSuccess = content => ({
-  type: FETCH_CONTENT_SUCCESS,
-  content
-});
-
-export const FETCH_CONTENT_ERROR = 'FETCH_CONTENT_ERROR';
-export const fetchContentError = error => ({
-  type: FETCH_CONTENT_ERROR,
-  error
-});
-
-export const FETCH_THUMBNAILS_REQUEST = 'FETCH_THUMBNAILS_REQUEST';
-export const fetchThumbNailsRequest = () => ({
-  type: FETCH_THUMBNAILS_REQUEST,
-});
-
-export const FETCH_THUMBNAILS_SUCCESS = 'FETCH_THUMBNAILS_SUCCESS';
-export const fetchThumbNailsSuccess = thumbNails => ({
-  type: FETCH_THUMBNAILS_SUCCESS,
-  thumbNails
-});
-
-export const FETCH_THUMBNAILS_ERROR = 'FETCH_THUMBNAILS_ERROR';
-export const fetchThumbNailsError = error => ({
-  type: FETCH_THUMBNAILS_ERROR,
-  error
-});
+import {fetchContentSuccess} from './multi-side'
 
 export const FILTER_CONTENT_SUCCESS = 'FILTER_CONTENT_SUCCESS';
 export const filterContentSuccess = filteredContent => ({
@@ -66,73 +29,10 @@ export const makeSuggestedTags = array => ({
   array
 });
 
-export const fetchContent = (rootRequest) => (dispatch) => {
-  //console.log("doing fetchContent");
-  //debugger;
-  return new Promise(function(resolve, reject) {
-    dispatch(fetchContentRequest());
-    return fetch(`${API_BASE_URL}/content`)
-      .then(res => normalizeResponseErrors(res))
-      .then(res => res.clone().json())
-      .then(data => dispatch(fetchContentSuccess(data)))
-      .then(content => {
-        if(rootRequest === 'editor') {
-         const contents = content.content;
-         dispatch(makeSuggestedContent(contents));
-        }
-        resolve(content);
-      })
-      .catch(err => {
-        dispatch(fetchContentError(err));
-        return Promise.reject(
-          new SubmissionError({
-            _error: err
-          })
-        );
-      })
-    }
-  )
-};
-
-export const arrayBufferToBase64 = (buffer) => {
-      var binary = '';
-      var bytes = [].slice.call(new Uint8Array(buffer));
-      bytes.forEach((b) => binary += String.fromCharCode(b));
-      return window.btoa(binary);
-  };
-
-export const fetchThumbNails = (contentId) => (dispatch) => {
-  console.log("doing fetchThumbnails");
-  dispatch(fetchThumbNailsRequest());
-  return fetch(`${API_BASE_URL}/content/thumbnails/${contentId}`)
-    .then(res => normalizeResponseErrors(res))
-    .then(res => res.clone().json())
-    .then(data => {
-      //debugger;
-      const base64Flag = 'data:image/jpeg;base64, ';
-      const thumbNails = data.thumbNails.map((e) => {
-        const thumbNail = {};
-        thumbNail.id = e._id;
-        const imageStr = arrayBufferToBase64(e.data.data);
-        thumbNail.src = base64Flag + imageStr;
-        return thumbNail
-     });
-     dispatch(fetchThumbNailsSuccess(thumbNails));
-    })
-    .catch(err => {
-      dispatch(fetchThumbNailsError(err));
-      return Promise.reject(
-        new SubmissionError({
-          _error: err
-        })
-      );
-    })
-};
-
 export const filterBySearch = (searchBy) => (dispatch, getState) => {
   console.log('doing filterBySearch and heres the search object you sent', searchBy);
   const state = getState();
-  const contents = state.content.allContent;
+  const contents = state.editorContent.allContent;
   const noResults = "your query didn't match any results";
   let filteredResults = [];
   const parameter = Object.keys(searchBy)[0];
@@ -148,8 +48,7 @@ export const filterBySearch = (searchBy) => (dispatch, getState) => {
 export const filterByBrowse = (browseBy) => (dispatch, getState) => {
   console.log('doing filterByBrowse and heres the browse object you sent', browseBy);
   const state = getState();
-  const contents = state.content.allContent;
-  const noResults = "your query didn't match any results";
+  const contents = state.editorContent.allContent;
   const results = [];
   let filteredResults = [];
   contents.forEach((e) => {
@@ -160,11 +59,11 @@ export const filterByBrowse = (browseBy) => (dispatch, getState) => {
     })
   })
   filteredResults = Array.from(new Set(results));
-  filteredResults[0]? dispatch(filterContentSuccess(filteredResults)) : dispatch(filterContentNone(noResults));
+  filteredResults[0]? dispatch(filterContentSuccess(filteredResults)) : dispatch(filterContentNone());
 }
 
 const findIndexAndSplice = (arrayOfData, contentId, editObject) => {
-  debugger;
+  //debugger;
   //console.log('running findIndexAndSplice with', arrayOfData);
   return new Promise(function(resolve, reject) {
     const startingIndex = arrayOfData.findIndex((e) => {
@@ -177,12 +76,12 @@ const findIndexAndSplice = (arrayOfData, contentId, editObject) => {
 //gets called after user makes an edit or a delete.
 //if there's an editObject passed in, then the user made an edit, otherwise, they made a delete
 export const editContentInState = (contentId, editObject) => (dispatch, getState) => {
-  debugger;
+  //debugger;
   return new Promise(function(resolve, reject) {
     console.log('running editContentInState()');
     const state = getState();
-    const allContent = state.content.allContent;
-    const filteredContent = state.content.filteredContent;
+    const allContent = state.editorContent.allContent;
+    const filteredContent = state.editorContent.filteredContent;
     findIndexAndSplice(allContent, contentId, editObject)
       .then(allContent => {
         dispatch(fetchContentSuccess(allContent));

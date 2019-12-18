@@ -6,7 +6,7 @@ import {API_BASE_URL} from '../../config';
 import {normalizeResponseErrors} from '../../actions/utils';
 import {toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {editContentInState} from '../../actions/content';
+import {editContentInState} from '../../actions/content/editor-side';
 
 const initialState = {
   asyncCall: {

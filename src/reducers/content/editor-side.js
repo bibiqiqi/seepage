@@ -1,57 +1,63 @@
 import {
-    FILTER_CONTENT_SUCCESS,
-    FILTER_CONTENT_NONE,
-    FETCH_CONTENT_REQUEST,
-    FETCH_CONTENT_SUCCESS,
-    FETCH_CONTENT_ERROR,
-    FETCH_THUMBNAILS_REQUEST,
-    FETCH_THUMBNAILS_SUCCESS,
-    FETCH_THUMBNAILS_ERROR,
-    MAKE_SUGGESTED_ARTISTS,
-    MAKE_SUGGESTED_TITLES,
-    MAKE_SUGGESTED_TAGS
-  }
-from '../actions/content';
+  FETCH_CONTENT_REQUEST,
+  FETCH_CONTENT_SUCCESS,
+  FETCH_CONTENT_ERROR,
+  FETCH_FILE_IDS_REQUEST,
+  FETCH_FILE_IDS_SUCCESS,
+  FETCH_FILE_IDS_ERROR,
+}
+from '../../actions/content/multi-side';
+
+import {
+  FILTER_CONTENT_SUCCESS,
+  FILTER_CONTENT_NONE,
+  MAKE_SUGGESTED_ARTISTS,
+  MAKE_SUGGESTED_TITLES,
+  MAKE_SUGGESTED_TAGS
+}
+from '../../actions/content/editor-side';
 
 const initialState = {
-    allContent: [],
-    thumbNails: [],
-    filteredContent: [],
-    filteredContentNone: '',
-    suggestedArtists: [],
-    suggestedTitles: [],
-    suggestedTags: [],
-    loading: false,
-    error: null,
+  allContent: [],
+  fileIds: [],
+  filteredContent: [],
+  filteredContentNone: null,
+  suggestedArtists: [],
+  suggestedTitles: [],
+  suggestedTags: [],
+  loading: false,
+  error: null,
 };
 
 export default function reducer(state = initialState, action) {
-  if (action.type === FETCH_CONTENT_REQUEST) {
+  if (action.type === FETCH_CONTENT_REQUEST && action.meta === 'editor') {
       return Object.assign({}, state, {
         loading: true,
         error: null
       })
-  } else if (action.type === FETCH_CONTENT_SUCCESS) {
+  } else if (action.type === FETCH_CONTENT_SUCCESS && action.meta === 'editor') {
     console.log('updating fetchContent in Redux State');
       return Object.assign({}, state, {
         allContent: action.content,
+        loading: false,
         error: null
       })
-  } else if (action.type === FETCH_CONTENT_ERROR) {
+  } else if (action.type === FETCH_CONTENT_ERROR && action.meta === 'editor') {
       return Object.assign({}, state, {
         error: action.error
      })
-  } else if (action.type === FETCH_THUMBNAILS_REQUEST) {
+  } else if (action.type === FETCH_FILE_IDS_REQUEST && action.meta === 'editor') {
       return Object.assign({}, state, {
         loading: true,
         error: null
       })
-  } else if (action.type === FETCH_THUMBNAILS_SUCCESS) {
+  } else if (action.type === FETCH_FILE_IDS_SUCCESS && action.meta === 'editor') {
       return Object.assign({}, state, {
-        thumbNails: action.thumbNails,
+        fileIds: action.fileIds,
+        loading: false,
         error: null
       })
-  } else if (action.type === FETCH_THUMBNAILS_ERROR) {
+  } else if (action.type === FETCH_FILE_IDS_ERROR && action.meta === 'editor') {
       return Object.assign({}, state, {
         error: action.error
       })

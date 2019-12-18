@@ -1,17 +1,32 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React, {Fragment} from "react";
+import {connect} from 'react-redux';
 import * as d3 from 'd3';
 import _ from 'underscore';
+import Color from 'color';
+
+import Gallery from '../multi-side/gallery';
+import ContentPreview from './content-preview';
 
 var width = 800;
-var height = 370;
+var height = 500;
 var force = d3.layout.force()
-  .charge(-300)
+  .charge(-200)
   .linkDistance(function(link){return link.distance})
-  //.linkStrength(function(link){return link.strength})
+  .linkStrength(function(link){return link.strength})
   .size([width, height]);
 
-export default class Graph extends React.Component {
+class Graph extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      nodePreview: null,
+      gallery: null
+    };
+    this.handleGalleryOpen = this.handleGalleryOpen.bind(this);
+    this.handleGalleryExit = this.handleGalleryExit.bind(this);
+    this.renderGalleryState = this.renderGalleryState.bind(this);
+  }
+
   componentWillMount() {
     force.on('tick', () => {
       // after force calculation starts, call
@@ -27,33 +42,112 @@ export default class Graph extends React.Component {
     // mutates the nodes and links array directly
     // we're bypassing that here for sake of brevity in example
     force.nodes(nextProps.nodes).links(nextProps.links);
-
     force.start();
   }
-  render() {
-    //onHover(e) {
-    //this.props.dispatch(showText())
-    //}
-    //onHoverLeave(e) {
-    //this.props.dispatch(hideText())
-    //}
-    // use React to draw all the nodes, d3 calculates the x and y
-    var nodes = _.map(this.props.nodes, (node) => {
-      var transform = 'translate(' + node.x + ',' + node.y + ')';
-      return (
-        <g className='node' key={node.key} transform={transform} fill={node.color} stroke={node.color} >
-          <rect width='.5em' height='.5em' x='-.25em' y='-.25em' />
-          <div className= "hidden nodeText"
-          //  onMouseEnter={this.hoverOn}
-          //  onMouseLeave={this.hoverOff}
-          >
-            <text dy='.35em' dx='.5em'>{node.title}</text>
-            <text dy='-.5em' dx='.5em'>{node.name}</text>
-          </div>
 
+  translateAndBlendColors(categoryArray){
+    const categoryLegend = {
+      media: Color.rgb(255, 29, 55), //red
+      performance: Color.rgb(255, 235, 29), //yellow
+      text: Color.rgb(35, 213, 255) //blue
+    };
+
+    const colorArray = [];
+    categoryArray.forEach(e => {
+      for (let key in categoryLegend) {
+        if (e === key) {
+          colorArray.push(categoryLegend[key])
+        }
+      }
+    });
+    let newColor;
+    if (colorArray.length > 1) {
+      let blendedColor = colorArray[0];
+      let i;
+      for(i = 1; i < colorArray.length; i++) {
+        blendedColor.mix(colorArray[i])
+      }
+      newColor = blendedColor;
+    } else {
+      newColor = colorArray[0];
+    }
+    return newColor;
+  }
+
+  renderPreviewState(node) {
+    //determines whether to render Gallery component or hide it
+    //dependent on whether user has clicked on a thumbnail
+    if (node.index === this.state.nodePreview) {
+      return (
+        <ContentPreview
+          node={node}
+        />
+      )
+    } else {
+      return null
+    }
+  }
+
+  handleGalleryOpen(e) {
+    //updates the state with the objectId of the thumbNail that was chosen
+    //and an array of the objectIds of all the other fileIds so they can be sent to gallery component
+    //and reveals the Gallery component
+    this.setState({gallery: parseInt(e.currentTarget.id.slice(5), 10)}, () => {console.log('handleGalleryOpen ran and the updated state is:', this.state.gallery)});
+  }
+
+  handleGalleryExit(){
+    //when user wants to exit the gallery
+    //updates the state to hide the Gallery component
+    this.setState({gallery: null}, () => {console.log('handleGalleryExit ran and the updated state is:', this.state.gallery)});
+  }
+
+  renderGalleryState() {
+    //determines whether to render Gallery component or hide it
+    //dependent on whether use has clicked on a thumb nail
+    if (this.state.gallery) {
+      return (
+        <Gallery
+          firstArtIndex="0"
+          fileObjects={this.props.fileObjects}
+          onExitClick={this.handleGalleryExit}
+          alt={(fileNumber) => `Gallery view of file ${fileNumber} for ${this.props.nodes[this.state.gallery].title}, by ${this.props.nodes[this.state.gallery].artist}`}
+         />
+      )
+    } else {
+      return null
+    }
+  }
+
+  render() {
+    // use React to draw all the nodes, d3 calculates the x and y
+    var nodes = _.map(this.props.nodes, (node, i) => {
+      var transform = 'translate(' + node.x + ',' + node.y + ')';
+      let color;
+      if(node.category) {
+        color = this.translateAndBlendColors(node.category);
+      } else {
+        color = "gray";
+      }
+      return (
+        <g
+          className='node'
+          id={`node-${node.index}`}
+          key={i}
+          transform={transform}
+          fill={color}
+          stroke={color}
+          onClick={this.handleGalleryOpen}
+          onMouseEnter={() => {
+            this.setState({nodePreview: node.index}, () => console.log('new state is', this.state));
+          }}
+          onMouseLeave={() => this.setState({nodePreview: null}, () => console.log('new state is', this.state))}
+        >
+          <rect width='.5em' height='.5em' x='-.25em' y='-.25em' />
+          {this.renderPreviewState(node)}
         </g>
       );
     });
+
     var links = _.map(this.props.links, (link) => {
       return (
         <line className='link' key={link.key}
@@ -62,12 +156,23 @@ export default class Graph extends React.Component {
     });
 
     return (
-      <svg width={width} height={height}>
-        <g>
-          {links}
-          {nodes}
-        </g>
-      </svg>
+      <Fragment>
+        {this.renderGalleryState()}
+        <svg width={width} height={height}>
+          <g>
+            {links}
+            {nodes}
+          </g>
+        </svg>
+      </Fragment>
     );
   }
 };
+
+const mapStateToProps = state => ({
+  fileObjects: state.userContent.fileIds,
+  loading: state.userContent.loading,
+  error: state.userContent.error
+});
+
+export default connect(mapStateToProps)(Graph);

@@ -19,13 +19,13 @@ body {
 }
 
 .node text {
-  fill: #888888;
+  fill: black;
   stroke: none;
   font-size: .6em;
 }
 
 .link {
-  stroke: #e39494;
+  stroke: #A9A0CD;
   stroke-opacity: .5;
   stroke-width: 2px;
 }

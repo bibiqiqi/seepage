@@ -3,9 +3,9 @@ import {Link, NavLink} from 'react-router-dom';
 import {Field, reduxForm, focus, reset} from 'redux-form';
 import {ToastContainer, toast} from 'react-toastify';
 
-import Logo from '../logo';
+import Logo from '../multi-side/logo';
 import {registerEditor} from '../../actions/register';
-import LabeledInput from '../labeled-input-redux';
+import LabeledInput from '../multi-side/labeled-input-redux';
 import {required, nonEmpty, matches, length, isTrimmed, email} from '../../validators';
 const passwordLength = length({min: 10, max: 72})
 const matchesPassword = matches('password');
