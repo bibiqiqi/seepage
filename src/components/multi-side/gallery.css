@@ -1,0 +1,26 @@
+.gallery {
+  position: absolute;
+  width: 100%;
+  z-index: 10
+}
+
+.arrow {
+  font-family: wingdings;
+  display: none;
+  position: absolute;
+  z-index: 5;
+  top: 50%
+}
+
+.slider-back {
+  left: 0;
+}
+
+.slider-forward {
+  right: 0;
+}
+
+.gallery:hover
+.arrow {
+  display: block;
+}

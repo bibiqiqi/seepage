@@ -3,9 +3,9 @@ import {connect} from 'react-redux';
 import _ from 'underscore';
 
 import Graph from './graph';
-import './tag-map.css';
+import './browse-by.css';
 
-class TagMap extends React.Component {
+class BrowseBy extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -16,13 +16,16 @@ class TagMap extends React.Component {
 
   componentDidUpdate(prevProps) {
     if(prevProps.allContent !== this.props.allContent) {
+      console.log('passing', this.props.allContent, 'to generatePrimaryNodes');
       this.generatePrimaryNodes(this.props.allContent).then(nodeArrays => {
+        console.log('passing', nodeArrays, 'to generateLinks');
         this.generateLinks(nodeArrays);
       })
     }
   }
 
   generatePrimaryNodes(secondaryNodes){
+    //debugger;
     return new Promise(function(resolve, reject) {
       const primaryNodes = [];
       const simplePrimeNodes = [];
@@ -54,7 +57,9 @@ class TagMap extends React.Component {
   }
 
   generateLinks(nodeArrays) {
+    //debugger;
     const {primaryNodes, secondaryNodes} = nodeArrays;
+    console.log(primaryNodes, secondaryNodes);
     const links = [];
     let l = 0; //iterator for links indexes;
     //iterate through each node in the nodes array
@@ -62,22 +67,31 @@ class TagMap extends React.Component {
         secondaryNodes.forEach(function(secondaryNode, n){
           secondaryNode.tags.forEach(function(tag){
             if(tag.toLowerCase() === primaryNode.tag){
-              links.push({index: l, source: primaryNode.index, target: secondaryNode.index , key: `${primaryNode.index}, ${secondaryNode.index}`, strength: .10, distance: 100 });
+              links.push({index: l, source: primaryNode.index, target: secondaryNode.index, key: `${primaryNode.index}, ${secondaryNode.index}`, strength: .10, distance: 100 });
+              //debugger;
               l++;
             }
           })
         })
-      })
-    const nodes = primaryNodes.concat(secondaryNodes);
-    this.setState({links, nodes});
+      });
+    const nodes = secondaryNodes.concat(primaryNodes);
+    console.log('updating state with', nodes);
+    this.setState({links});
+    this.setState({nodes});
   }
 
   render() {
-    return (
-      <div id="tag-map">
-        <Graph nodes={this.state.nodes} links={this.state.links} />
-      </div>
-    );
+    console.log('passing', this.state.nodes, 'to graph component');
+    const {links, nodes} = this.state;
+    if(links.length && nodes.length) {
+      return (
+        <div id="user-browse">
+          <Graph nodes={nodes} links={links} />
+        </div>
+      );
+    } else {
+      return null
+    }
   }
 };
 
@@ -85,4 +99,4 @@ const mapStateToProps = (state) => ({
   allContent: state.userContent.allContent,
 })
 
-export default connect(mapStateToProps)(TagMap);
+export default connect(mapStateToProps)(BrowseBy);

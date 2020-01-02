@@ -29,8 +29,9 @@ export const makeSuggestedTags = array => ({
   array
 });
 
+//called in find-form, for editor to filter content by search term
 export const filterBySearch = (searchBy) => (dispatch, getState) => {
-  console.log('doing filterBySearch and heres the search object you sent', searchBy);
+  //console.log('doing filterBySearch and heres the search object you sent', searchBy);
   const state = getState();
   const contents = state.editorContent.allContent;
   const noResults = "your query didn't match any results";
@@ -45,8 +46,9 @@ export const filterBySearch = (searchBy) => (dispatch, getState) => {
   filteredResults[0]? dispatch(filterContentSuccess(filteredResults)) : dispatch(filterContentNone(noResults));
 }
 
+//called in find-form, for editor to filter content by browsing by category
 export const filterByBrowse = (browseBy) => (dispatch, getState) => {
-  console.log('doing filterByBrowse and heres the browse object you sent', browseBy);
+  //console.log('doing filterByBrowse and heres the browse object you sent', browseBy);
   const state = getState();
   const contents = state.editorContent.allContent;
   const results = [];
@@ -62,8 +64,9 @@ export const filterByBrowse = (browseBy) => (dispatch, getState) => {
   filteredResults[0]? dispatch(filterContentSuccess(filteredResults)) : dispatch(filterContentNone());
 }
 
+//called by editContentInState, to map through current content in state and
+//delete a document or insert a patched document
 const findIndexAndSplice = (arrayOfData, contentId, editObject) => {
-  //debugger;
   //console.log('running findIndexAndSplice with', arrayOfData);
   return new Promise(function(resolve, reject) {
     const startingIndex = arrayOfData.findIndex((e) => {
@@ -73,12 +76,11 @@ const findIndexAndSplice = (arrayOfData, contentId, editObject) => {
     resolve(arrayOfData);
   })
 }
-//gets called after user makes an edit or a delete.
+//gets called after user makes an edit or a delete, to update the browser state
 //if there's an editObject passed in, then the user made an edit, otherwise, they made a delete
 export const editContentInState = (contentId, editObject) => (dispatch, getState) => {
-  //debugger;
   return new Promise(function(resolve, reject) {
-    console.log('running editContentInState()');
+   //console.log('running editContentInState()');
     const state = getState();
     const allContent = state.editorContent.allContent;
     const filteredContent = state.editorContent.filteredContent;
@@ -95,9 +97,10 @@ export const editContentInState = (contentId, editObject) => (dispatch, getState
   })
 };
 
+//gets called after getContent on editor side, so autocomplete input field
+//can suggest artistNames, titles, and tags, based on what's in database
 export const makeSuggestedContent = (content) => (dispatch) => {
-  console.log('makeSuggestedContent is happening');
-  //debugger;
+ //console.log('makeSuggestedContent is happening');
   let allArtists = [], allTitles = [], allTags = [];
   //consolidate all artists, tags, and titles into an array
   content.forEach(function(e) {

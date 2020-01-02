@@ -1,25 +1,22 @@
 import React from 'react';
-import {Link} from 'react-router-dom';
 import {connect} from 'react-redux';
 
 import Logo from '../multi-side/logo';
+import './home.css'
 
 function EditorHome(props) {
   const history = props.history;
   const currentEditor = props.currentEditor.firstName;
   const buttonDetails = [
     {
-      id: 'uploadCont',
       text: 'upload new content',
       location: '/editor-upload'
     },
     {
-      id: 'findCont',
       text: 'browse or search content',
       location: '/editor-find'
     },
     {
-      id: 'addEditor',
       text: 'add a new editor profile',
       location: '/editor-reg-form',
     }
@@ -29,6 +26,7 @@ function EditorHome(props) {
     return (
       <button
         id={button.id}
+        class='editor-buttons'
         onClick={() => {
           history.push(button.location);
         }}
@@ -43,10 +41,10 @@ function EditorHome(props) {
 
   return (
     <section id="editor-home" className="page">
-      <Link to="/editor-home"><Logo/></Link>
+      <Logo/>
       <main>
         <h3 className="editor-greeting">hello, <span>{currentEditor}</span></h3>
-        <div>
+        <div className="button-container">
           {buttons}
         </div>
       </main>

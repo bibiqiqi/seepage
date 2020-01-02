@@ -1,9 +1,9 @@
-import React from 'react';
 import {connect} from 'react-redux';
+import React from 'react';
 import cloneDeep from 'clone-deep';
 
 import {searchByKeyWord} from '../../actions/content/user-side';
-import LabeledInput from '../multi-side/labeled-input-controlled'
+import './search-by.css'
 
 const initialState = {
   keyWord: ''
@@ -35,22 +35,19 @@ class SearchBy extends React.Component {
     return(
       <section
         id="user-search"
+        className="search-submit"
         >
-        <LabeledInput
-          name="keyWord"
+        <input
+          placeholder='search...'
           type="text"
-          value={this.state.keyWord}
-          label="Key Word"
+          autoComplete="off"
           onChange={this.handleChange}
-          noValidate
         />
         <button
-          className="submit-search"
-          id="searchSubmit"
+          className="submit-button clickable"
           type="submit"
           onClick={this.handleSubmit}
-        >Submit
-        </button>
+        ></button>
       </section>
     )
   }

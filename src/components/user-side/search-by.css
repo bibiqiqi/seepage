@@ -1,0 +1,9 @@
+.search-submit {
+  display: flex;
+  flex-direction: row;
+  font-size: .5em;
+}
+
+.search-submit input {
+  height: 15px
+}

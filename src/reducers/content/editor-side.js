@@ -1,10 +1,7 @@
 import {
   FETCH_CONTENT_REQUEST,
   FETCH_CONTENT_SUCCESS,
-  FETCH_CONTENT_ERROR,
-  FETCH_FILE_IDS_REQUEST,
-  FETCH_FILE_IDS_SUCCESS,
-  FETCH_FILE_IDS_ERROR,
+  FETCH_CONTENT_ERROR
 }
 from '../../actions/content/multi-side';
 
@@ -19,7 +16,6 @@ from '../../actions/content/editor-side';
 
 const initialState = {
   allContent: [],
-  fileIds: [],
   filteredContent: [],
   filteredContentNone: null,
   suggestedArtists: [],
@@ -46,21 +42,6 @@ export default function reducer(state = initialState, action) {
       return Object.assign({}, state, {
         error: action.error
      })
-  } else if (action.type === FETCH_FILE_IDS_REQUEST && action.meta === 'editor') {
-      return Object.assign({}, state, {
-        loading: true,
-        error: null
-      })
-  } else if (action.type === FETCH_FILE_IDS_SUCCESS && action.meta === 'editor') {
-      return Object.assign({}, state, {
-        fileIds: action.fileIds,
-        loading: false,
-        error: null
-      })
-  } else if (action.type === FETCH_FILE_IDS_ERROR && action.meta === 'editor') {
-      return Object.assign({}, state, {
-        error: action.error
-      })
   } else if (action.type === FILTER_CONTENT_SUCCESS) {
     console.log('updating filteredContent in Redux State');
       return Object.assign({}, state, {

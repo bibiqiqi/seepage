@@ -1,10 +1,11 @@
 import React from 'react';
+import * as classnames from 'classnames';
 
 export default class LabeledInput extends React.Component {
   render() {
     if (this.props.type === "checkbox") {
       return (
-        <label className={this.props.className}>
+        <label className = {classnames(this.props.className)}>
           <input
             checked={this.props.checked}
             name={this.props.name}
@@ -15,7 +16,7 @@ export default class LabeledInput extends React.Component {
       )
     } else if (this.props.type === "file") {
         return (
-          <label className={this.props.className}>
+          <label className = {classnames(this.props.className)}>
             {this.props.label}
             <input
               files={this.props.files}
@@ -28,7 +29,7 @@ export default class LabeledInput extends React.Component {
         )
       } else {
           return (
-            <label className={this.props.className}>
+            <label className = {classnames(this.props.className)}>
               {this.props.label}
               <input
                 placeholder={this.props.placeholder}

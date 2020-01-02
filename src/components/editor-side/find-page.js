@@ -6,7 +6,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import EditorFindForm from './find-form';
 import EditorFindResults from './find-results';
 import Logo from '../multi-side/logo';
-import './find.css';
 
 export default class EditorFindPage extends React.Component {
   //a skeleton of html that holds the EditorFindForm and EditorFindresults

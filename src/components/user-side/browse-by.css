@@ -2,6 +2,9 @@ body {
   font-family: Helvetica;
 }
 
+#user-browse {
+  margin-top: 1em;
+}
 .update {
   color: #888888;
   position:absolute;

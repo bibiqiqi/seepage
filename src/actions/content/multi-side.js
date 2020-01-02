@@ -24,34 +24,8 @@ export const fetchContentError = (error, root) => ({
   error
 });
 
-export const FETCH_FILE_IDS_REQUEST = 'FETCH_FILE_IDS_REQUEST';
-export const fetchFileIdsRequest = (root) => ({
-  type: FETCH_FILE_IDS_REQUEST,
-});
-
-export const FETCH_FILE_IDS_SUCCESS = 'FETCH_FILE_IDS_SUCCESS';
-export const fetchFileIdsSuccess = (fileIds, root) => ({
-  type: FETCH_FILE_IDS_SUCCESS,
-  meta: root,
-  fileIds
-});
-
-export const FETCH_FILE_IDS_ERROR = 'FETCH_FILE_IDS_ERROR';
-export const fetchFileIdsError = (error, root) => ({
-  type: FETCH_FILE_IDS_ERROR,
-  meta: root,
-  error
-});
-
-export const CLEAR_FILE_IDS = 'CLEAR_FILE_IDS';
-export const clearFileIds = (root) => ({
-  type: CLEAR_FILE_IDS,
-  meta: root,
-});
-
+//called on editor and user side to return all documents in mongo (not files in GridFS)
 export const fetchContent = (rootOfRequest) => (dispatch) => {
-  //console.log("doing fetchContent");
-  //debugger;
   return new Promise(function(resolve, reject) {
     dispatch(fetchContentRequest(rootOfRequest));
     return fetch(`${API_BASE_URL}/content`)
@@ -75,31 +49,4 @@ export const fetchContent = (rootOfRequest) => (dispatch) => {
       })
     }
   )
-};
-
-export const arrayBufferToBase64 = (buffer) => {
-      var binary = '';
-      var bytes = [].slice.call(new Uint8Array(buffer));
-      bytes.forEach((b) => binary += String.fromCharCode(b));
-      return window.btoa(binary);
-  };
-
-export const fetchFileIds = (contentId, rootOfRequest) => (dispatch) => {
-  console.log("doing fetchfileIds");
-  dispatch(fetchFileIdsRequest(rootOfRequest));
-  return fetch(`${API_BASE_URL}/content/fileIds/${contentId}`)
-    .then(res => normalizeResponseErrors(res))
-    .then(res => res.clone().json())
-    .then(fileIds => {
-     dispatch(fetchFileIdsSuccess(fileIds, rootOfRequest))
-     console.log("did fetchfileIds");
-    })
-    .catch(err => {
-      dispatch(fetchFileIdsError(err, rootOfRequest));
-      return Promise.reject(
-        new SubmissionError({
-          _error: err
-        })
-      );
-    })
 };

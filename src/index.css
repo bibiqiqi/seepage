@@ -1,16 +1,26 @@
+@font-face {
+  font-family: 'Epittazio';
+  src: url('fonts/Epittazio.ttf');
+}
+
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  src: url('./fonts/MaterialIcons-Regular.ttf');
+}
+
 html {
   font-size: 30px;
   box-sizing: border-box;
-  font-family: sans-serif;
+}
+
+body {
+  font-family: Times New Roman;
 }
 
 *, *:before, *:after {
   box-sizing: inherit;
-}
-
-@font-face {
-  font-family: 'Epittazio';
-  src: url('fonts/Epittazio.ttf');
 }
 
 h3 {
@@ -59,7 +69,7 @@ button {
   margin: .5rem auto;
 }
 
-input[type=text],
+/* input[type=text],
 input[type=password] {
   width: 100%;
   padding: 12px 20px;
@@ -67,7 +77,7 @@ input[type=password] {
   display: inline-block;
   border: 1px solid #ccc;
   box-sizing: border-box;
-}
+} */
 
 form {
   padding: .5rem;
@@ -79,20 +89,6 @@ main {
   margin: 0 auto;
 }
 
-.page {
-  height: 100vh;
-  width: 100vw;
-}
-
-.check {
-  font-family: wingdings2;
-}
-
-.delete {
-  font-family: wingdings2;
-  float: right;
-}
-
 .back {
   font-family: wingdings;
   position: absolute;
@@ -100,9 +96,30 @@ main {
   left: .2rem;
 }
 
-.exit {
+.button {
+  display: block;
+  margin: .5rem auto;
+}
+
+.clear-fix {
+  overflow: auto
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.collaps-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+  width: fit-content;
+  margin: auto;
+}
+
+.delete {
   font-family: wingdings2;
-  background-color: white;
+  font-size: .75rem;
 }
 
 .edit {
@@ -110,84 +127,50 @@ main {
   font-size: .75rem;
 }
 
-.exit-gallery,
-.edit-files,
-.remove-files
-.exit-search-results {
-  position: absolute;
-  top: 0;
-  right: 0;
-}
-
-.gallery {
-  position: absolute;
-  width: 100%;
-  z-index: 10
-}
-
-.art {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  width: 50%;
-}
-
-.arrow {
-  font-family: wingdings;
-  display: none;
-  position: absolute;
-  z-index: 5;
-  top: 50%
-}
-
-.slider-back {
-  left: 0;
-}
-
-.slider-forward {
-  right: 0;
-}
-
-.gallery:hover
-.arrow {
-  display: block;
-}
-
-.submit-edit {
-  font-family: wingdings;
-  font-size: .75rem;
-}
-
-.button {
-  display: block;
-  margin: .5rem auto;
-}
-
 .float-right {
   float: right;
-}
-
-.clear-fix {
-  overflow: auto
-}
-
-.clear {
-  clear: both;
-}
-
-.hidden {
-  display: none !important;
 }
 
 .forgot-psw {
   font-size: .5rem;
 }
 
+.hidden {
+  display: none !important;
+}
+
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;  /* Preferred icon size */
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  /* Support for all WebKit browsers. */
+  -webkit-font-smoothing: antialiased;
+  /* Support for Safari and Chrome. */
+  text-rendering: optimizeLegibility;
+  /* Support for Firefox. */
+  -moz-osx-font-smoothing: grayscale;
+  /* Support for IE. */
+  font-feature-settings: 'liga';
+}
+
+.page {
+  height: 100vh;
+  width: 100vw;
+}
+
 .pop-up {
   position: absolute; /* Stay in place */
   z-index: 10; /* Sit on top */
   width: 100%; /* Full width */
-  height: 100%; */
+  height: 100%;
   bottom: 50%;
   top: 50%;
   left: 50%;
@@ -195,30 +178,49 @@ main {
   background: white
 }
 
-.thumbNail {
+.smaller {
+  font-size: .5em;
+}
+
+.submit-button {
+  width: 15px;
+  height: 15px;
+  background-color: rgb(0, 0, 0);
+  margin: 0;
+  border: 1px grey solid;
+}
+
+.submit-edit {
+  font-family: wingdings;
+  font-size: .75rem;
+}
+
+.tags {
+  font-size: .5em;
+  font-style: italic;
+}
+
+.title {
+  font-style: italic;
+}
+
+.thumbnail {
+  text-align: center;
   height: 100px;
   width: 100px;
   position: relative;
   overflow: hidden;
 }
 
-.thumbNail img {
-  max-width: 100%
+.thumbnail-fit,
+.react-thumbnail-generator img {
+  width: 100%;
+  object-fit: cover;
+  object-position: 50% 50%;
 }
-
-.uploaded-file {
-  font-family: wingdings;
-  font-size: 3rem;
-}
-
-.custom-file-container {
-  max-width: 400px;
-  margin: 0 auto;
-}
-
 
 #editor-upload main,
-#editor-find main,
+#editor-find-form main,
 #editor-find-results main,
 #editor-view-edit main,
 #editor-reg main {

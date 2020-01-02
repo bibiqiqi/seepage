@@ -3,6 +3,8 @@ import * as classnames from 'classnames';
 import ReactPlayer from 'react-player'
 import {API_BASE_URL} from '../../config';
 
+import './gallery.css';
+
 export default class Gallery extends React.Component {
   //renders a gallery viewer component for user to view the files of a content entry, one at a time
   //makes a GET request to stream a single file at a time
@@ -10,6 +12,7 @@ export default class Gallery extends React.Component {
     super(props);
     this.state = {
       currentArtIndex: this.props.firstArtIndex,
+      loadingSymbol: false
     }
     this.renderFile = this.renderFile.bind(this);
     this.handleArrowClick = this.handleArrowClick.bind(this);
@@ -32,26 +35,27 @@ export default class Gallery extends React.Component {
       currentArtIndex = (oldArtIndex < highestIndex)? ++oldArtIndex : 0;
     }
     this.setState({currentArtIndex});
-    //this.fetchFile(fileObjects[currentArtIndex])
   }
 
   renderFile(){
     const fileObject = this.props.fileObjects[this.state.currentArtIndex];
+    //console.log('calling renderFile and the file array being passed is', this.props.fileObjects)
     const url = `${API_BASE_URL}/content/files/${fileObject.fileId}`;
     let file;
-    if(fileObject.type.includes('image')) {
+    if(fileObject.fileType.includes('image')) {
       file =
        <img
          src={url}
          alt={this.props.alt(this.state.currentArtIndex)}
        />
-    } else if (fileObject.type.includes('video')) {
+    } else if (fileObject.fileType.includes('video')) {
       file = <ReactPlayer url={url} controls/>
-    } else if (fileObject.type.includes('pdf')) {
+    } else if (fileObject.fileType.includes('pdf')) {
       file =
-      <object data={url} type="application/pdf">
-        <iframe src={`https://docs.google.com/viewer?url=${url}&embedded=true`}></iframe>
-      </object>
+        <object onLoad={() => {this.setState({loadingSymbol: true})}} data={url} type="application/pdf">
+          <p class={classnames({hidden: this.state.loadingSymbol})}>loading</p>
+          <iframe src={`https://docs.google.com/viewer?url=${url}&embedded=true`} title='PDF viewer'></iframe>
+        </object>
     };
     return file
    }
@@ -62,19 +66,22 @@ export default class Gallery extends React.Component {
         className='gallery'
       >
         <span
-          className = {classnames('exit', 'exit-gallery')}
+          className = {classnames('exit', 'float-right', 'clickable')}
           onClick = {() => this.props.onExitClick()}
-        >T
+        >
+          <i class="material-icons">close</i>
         </span>
         <span
-          className={classnames('slider-back', 'arrow')}
+          className={classnames('slider-back', 'arrow', 'clickable')}
           onClick={() => this.handleArrowClick('back')}
-        >E
+        >
+          <i class="fa fa-angle-left"></i>
         </span>
         <span
-          className={classnames('slider-forward', 'arrow')}
+          className={classnames('slider-forward', 'arrow', 'clickable')}
           onClick={() => this.handleArrowClick('forward')}
-        >F
+        >
+          <i class="fa fa-angle-right"></i>
         </span>
         {this.renderFile()}
       </div>
