@@ -111,7 +111,6 @@ main {
 }
 
 .exit-gallery,
-.edit-files,
 .remove-files
 .exit-search-results {
   position: absolute;
@@ -195,15 +194,38 @@ main {
   background: white
 }
 
-.thumbNail {
+.thumbnail {
+  text-align: center;
   height: 100px;
   width: 100px;
   position: relative;
   overflow: hidden;
 }
+.thumbnail img {
+  width: 100%
+}
 
-.thumbNail img {
-  max-width: 100%
+.react-thumbnail-generator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -10;
+}
+
+.react-thumbnail-generator img {
+  width: 100px;
+  height: auto
+}
+
+.video-thumbnail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -5
+}
+
+.play-icon {
+  height: 50%;
 }
 
 .uploaded-file {

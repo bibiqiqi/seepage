@@ -1,14 +1,6 @@
 import React from 'react';
 
 export default class LabeledInput extends React.Component {
-  // componentDidUpdate(prevProps) {
-  //  debugger;
-  //  if (!prevProps.meta.active && this.props.meta.active) {
-  //      this.input.focus();
-  //  }
-  // } componentDidMount(){
-  //   console.log(this.props);
-  // }
 
   render() {
     let error;

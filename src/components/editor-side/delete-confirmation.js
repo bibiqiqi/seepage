@@ -15,13 +15,7 @@ const initialState = {
   }
 }
 
-//performs async DELETE request
-//props passed from EditorFindResults are:
-  // contentId={this.state.contentId}
-  // onDeleteExit={(e) => this.handleDeleteClick(e)}
-  // index={index}
-  // onDeleteConfirm={(e) => this.handleDeleteConfirm(e)}
-
+//performs DELETE request
 class DeleteConfirmation extends React.Component {
   constructor(props) {
     super(props);
@@ -41,8 +35,8 @@ class DeleteConfirmation extends React.Component {
       }
     })
       .then(res => normalizeResponseErrors(res))
-      .then(res => {
-        console.log('delete was a success', res);
+      .then(deletedDoc => {
+        console.log('delete was a success', deletedDoc);
         //debugger;
         asyncCall.loading = false;
         asyncCall.success = true;

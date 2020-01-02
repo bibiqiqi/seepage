@@ -10,6 +10,7 @@ export default class Gallery extends React.Component {
     super(props);
     this.state = {
       currentArtIndex: this.props.firstArtIndex,
+      loadingSymbol: false
     }
     this.renderFile = this.renderFile.bind(this);
     this.handleArrowClick = this.handleArrowClick.bind(this);
@@ -32,26 +33,27 @@ export default class Gallery extends React.Component {
       currentArtIndex = (oldArtIndex < highestIndex)? ++oldArtIndex : 0;
     }
     this.setState({currentArtIndex});
-    //this.fetchFile(fileObjects[currentArtIndex])
   }
 
   renderFile(){
     const fileObject = this.props.fileObjects[this.state.currentArtIndex];
+    //console.log('calling renderFile and the file array being passed is', this.props.fileObjects)
     const url = `${API_BASE_URL}/content/files/${fileObject.fileId}`;
     let file;
-    if(fileObject.type.includes('image')) {
+    if(fileObject.fileType.includes('image')) {
       file =
        <img
          src={url}
          alt={this.props.alt(this.state.currentArtIndex)}
        />
-    } else if (fileObject.type.includes('video')) {
+    } else if (fileObject.fileType.includes('video')) {
       file = <ReactPlayer url={url} controls/>
-    } else if (fileObject.type.includes('pdf')) {
+    } else if (fileObject.fileType.includes('pdf')) {
       file =
-      <object data={url} type="application/pdf">
-        <iframe src={`https://docs.google.com/viewer?url=${url}&embedded=true`}></iframe>
-      </object>
+        <object onLoad={() => {this.setState({loadingSymbol: true})}} data={url} type="application/pdf">
+          <p class={classnames({hidden: this.state.loadingSymbol})}>loading</p>
+          <iframe src={`https://docs.google.com/viewer?url=${url}&embedded=true`} title='PDF viewer'></iframe>
+        </object>
     };
     return file
    }

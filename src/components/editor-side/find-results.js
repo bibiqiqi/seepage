@@ -1,12 +1,11 @@
-import React from "react";
+import React, {Fragment} from "react";
 import {connect} from 'react-redux';
 import Collapsible from 'react-collapsible';
 import cloneDeep from 'clone-deep';
 import merge from 'deepmerge';
 import * as classnames from 'classnames';
 
-import {fetchFileIds} from '../../actions/content/multi-side';
-import ThumbNails from '../multi-side/thumb-nails';
+import Thumbnails from '../multi-side/thumb-nails';
 import EditorEditForm from './edit-form';
 import DeleteConfirmation from './delete-confirmation';
 
@@ -72,7 +71,6 @@ class EditorFindResults extends React.Component {
         });
         collapsible.key = key;
         this.setState({collapsible});
-        this.props.dispatch(fetchFileIds(contentId, "editor"));
       }
     //if user clicks a collapsible that's closed...
     } else {
@@ -84,9 +82,6 @@ class EditorFindResults extends React.Component {
           open: true
         }
       }
-      //...and dispatch fetchFileIds
-      console.log('calling fetchFileIds');
-      this.props.dispatch(fetchFileIds(contentId, "editor"));
       this.setState((prevState) => {
         return merge(prevState, newState)
       });
@@ -94,8 +89,7 @@ class EditorFindResults extends React.Component {
  }
 
   handleEditClick(e) {
-    //when user wants to edit a field
-    //update the state to reveal an EditorEditForm component
+    //when user wants to edit a field update the state to reveal an EditorEditForm component
     const value = e.currentTarget.className.slice(10);
     const hidden = Object.assign({}, this.state.hidden);
     hidden.editForm = value;
@@ -155,7 +149,7 @@ class EditorFindResults extends React.Component {
    }
 
    renderDeleteSymbol(value) {
-     //renders the garbage can delete symbol for each content entry
+     //renders the delete symbol for each content entry
       return(
         <span
           className = {classnames('delete', `delete-${value}`)}
@@ -182,13 +176,14 @@ class EditorFindResults extends React.Component {
       }
     }
 
-   renderThumbNailState(content) {
-     console.log('calling renderThumbNailState');
+   renderThumbnailState(content, index) {
+     console.log('calling renderThumbnailState');
      //renders the state of the thumbnails, dependent on whether user has clicked on the content
      if (this.state.hidden.editForm === 'files') {
-       //console.log('...and renderThumbNailState is rendering an edit component');
+       //console.log('...and renderThumbnailState is rendering an edit component');
        return (
          <EditorEditForm
+           content={content}
            contentId={this.state.contentId}
            onExit={this.handleEditFormExit}
            name='files'
@@ -196,11 +191,15 @@ class EditorFindResults extends React.Component {
          />
          )
      } else {
-       if(this.props.fileObjects) {
+       if(this.state.collapsible.open && index === this.state.collapsible.key) {
          return (
-           <ThumbNails
-            content={content}
-           />
+           <Fragment>
+              <h3 title='files'> Files: {this.renderEditSymbol('files')}</h3>
+              <Thumbnails
+                content={content}
+                gallery={true}
+              />
+           </Fragment>
          )
        } else {
          return null
@@ -208,20 +207,21 @@ class EditorFindResults extends React.Component {
      }
    }
 
-   renderReadOrEdit(collapsibleKey, string, field, value){
+   renderReadOrEdit(collapsibleKey, string, field, result){
      //gets called for each field except for thumbNails and files
      //and determines whether to render as an EditorEditForm component or read-only
      let renderedValue;
      if ((field === 'artistName') || (field === 'title')) {
-       renderedValue = value;
+       renderedValue = result[field];
      } else if (field === 'category') {
-       renderedValue = value.map((category, index) => <p key={index}>{category}</p>);
+       renderedValue = result[field].map((category, index) => <p key={index}>{category}</p>);
      } else if (field === 'tags') {
-       renderedValue = value.map((tag, index) => <p key={index}>{tag}</p>);
+       renderedValue = result[field].map((tag, index) => <p key={index}>{tag}</p>);
      }
      if ((this.state.hidden.editForm === field) && (this.state.collapsible.key === collapsibleKey)) {
       return (
         <EditorEditForm
+          content={result}
           contentId={this.state.contentId}
           onExit={this.handleEditFormExit}
           name={field}
@@ -243,13 +243,14 @@ class EditorFindResults extends React.Component {
    renderResults(filteredContent) {
      //maps through all the filtered results from user's query and calls other functions to
      //render all of the code within a collapsible
-     const strings = ['id', 'Artist Name', 'Title', 'Categories', 'Tags', 'Files'];
+     const strings = ['id', 'Artist Name', 'Title', 'Categories', 'Tags'];
      return filteredContent.map((result, index) => {
        let details = [];
        let i = 0;
+       //debugger;
        for (let field in result) {
-         if(field !== 'id') {
-           details.push(this.renderReadOrEdit(index, strings[i], field, result[field]));
+         if((field !== 'id') && (field !== 'files')) {
+           details.push(this.renderReadOrEdit(index, strings[i], field, result));
          }
         i++;
        }
@@ -262,7 +263,7 @@ class EditorFindResults extends React.Component {
            >
            {this.renderDeleteSymbol(index)}
            {details}
-           {this.renderThumbNailState(result)}
+           {this.renderThumbnailState(result, index)}
            {this.renderDeleteState(index)}
            </Collapsible>
          </li>
@@ -294,7 +295,6 @@ class EditorFindResults extends React.Component {
 const mapStateToProps = state => ({
   filteredContent: state.editorContent.filteredContent,
   filteredContentNone: state.editorContent.filteredContentNone,
-  fileObjects: state.editorContent.fileIds
 });
 
 export default connect(mapStateToProps)(EditorFindResults);

@@ -7,9 +7,7 @@ import * as classnames from 'classnames';
 import 'react-toastify/dist/ReactToastify.css';
 
 import Gallery from '../multi-side/gallery';
-import ThumbNails from '../multi-side/thumb-nails';
-// import Gallery from '../multi-side/gallery'
-import {fetchFileIds} from '../../actions/content/multi-side';
+import Thumbnails from '../multi-side/thumb-nails';
 
 const initialState = {
   contentId: '',
@@ -28,8 +26,6 @@ class SearchResults extends React.Component {
   constructor(props) {
     super(props);
     this.state = cloneDeep(initialState);
-    // this.handleGalleryOpen = this.handleGalleryOpen.bind(this);
-    // this.handleGalleryExit = this.handleGalleryExit.bind(this);
   }
 
   componentDidUpdate(prevProps) {
@@ -44,7 +40,6 @@ class SearchResults extends React.Component {
 
   handleCollapsibleClick(contentId, key) {
     const collapsible = cloneDeep(this.state.collapsible);
-    //debugger;
     //if a user clicks a collapsible and one of them is open...
     if (collapsible.open) {
       //test to see if the one that's open equals the one clicked
@@ -69,7 +64,6 @@ class SearchResults extends React.Component {
         this.setState((prevState) => {
           return merge(prevState, newCollapsible)
         });
-        this.props.dispatch(fetchFileIds(contentId, "editor"));
       }
     //if user clicks a collapsible that's closed...
     } else {
@@ -82,23 +76,20 @@ class SearchResults extends React.Component {
           open: true
         }
       }
-      //...and dispatch fetchThumbNails
-      this.props.dispatch(fetchFileIds(contentId, "editor"));
-      //debugger;
       this.setState((prevState) => {
         return merge(prevState, newState)
       });
    };
  }
 
- renderThumbNailState(content) {
+ renderThumbNailState(content, index) {
    //renders the state of the thumbnails, dependent on whether user has clicked on the content
    //if the redux state of thumbNails is populated, then generate html from them
-   //debugger;
-   if(this.props.fileObjects) {
+   if(this.state.collapsible.open && this.state.collapsible.key===index) {
      return (
-       <ThumbNails
+       <Thumbnails
         content={content}
+        gallery={true}
        />
      )
    } else {
@@ -137,7 +128,7 @@ class SearchResults extends React.Component {
       return (
       <Fragment>
         {details}
-        {this.renderThumbNailState(result)}
+        {this.renderThumbNailState(result, index)}
       </Fragment>
       )
    } else {
@@ -202,7 +193,7 @@ class SearchResults extends React.Component {
       return (
         <Gallery
           firstArtIndex={this.state.gallery.firstArtIndex}
-          fileIds={this.state.gallery.fileIds}
+          fileIds={result.files}
           onExitClick={this.handleGalleryExit}
           alt={`file for ${result.title} by ${result.artist}`}
          />
@@ -234,7 +225,6 @@ class SearchResults extends React.Component {
 const mapStateToProps = state => ({
   searchResults: state.userContent.searchByKeyWordResults,
   searchResultsNone: state.userContent.searchByKeyWordResultsNone,
-  fileObjects: state.editorContent.fileIds
 });
 
 export default connect(mapStateToProps)(SearchResults);

@@ -1,25 +1,23 @@
 import React, {Fragment} from 'react';
-import {connect} from 'react-redux';
-import {API_BASE_URL} from '../../config';
 import cloneDeep from 'clone-deep';
 
-import TextIcon from '../../text-icon.jpg'
-import ReactPlayer from 'react-player'
-import Gallery from '../multi-side/gallery';
+import Gallery from './gallery';
+import Thumbnail from './thumbnail';
 
-class ThumbNails extends React.Component {
+export default class Thumbnails extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       gallery: {
         open: false,
         firstArtIndex: null
-      }
+      },
+
     }
     this.handleGalleryExit = this.handleGalleryExit.bind(this);
     this.handleGalleryOpen = this.handleGalleryOpen.bind(this);
     this.renderGalleryState = this.renderGalleryState.bind(this);
-    this.renderThumbNails = this.renderThumbNails.bind(this);
+    this.renderThumbnails = this.renderThumbnails.bind(this);
   };
 
   handleGalleryOpen(e) {
@@ -49,7 +47,7 @@ class ThumbNails extends React.Component {
       return (
         <Gallery
           firstArtIndex={this.state.gallery.firstArtIndex}
-          fileObjects={this.props.fileObjects}
+          fileObjects={this.props.content.files}
           onExitClick={this.handleGalleryExit}
           alt={(fileNumber) => `Gallery view of file ${fileNumber} for ${this.props.content.title}, by ${this.props.content.artistName}`}
          />
@@ -59,60 +57,27 @@ class ThumbNails extends React.Component {
     }
   }
 
-renderThumbNails() {
-  const thumbNails = this.props.fileObjects.map((e, i) => {
-    const url = `${API_BASE_URL}/content/files/${e.fileId}`;
-    let thumbNail;
-    if(e.type.includes('image')) {
-      thumbNail =
-         <img
-           src={url}
-         >
-         </img>
-    } else if (e.type.includes('video')) {
-      thumbNail =
-      <ReactPlayer
-        url={url}
-        muted
-        width='100%'
-        height='100%'
-      />
-    } else if (e.type.includes('pdf')) {
-      thumbNail =
-      <img
-        src={TextIcon}
-      >
-      </img>
-    };
+renderThumbnails() {
+  const thumbnails = this.props.content.files.map((e, i) => {
     return (
-      <div
-        className='thumbNail'
-        key={i}
-        id={`thumbnail_${i}`}
-        alt={`thumbNail ${i} for ${this.props.content.title}, by ${this.props.content.artistName}`}
-        onClick={(e) => this.handleGalleryOpen(e)}
-      >
-        {thumbNail}
-      </div>
+      <Thumbnail
+        fileObject = {e}
+        index = {i}
+        title = {this.props.content.title}
+        artistName = {this.props.content.artistName}
+        onClick = {this.props.gallery}
+      />
     )
   });
-  return thumbNails
+  return thumbnails
  }
 
   render(){
     return(
       <Fragment>
-        {this.renderThumbNails()}
+        {this.renderThumbnails()}
         {this.renderGalleryState()}
       </Fragment>
     )
   }
 }
-
-
-
-const mapStateToProps = state => ({
-  fileObjects: state.editorContent.fileIds
-});
-
-export default connect(mapStateToProps)(ThumbNails);

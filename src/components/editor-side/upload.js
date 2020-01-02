@@ -8,7 +8,6 @@ import cloneDeep from 'clone-deep';
 import VideoThumbnail from 'react-video-thumbnail'; // use npm published version
 
 import TextIcon from '../../text-icon.jpg';
-import VideoIcon from '../../video-icon.png';
 import {API_BASE_URL} from '../../config';
 import Logo from '../multi-side/logo';
 import Autocomplete from './autocomplete';
@@ -16,7 +15,9 @@ import Categories from './categories';
 import LabeledInput from '../multi-side/labeled-input-controlled';
 import TagsInput from './tags-input';
 import RenderDropZone from './dropzone';
+import {normalizeResponseErrors} from '../../actions/utils';
 import {fetchContent} from '../../actions/content/multi-side';
+import {editContentInState} from '../../actions/content/editor-side';
 import './upload.css';
 
 const initialState = {
@@ -41,6 +42,7 @@ const initialState = {
   }
 };
 
+//performs POST request
 class EditorUpload extends React.Component {
   constructor(props) {
     super(props);
@@ -70,13 +72,16 @@ class EditorUpload extends React.Component {
       },
       body: data
     })
-    .then(res => {
-      console.log('did the dang thing', res);
+    .then(res => normalizeResponseErrors(res))
+    .then(res => res.clone().json())
+    .then(post => {
+      toast.dismiss();
+      toast('you successfully made a post');
+      //you added a doc, so content in state needs to be updated
+      this.props.dispatch(editContentInState(post.id, post))
       this.setState((prevState) => {
         return initialState;
       });
-      toast.dismiss();
-      toast('you successfully made a post');
     })
     .catch(err => {
       toast.dismiss();
@@ -98,7 +103,7 @@ class EditorUpload extends React.Component {
       const data = new FormData();
       for (let key in upload) {
         if ((key === 'files') || (key === 'tags')) {
-          for (var x = 0; x < upload[key].length; x++) {
+          for (let x = 0; x < upload[key].length; x++) {
             data.append(key, upload[key][x]);
           }
         } else if (key === 'category') {
@@ -166,10 +171,6 @@ class EditorUpload extends React.Component {
     this.setState({validation});
     //if event.target doesn't exist, then the change came from file input
     if (!(event.target)) {
-      const placeholderPaths = {
-        video: VideoIcon,
-        pdf: TextIcon
-      }
       event.forEach(file => {
         const thumbNailObject = {};
         thumbNailObject.type = file.type;
@@ -177,7 +178,7 @@ class EditorUpload extends React.Component {
         if((file.type.includes('image')) || (file.type.includes('video'))) {
           thumbNailObject.url = this.onCreateObjectUrl(file);
         } else if (file.type.includes('pdf')) {
-          thumbNailObject.url = placeholderPaths.pdf;
+          thumbNailObject.url = TextIcon
         }
         thumbNailUrls.push(thumbNailObject);
       });
@@ -249,7 +250,7 @@ class EditorUpload extends React.Component {
           <Fragment>
             {this.renderRemoveSymbol(i)}
             <div
-              className='thumbNail'
+              className='thumbnail'
             >
             {thumbNail}
            </div>
