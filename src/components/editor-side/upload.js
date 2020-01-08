@@ -2,12 +2,13 @@ import React, {Fragment} from 'react';
 import {Link, NavLink} from 'react-router-dom';
 import {connect} from 'react-redux';
 import * as classnames from 'classnames';
+import cloneDeep from 'clone-deep';
+import merge from 'deepmerge';
 import {ToastContainer, toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import cloneDeep from 'clone-deep';
 import VideoThumbnail from 'react-video-thumbnail'; // use npm published version
 
-import TextIcon from '../../text-icon.jpg';
+import TextIcon from '../../text-icon.png';
 import {API_BASE_URL} from '../../config';
 import Logo from '../multi-side/logo';
 import Autocomplete from './autocomplete';
@@ -19,6 +20,7 @@ import {normalizeResponseErrors} from '../../actions/utils';
 import {fetchContent} from '../../actions/content/multi-side';
 import {editContentInState} from '../../actions/content/editor-side';
 import './upload.css';
+import '../../index.css'
 
 const initialState = {
   uploadForm: {
@@ -39,6 +41,10 @@ const initialState = {
     category: '',
     files: '',
     tags: ''
+  },
+  asyncCall: {
+    loading: false,
+    success: null
   }
 };
 
@@ -65,6 +71,7 @@ class EditorUpload extends React.Component {
 
   postEntry(data) {
     toast('loading');
+    this.setState({loading: true, success: null});
     fetch(`${API_BASE_URL}/protected/content`, {
       method: 'POST',
       headers: {
@@ -76,17 +83,17 @@ class EditorUpload extends React.Component {
     .then(res => res.clone().json())
     .then(post => {
       toast.dismiss();
-      toast('you successfully made a post');
+      toast('success!');
+      const asyncCall = {loading: false, success: true};
       //you added a doc, so content in state needs to be updated
       this.props.dispatch(editContentInState(post.id, post))
-      this.setState((prevState) => {
-        return initialState;
-      });
+      this.setState(merge(initialState, asyncCall));
     })
     .catch(err => {
       toast.dismiss();
-      toast.error('an error has occured while trying to upload your content');
-
+      toast.error('there was an error updating the content');
+      const asyncCall = {loading: false, success: false};
+      this.setState(merge(initialState, asyncCall));
     })
   }
 
@@ -107,14 +114,11 @@ class EditorUpload extends React.Component {
             data.append(key, upload[key][x]);
           }
         } else if (key === 'category') {
-          //iterate through the category object to turn it into an array;
-          let categoryArray = [];
           for (let key in category) {
             if (category[key] === true) {
-              categoryArray.push(key)
+              data.append('category', key);
             }
           }
-          data.append('category', categoryArray);
         } else {//the value is a string (either artistName or title)
           data.append(key, upload[key]);
         }
@@ -185,14 +189,14 @@ class EditorUpload extends React.Component {
       this.setState({uploadForm, thumbNailUrls}, () => {console.log('updated the state with files and thumbNailUrls', this.state)});
     } else { //otherwise the change came from either a text input or a checkbox input
       const key = event.target.name;
-      const value = event.target.value;
       if (event.target.type === "checkbox") {
         //if input type is checkbox, then update value to either true or false
         event.target.checked ? uploadForm.category[key] = true : uploadForm.category[key] = false;
         this.setState({uploadForm});
       } else {
+        const value = event.target.value;
         //otherwise input is a text value, so update the state with current string
-        uploadForm[key] = value;
+        uploadForm[key] = value.trim();
         this.setState({uploadForm});
       }
     }
@@ -220,9 +224,11 @@ class EditorUpload extends React.Component {
     //renders the symbol for removing files that are in the current edit form
      return(
        <span
-         className = {classnames('exit', 'remove-files', `remove-${index}`)}
+         className = {classnames('exit', 'float-right', `remove-${index}`, 'clickable')}
          onClick = {(e) => this.handleRemoveClick(e)}
-       >T</span>
+       >
+        <i className="material-icons">close</i>
+       </span>
      )
    }
 
@@ -241,6 +247,7 @@ class EditorUpload extends React.Component {
             <img
               key={i}
               src={e.url}
+              className='thumbnail-fit'
               id={`thumbnail_${i}`}
               alt={`thumbnail ${i} for your current upload`}
             >
@@ -264,7 +271,6 @@ class EditorUpload extends React.Component {
   }
 
   render() {
-
     const validation = Object.assign({}, this.state.validation);
     Object.values(validation).forEach(e => {
       if (e) {

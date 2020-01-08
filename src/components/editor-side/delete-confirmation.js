@@ -20,14 +20,14 @@ class DeleteConfirmation extends React.Component {
   constructor(props) {
     super(props);
     this.state = cloneDeep(initialState);
-    this.deleteContent = this.deleteContent.bind(this);
+    this.deleteEntry = this.deleteEntry.bind(this);
     this.renderRemoveSymbol = this.renderRemoveSymbol.bind(this);
     this.renderDeleteState = this.renderDeleteState.bind(this);
   }
 
-  deleteContent() {
-    const asyncCall = {loading: true, success: null}
-    this.setState({asyncCall});
+  deleteEntry() {
+    toast('loading');
+    this.setState({loading: true, success: null});
     return fetch(`${API_BASE_URL}/protected/content/${this.props.contentId}`, {
       method: 'DELETE',
       headers: {
@@ -36,18 +36,18 @@ class DeleteConfirmation extends React.Component {
     })
       .then(res => normalizeResponseErrors(res))
       .then(deletedDoc => {
-        console.log('delete was a success', deletedDoc);
-        //debugger;
-        asyncCall.loading = false;
-        asyncCall.success = true;
+        toast.dismiss();
+        toast('success!');
+        const asyncCall = {loading: false, success: true};
         this.setState({asyncCall});
         this.props.dispatch(editContentInState(this.props.contentId))
           .then(() => this.props.onDeleteConfirm())
 
       })
       .catch(err => {
-        asyncCall.loading = false;
-        asyncCall.success = false;
+        toast.dismiss();
+        toast.error('there was an error updating the content');
+        const asyncCall = {loading: false, success: false};
         this.setState({asyncCall});
       })
   };
@@ -56,7 +56,7 @@ class DeleteConfirmation extends React.Component {
     //console.log('value being passed to renderDeleteSymbol is', value);
      return(
        <span
-         className = {classnames('exit', 'float-right', `delete-${this.props.index}`)}
+         className = {classnames('clickable', 'exit', 'float-right', `delete-${this.props.index}`)}
          onClick = {(e) => this.props.onDeleteExit(e)}
        >T</span>
      )
@@ -71,23 +71,11 @@ class DeleteConfirmation extends React.Component {
            {this.renderRemoveSymbol()}
            <h3>Are You Sure You Want to Erase This Content?</h3>
            <button
-             onClick={this.deleteContent}
+             onClick={this.deleteEntry}
            >
              Yes
            </button>
          </div>
-       )
-     } else if (this.state.asyncCall.loading) {
-       return toast('loading');
-     } else if (this.state.asyncCall.success) {
-       return (
-         toast.dismiss(),
-         toast('success!')
-       )
-     } else if (this.state.asyncCall.success === false ) {
-       return (
-         toast.dismiss(),
-         toast.error('there was an error updating the content')
        )
      }
    }

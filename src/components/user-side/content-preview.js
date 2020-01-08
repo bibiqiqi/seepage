@@ -2,8 +2,9 @@ import React from 'react';
 import {connect} from 'react-redux';
 import ReactPlayer from 'react-player'
 
-import TextIcon from '../../text-icon.jpg'
+import TextIcon from '../../text-icon.png'
 import {API_BASE_URL} from '../../config';
+import './content-preview.css'
 
 class ContentPreview extends React.Component {
   //renders a gallery viewer component for user to view the files of a content entry, one at a time
@@ -20,19 +21,19 @@ class ContentPreview extends React.Component {
         if(e.fileType.includes('image')) {
           thumbNail =
           <image
-            x={`${x}em`} y='2em'
+            x={`${x}em`} y='0em'
             href={url}
-            width='100'
-            height='100'
+            width='150'
+            height='150'
             id={`thumbnail_${i}`}
             alt={`thumbnail ${i} for ${this.props.node.title}, by ${this.props.node.artist}`}
           />;
         } else if (e.fileType.includes('video')) {
           thumbNail =
           <foreignObject
-            x={`${x}em`} y='2em'
-            width='100'
-            height='100'
+            x={`${x}em`} y='0em'
+            width='150'
+            height='150'
             id={`thumbnail_${i}`}
             alt={`thumbnail ${i} for ${this.props.node.title}, by ${this.props.node.artist}`}
           >
@@ -47,10 +48,10 @@ class ContentPreview extends React.Component {
         } else if (e.fileType.includes('pdf')) {
           thumbNail =
           <image
-            x={`${x}em`} y='2em'
+            x={`${x}em`} y='1em'
             href={TextIcon}
-            width='100'
-            height='100'
+            width='85'
+            height='85'
             id={`thumbnail_${i}`}
             alt={`thumbnail ${i} for ${this.props.node.title}, by ${this.props.node.artist}`}
           />;
@@ -58,13 +59,12 @@ class ContentPreview extends React.Component {
         console.log('returning', thumbNail);
         x++;
         return (
-          <g class='preview'>
+          <g class='preview clickable'>
            {thumbNail}
          </g>
         )
       });
       console.log('returning', thumbNails);
-      //debugger;
       return thumbNails
     } else {
       return null
@@ -72,31 +72,26 @@ class ContentPreview extends React.Component {
   }
 
   render(){
-    //debugger;
-
     let text;
     if(this.props.node.type === "primary"){
       text =
         <text x='1em' y='1em'>{this.props.node.tag}</text>
     } else {
-      console.log('showing preview for', this.props.node.title, 'by', this.props.node.artistName)
       text =
       <g>
-        <text x='1em' y='1em'>{this.props.node.title}</text>
-        <text x='1em' y='2em'>by</text>
-        <text x='1em' y='3em'>{this.props.node.artistName}</text>
+        <text className='graph-prev title' x='1em' y='7.5em'>{this.props.node.title}</text>
+        <text className='graph-prev artistName' x='1em' y='8.5em'>{this.props.node.artistName}</text>
       </g>
     };
     return(
       <svg
         class={`nodePreview nodePreview-${this.props.node.index}`}
       >
-        {text}
         {this.renderThumbNailState()}
+        {text}
       </svg>
-    );
+    )
   }
-
 }
 
 const mapStateToProps = state => ({

@@ -14,7 +14,6 @@ export const searchByKeyWord = (keyWord) => (dispatch, getState) => {
     console.log('doing searchByKeyWord and heres the term you sent', keyWord);
     const state = getState();
     const contents = state.userContent.allContent;
-    //debugger;
     let filteredResults = [];
     let lowerCaseKw = keyWord.toLowerCase();
     contents.forEach((e) => {

@@ -6,10 +6,9 @@ import {toast} from 'react-toastify';
 
 import {fetchContent} from '../../actions/content/multi-side';
 import {filterBySearch, filterByBrowse} from '../../actions/content/editor-side';
-
 import Autocomplete from './autocomplete';
 import Categories from './categories';
-import './find.css';
+import './find-form.css';
 
 const initialState = {
   findForm: {

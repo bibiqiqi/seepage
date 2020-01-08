@@ -10,14 +10,14 @@
   max-width: 8rem;
 }
 
-#cover-page  .button {
-  background-color: rgb(255, 135, 250);
-  color: rgb(147, 147, 147);
-  font-size: .5rem;
+#cover-page p {
+  font-weight: 200;
 }
 
-#cover-page  p {
-  font-weight: 200;
+#cover-page button {
+  background-color: white;
+  color: rgb(147, 147, 147);
+  font-size: .5rem;
 }
 
 #cover-page footer {
@@ -26,4 +26,8 @@
 
 #cover-page footer p {
   text-align: center;
+}
+
+#cover-page .check {
+  font-family: wingdings2;
 }

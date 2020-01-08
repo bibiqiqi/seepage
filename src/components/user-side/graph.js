@@ -1,10 +1,11 @@
 import React, {Fragment} from "react";
 import * as d3 from 'd3';
 import _ from 'underscore';
-import Color from 'color';
+import cloneDeep from 'clone-deep';
 
 import Gallery from '../multi-side/gallery';
 import ContentPreview from './content-preview';
+import genCatColor from '../multi-side/gen-cat-color';
 
 var width = 800;
 var height = 500;
@@ -20,8 +21,12 @@ export default class Graph extends React.Component {
     this.state = {
       nodePreview: null,
       gallery: null,
-      fileObjects: null
+      fileObjects: null,
+      nodes: cloneDeep(this.props.nodes),
+      links: cloneDeep(this.props.links)
     };
+    force.nodes(this.state.nodes).links(this.state.links);
+    force.start();
     this.handleGalleryOpen = this.handleGalleryOpen.bind(this);
     this.handleGalleryExit = this.handleGalleryExit.bind(this);
     this.renderGalleryState = this.renderGalleryState.bind(this);
@@ -33,40 +38,6 @@ export default class Graph extends React.Component {
       // forceUpdate on the React component on each tick
       this.forceUpdate()
     });
-  }
-
-  componentWillReceiveProps(nextProps) {
-    force.nodes(nextProps.nodes).links(nextProps.links);
-    force.start();
-  }
-
-  translateAndBlendColors(categoryArray){
-    const categoryLegend = {
-      media: Color.rgb(255, 29, 55), //red
-      performance: Color.rgb(255, 235, 29), //yellow
-      text: Color.rgb(35, 213, 255) //blue
-    };
-
-    const colorArray = [];
-    categoryArray.forEach(e => {
-      for (let key in categoryLegend) {
-        if (e === key) {
-          colorArray.push(categoryLegend[key])
-        }
-      }
-    });
-    let newColor;
-    if (colorArray.length > 1) {
-      let blendedColor = colorArray[0];
-      let i;
-      for(i = 1; i < colorArray.length; i++) {
-        blendedColor.mix(colorArray[i])
-      }
-      newColor = blendedColor;
-    } else {
-      newColor = colorArray[0];
-    }
-    return newColor;
   }
 
   renderPreviewState(node) {
@@ -110,7 +81,7 @@ export default class Graph extends React.Component {
           firstArtIndex="0"
           fileObjects={this.state.fileObjects} //bc this can be triggered by onMouseLeave, new render of Gallery receives fileObjects from internal state
           onExitClick={this.handleGalleryExit}
-          alt={(fileNumber) => `Gallery view of file ${fileNumber} for ${this.props.nodes[this.state.gallery].title}, by ${this.props.nodes[this.state.gallery].artist}`}
+          alt={(fileNumber) => `Gallery view of file ${fileNumber} for ${this.state.nodes[this.state.gallery].title}, by ${this.state.nodes[this.state.gallery].artist}`}
          />
       )
     } else {
@@ -120,11 +91,12 @@ export default class Graph extends React.Component {
 
   render() {
     // use React to draw all the nodes, d3 calculates the x and y
-    var nodes = _.map(this.props.nodes, (node, i) => {
+    //debugger;
+    var nodes = this.state.nodes.map((node, i) => {
       var transform = 'translate(' + node.x + ',' + node.y + ')';
       let color;
       if(node.category) {
-        color = this.translateAndBlendColors(node.category);
+        color = genCatColor(node.category);
       } else {
         color = "gray";
       }
@@ -150,7 +122,7 @@ export default class Graph extends React.Component {
       );
     });
 
-    var links = _.map(this.props.links, (link) => {
+    var links = _.map(this.state.links, (link) => {
       return (
         <line className='link' key={link.key}
           x1={link.source.x} x2={link.target.x} y1={link.source.y} y2={link.target.y} />

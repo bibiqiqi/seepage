@@ -16,14 +16,22 @@ import Thumbnail from '../multi-side/thumbnail';
 import {normalizeResponseErrors} from '../../actions/utils';
 import {editContentInState} from '../../actions/content/editor-side';
 
-const initialState = {
-  uploadForm: {},
-  asyncCall: {
-    loading: false,
-    success: null
-  },
-  validationError: false,
-}
+const initialState =   {
+    uploadForm: {
+      artistName: '',
+      title: '',
+      category: {
+        media: false,
+        performance: false,
+        text: false
+        },
+      tags: []
+    },
+    asyncCall: {
+      loading: false,
+      success: null
+    }
+  };
 
 //performs async PATCH request
 //renders an "editor form" that is just one input field, depending on which value
@@ -35,18 +43,10 @@ class EditorEditForm extends React.Component {
       cloneDeep(initialState),
       {
         uploadForm: {
-          artistName: '',
-          title: '',
-          category: {
-            media: false,
-            performance: false,
-            text: false
-            },
           files: {
-            totalFiles: this.props.content.files.length,
-            filesEdits: this.props.content.files
-          },
-          tags: []
+            totalFiles: props.content.files.length,
+            filesEdits: props.content.files
+          }
         }
       }
     );
@@ -56,12 +56,8 @@ class EditorEditForm extends React.Component {
   }
 
   patchEntry(data, field) {
-    console.log('running patchEntry');
-    const asyncCall = {
-      loading: true,
-      success: null
-    };
-    this.setState({asyncCall}, () => {console.log('patch request is happening and now state is:', this.state.asyncCall)});
+    toast('loading');
+    this.setState({loading: true, success: null});
     let body, headers;
     if(field === 'files') {
       headers = {
@@ -75,7 +71,7 @@ class EditorEditForm extends React.Component {
       };
       body = JSON.stringify(data);
     }
-    fetch(`${API_BASE_URL}/protected/${field}/${this.props.contentId}`, {
+    fetch(`${API_BASE_URL}/protected/${field}/${this.props.content.id}`, {
       method: 'PATCH',
       headers: headers,
       body: body
@@ -83,23 +79,26 @@ class EditorEditForm extends React.Component {
     .then(res => normalizeResponseErrors(res))
     .then(res => res.clone().json())
     .then(editedDoc => {
-      const asyncCall = {
-        loading: false,
-        success: true
-      }
+      toast.dismiss();
+      toast('success!');
+      const asyncCall = {loading: false, success: true};
+      //debugger;
     //if successful, editContentInState called to update the browser state with edited document
-     this.props.dispatch(editContentInState(this.props.contentId, editedDoc))
-       .then(resolve => {
-         this.setState({asyncCall}, () => {console.log('patch was successful and now local state is:', this.state.asyncCall)});
+     this.props.dispatch(editContentInState(this.props.content.id, editedDoc))
+       .then(() => {
+         const files = {
+           totalFiles: this.props.content.files.length,
+           filesEdits: this.props.content.files
+         };
+         this.setState(merge.all[initialState, asyncCall, files]);
          this.props.onPatchCompletion();
        })
     })
     .catch(err => {
-      const asyncCall = {
-        loading: false,
-        success: false
-      };
-      this.setState({asyncCall}, () => {console.log('patch wasnt successful and now state is:', this.state.asyncCall)});
+      toast.dismiss();
+      toast.error('there was an error updating the content');
+      const asyncCall = {loading: false, success: false};
+      this.setState(merge(initialState, asyncCall));
     })
   }
 
@@ -108,7 +107,7 @@ class EditorEditForm extends React.Component {
     const upload = this.state.uploadForm;
     const key = this.props.name;
     let data;
-    console.log('doing handleSubmit() and the state is', upload.files);
+    //console.log('doing handleSubmit() and the state is', upload.files);
     if (key === 'files') {
       let totalFiles = upload.files.totalFiles; //for validation, to ensure that there is at least 1 file for this entry
       if (totalFiles < 1) { //validation check to make sure field isn't empty
@@ -129,7 +128,6 @@ class EditorEditForm extends React.Component {
         toast.warn('You can\'t submit an edit request without any edits');
       } else {
         console.log('you chose to submit a files edit, and your submitting the following filesEdit array', filesEdit, 'and you have the following totalFiles', totalFiles);
-        //debugger;
         data = new FormData();
         filesEdit.forEach(e => {
           data.append('files', e);
@@ -229,7 +227,7 @@ class EditorEditForm extends React.Component {
     //console.log('value being passed to renderDeleteSymbol is', value);
      return(
        <span
-        className = {classnames('exit', 'remove-files', `remove-${index}`)}
+        className = {classnames('clickable', 'exit', 'float-right', `remove-${index}`)}
         onClick = {(e) => this.handleRemoveClick(e)}
        >T</span>
      )
@@ -315,18 +313,6 @@ class EditorEditForm extends React.Component {
           </Fragment>
         )
       }
-    } else if (this.state.asyncCall.loading) {
-      return toast('loading');
-    } else if (this.state.asyncCall.success) {
-      return (
-        toast.dismiss(),
-        toast('success!')
-      )
-    } else if (this.state.asyncCall.success === false ) {
-      return (
-        toast.dismiss(),
-        toast.error('there was an error updating the content')
-      )
     }
   }
 
@@ -344,16 +330,16 @@ class EditorEditForm extends React.Component {
         >
         <main>
           <span
-            className="exit"
+            className='exit clickable'
             onClick={this.props.onExit}
           >
-            T
-         </span>
+            <i class="material-icons">close</i>
+          </span>
          <span
-           className="submit-edit"
+           className='submit-edit clickable'
            onClick={this.handleSubmit}
          >
-           -
+          <i class="material-icons">mail</i>
         </span>
         {this.renderEditField()}
         </main>

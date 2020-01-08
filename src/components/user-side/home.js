@@ -3,7 +3,7 @@ import cloneDeep from 'clone-deep';
 
 import React from 'react';
 import Logo from '../multi-side/logo';
-import TagMap from './tag-map';
+import BrowseBy from './browse-by';
 import SearchBy from './search-by'
 import SearchResults from './search-results'
 
@@ -50,9 +50,6 @@ class Home extends React.Component {
       <section id="user-home" className="page">
         <Logo/>
         <main>
-        <div
-          id="user-search"
-        >
           <SearchBy
             onSubmit={() => {
               const searchResults = cloneDeep(this.state.searchResults);
@@ -66,13 +63,7 @@ class Home extends React.Component {
             submits={this.state.searchResults.submits}
             onExitClick={this.handleExitSearchResults}
           />
-        </div>
-        <div
-          id="user-browse"
-        >
-          <TagMap
-          />
-        </div>
+          <BrowseBy/>
         </main>
       </section>
     )

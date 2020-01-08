@@ -1,0 +1,22 @@
+#editor-home {
+  color: rgb(147, 147, 147);
+  background-color: rgb(246, 225, 245);
+}
+
+.button-container {
+  height: 75vh;
+  width: 75vw;
+  margin: 0 auto;
+  padding-bottom: 20%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-bottom: 30%;
+}
+
+.editor-buttons {
+  border-radius: 10%;
+  border: .1em solid white;
+  color: white;
+  background-color: rgb(147, 147, 147);
+}

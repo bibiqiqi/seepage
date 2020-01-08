@@ -61,11 +61,12 @@ renderThumbnails() {
   const thumbnails = this.props.content.files.map((e, i) => {
     return (
       <Thumbnail
-        fileObject = {e}
-        index = {i}
-        title = {this.props.content.title}
-        artistName = {this.props.content.artistName}
-        onClick = {this.props.gallery}
+        fileObject={e}
+        index={i}
+        title={this.props.content.title}
+        artistName={this.props.content.artistName}
+        gallery={this.props.gallery}
+        onGalleryOpen={this.handleGalleryOpen}
       />
     )
   });

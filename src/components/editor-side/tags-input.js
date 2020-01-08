@@ -18,7 +18,7 @@ export default class TagsInput extends React.Component {
   }
 
   handleAddition(tag) {
-    const newTag = tag.name.toLowerCase();
+    const newTag = tag.name.toLowerCase().trim();
     const tags = [].concat(...this.props.tags, newTag);
     this.props.onAddOrDelete(tags);
   }

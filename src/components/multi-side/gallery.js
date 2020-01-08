@@ -3,6 +3,8 @@ import * as classnames from 'classnames';
 import ReactPlayer from 'react-player'
 import {API_BASE_URL} from '../../config';
 
+import './gallery.css';
+
 export default class Gallery extends React.Component {
   //renders a gallery viewer component for user to view the files of a content entry, one at a time
   //makes a GET request to stream a single file at a time
@@ -64,19 +66,22 @@ export default class Gallery extends React.Component {
         className='gallery'
       >
         <span
-          className = {classnames('exit', 'exit-gallery')}
+          className = {classnames('exit', 'float-right', 'clickable')}
           onClick = {() => this.props.onExitClick()}
-        >T
+        >
+          <i class="material-icons">close</i>
         </span>
         <span
-          className={classnames('slider-back', 'arrow')}
+          className={classnames('slider-back', 'arrow', 'clickable')}
           onClick={() => this.handleArrowClick('back')}
-        >E
+        >
+          <i class="fa fa-angle-left"></i>
         </span>
         <span
-          className={classnames('slider-forward', 'arrow')}
+          className={classnames('slider-forward', 'arrow', 'clickable')}
           onClick={() => this.handleArrowClick('forward')}
-        >F
+        >
+          <i class="fa fa-angle-right"></i>
         </span>
         {this.renderFile()}
       </div>
