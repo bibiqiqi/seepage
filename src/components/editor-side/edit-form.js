@@ -3,23 +3,23 @@ import {connect} from 'react-redux';
 import cloneDeep from 'clone-deep';
 import merge from 'deepmerge';
 import * as classnames from 'classnames';
-import {toast} from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 import {API_BASE_URL} from '../../config';
 import Autocomplete from './autocomplete';
 import Categories from './categories';
-import LabeledInput from '../multi-side/labeled-input-controlled';
 import TagsInput from './tags-input';
 import RenderDropZone from './dropzone';
 import Thumbnail from '../multi-side/thumbnail';
 import {normalizeResponseErrors} from '../../actions/utils';
 import {editContentInState} from '../../actions/content/editor-side';
+import {renderValidationWarnings, renderAsyncState} from '../multi-side/user-feedback.js'
+import './edit-form.css'
 
 const initialState =   {
     uploadForm: {
       artistName: '',
       title: '',
+      description: '',
       category: {
         media: false,
         performance: false,
@@ -27,6 +27,7 @@ const initialState =   {
         },
       tags: []
     },
+    validation: '',
     asyncCall: {
       loading: false,
       success: null
@@ -56,8 +57,8 @@ class EditorEditForm extends React.Component {
   }
 
   patchEntry(data, field) {
-    toast('loading');
-    this.setState({loading: true, success: null});
+    const asyncCall = {loading: true, success: null};
+    this.setState({asyncCall});
     let body, headers;
     if(field === 'files') {
       headers = {
@@ -79,10 +80,7 @@ class EditorEditForm extends React.Component {
     .then(res => normalizeResponseErrors(res))
     .then(res => res.clone().json())
     .then(editedDoc => {
-      toast.dismiss();
-      toast('success!');
       const asyncCall = {loading: false, success: true};
-      //debugger;
     //if successful, editContentInState called to update the browser state with edited document
      this.props.dispatch(editContentInState(this.props.content.id, editedDoc))
        .then(() => {
@@ -90,13 +88,11 @@ class EditorEditForm extends React.Component {
            totalFiles: this.props.content.files.length,
            filesEdits: this.props.content.files
          };
-         this.setState(merge.all[initialState, asyncCall, files]);
+         this.setState(merge.all[ initialState, asyncCall, files ]);
          this.props.onPatchCompletion();
        })
     })
     .catch(err => {
-      toast.dismiss();
-      toast.error('there was an error updating the content');
       const asyncCall = {loading: false, success: false};
       this.setState(merge(initialState, asyncCall));
     })
@@ -107,11 +103,12 @@ class EditorEditForm extends React.Component {
     const upload = this.state.uploadForm;
     const key = this.props.name;
     let data;
+    let validation;
     //console.log('doing handleSubmit() and the state is', upload.files);
     if (key === 'files') {
       let totalFiles = upload.files.totalFiles; //for validation, to ensure that there is at least 1 file for this entry
       if (totalFiles < 1) { //validation check to make sure field isn't empty
-        toast.warn('The content has to have at least one file');
+        validation = 'The content has to have at least one file';
       }
       let filesEdit = [];
       let totalEdits = 0; //for validation, to ensure that there is at least one edit being submitted
@@ -125,9 +122,12 @@ class EditorEditForm extends React.Component {
         }
       })
       if (totalEdits < 1) {
-        toast.warn('You can\'t submit an edit request without any edits');
+        validation = 'You can\'t submit an edit request without any edits';
+      }
+      if (validation) {
+        this.setState({validation: validation});
       } else {
-        console.log('you chose to submit a files edit, and your submitting the following filesEdit array', filesEdit, 'and you have the following totalFiles', totalFiles);
+        //console.log('you chose to submit a files edit, and your submitting the following filesEdit array', filesEdit, 'and you have the following totalFiles', totalFiles);
         data = new FormData();
         filesEdit.forEach(e => {
           data.append('files', e);
@@ -137,7 +137,8 @@ class EditorEditForm extends React.Component {
     } else {
       if (key === 'tags') {
         if (upload.tags.length < 1) { //validation check to make sure field isn't empty
-          this.setState({validationError: true});
+          validation = 'The content has to have at least one tag';
+
         } else {
           data = {};
           data[key] = upload.tags;
@@ -150,21 +151,21 @@ class EditorEditForm extends React.Component {
           };
         }
         if (categoryEdit.length < 1) {  //validation check to make sure field isn't empty
-           this.setState({validationError: true});
+           validation ='The content has to have at least one category';
          } else {
            data = {};
            data[key] = categoryEdit;
          }
       } else { //the value is a string (either artistName or title)
         if (!upload[key]) {  //validation check to make sure field isn't empty
-           this.setState({validationError: true});
+           validation = `You can't submit an empty ${key} field`;
          } else {
            data = {};
            data[key] = upload[key];
          }
       }
-      if (this.state.validationError) {
-        toast.error('You can\'t submit a blank field')
+      if (validation) {
+        this.setState({validation: validation});
       } else {
         this.patchEntry(data, 'content');
       }
@@ -173,8 +174,8 @@ class EditorEditForm extends React.Component {
 
   //performing validation on field input before it's submitted
   handleChange(event) {
-    console.log('handleChange happening');
-    this.setState({validationError: false});
+    //console.log('handleChange happening');
+    this.setState({validation: ''});
     const uploadForm = cloneDeep(this.state.uploadForm);
     if (!(event.target)) {//then the input is a file
       const file = {
@@ -184,20 +185,18 @@ class EditorEditForm extends React.Component {
       };
       uploadForm.files.filesEdits.push(file);
       ++uploadForm.files.totalFiles;
-      this.setState({uploadForm}, () => {console.log('handleChange updated the state and now its:', this.state.uploadForm)});
+      this.setState({uploadForm});
     } else { //otherwise the change came from either a text input or a checkbox input
       const key = event.target.name;
       const value = event.target.value;
       if (event.target.type === "checkbox") {
-        const checkValue = event.target.checked ? 'checked' : 'unchecked';
-        console.log('you', checkValue, key);
         //if input is checkbox, then update value to either true or false
         event.target.checked ? uploadForm.category[key] = true : uploadForm.category[key] = false;
-        this.setState({uploadForm}, () => {console.log('handleChange() ran and the updated state is:', this.state.uploadForm)});
+        this.setState({uploadForm});
       } else {
         //otherwise input is a text value, so update the state with current string
         uploadForm[key] = value;
-        this.setState({uploadForm}, () => {console.log('handleChange updated the state and now its:', this.state.uploadForm)});
+        this.setState({uploadForm});
       }
     }
   }
@@ -211,7 +210,7 @@ class EditorEditForm extends React.Component {
   }
 
   handleRemoveClick(e) {
-    const index = e.currentTarget.className.slice(25);
+    const index = e.currentTarget.className.slice(39);
     const uploadForm = cloneDeep(this.state.uploadForm);
     const selectedFile = uploadForm.files.filesEdits[index];
     if (selectedFile.fileId) {//the file is already in database
@@ -220,16 +219,18 @@ class EditorEditForm extends React.Component {
       uploadForm.files.filesEdits.splice(index, 1);
     }
     --uploadForm.files.totalFiles;
-    this.setState({uploadForm}, () => {console.log('handleRemoveClick() ran and the updated state is:', this.state.uploadForm.files)});
+    this.setState({uploadForm});
   }
 
   renderRemoveSymbol(index) {
     //console.log('value being passed to renderDeleteSymbol is', value);
      return(
-       <span
-        className = {classnames('clickable', 'exit', 'float-right', `remove-${index}`)}
+       <i
+        className = {classnames('remove', 'clickable', 'material-icons', `remove-${index}`)}
         onClick = {(e) => this.handleRemoveClick(e)}
-       >T</span>
+       >
+        close
+      </i>
      )
    }
 
@@ -238,27 +239,35 @@ class EditorEditForm extends React.Component {
     if ((!(this.state.asyncCall.loading)) && (this.state.asyncCall.success === null)) {
       if (this.props.name === 'artistName') {
         return (
-          <Fragment>
-            <label>{this.props.label}</label>
-            <Autocomplete
-              className={this.props.name}
-              placeholder={this.props.placeholder}
-              suggestions={this.props.suggestedArtists}
-              name="artistName"
-              value={this.state.uploadForm.artistName}
-              onChange={this.handleChange}
-              noValidate
-            />
-          </Fragment>
+          <Autocomplete
+            className={this.props.name}
+            placeholder={this.props.placeholder}
+            suggestions={this.props.suggestedArtists}
+            name="artistName"
+            value={this.state.uploadForm.artistName}
+            onChange={this.handleChange}
+            noValidate
+          />
         )
       } else if (this.props.name === 'title') {
         return (
-          <LabeledInput
+          <input
             name="title"
-            placeholder={this.props.placeholder}
+            placeholder="Title"
             type="text"
             value={this.state.uploadForm.title}
-            label="Title"
+            onChange={this.handleChange}
+            noValidate
+          />
+        )
+      } else if (this.props.name === 'description') {
+        return (
+          <textarea
+            rows ="4"
+            name="description"
+            placeholder="Description"
+            type="text"
+            value={this.state.uploadForm.description}
             onChange={this.handleChange}
             noValidate
           />
@@ -287,16 +296,17 @@ class EditorEditForm extends React.Component {
         const thumbnails = this.state.uploadForm.files.filesEdits.map((e, i) => {
           if(!(e.remove)) {
             return (
-              <Fragment>
+              <div className='edit-thumbnail'>
+                {this.renderRemoveSymbol(i)}
                 <Thumbnail
                   title={this.props.content.title}
                   artistName={this.props.content.artistName}
                   fileObject={e}
                   index={i}
                   gallery={false}
+                  playing={false}
                 />
-                {this.renderRemoveSymbol(i)}
-              </Fragment>
+              </div>
             )
           } else {
             return null
@@ -309,7 +319,9 @@ class EditorEditForm extends React.Component {
               onDrop={this.handleChange}
               files={this.state.uploadForm.files.filesEdits}
             />
-            {thumbnails}
+            <div className='edit-form-thumbnails'>
+              {thumbnails}
+            </div>
           </Fragment>
         )
       }
@@ -328,21 +340,23 @@ class EditorEditForm extends React.Component {
           )
         }
         >
-        <main>
+        <div class='edit-form'>
           <span
             className='exit clickable'
             onClick={this.props.onExit}
           >
-            <i class="material-icons">close</i>
+            <i className="material-icons">close</i>
           </span>
          <span
            className='submit-edit clickable'
            onClick={this.handleSubmit}
          >
-          <i class="material-icons">mail</i>
+          <i className="material-icons">mail</i>
         </span>
+        {renderValidationWarnings(this.state.validation)}
+        {renderAsyncState(this.state.asyncCall, 'edit')}
         {this.renderEditField()}
-        </main>
+        </div>
       </section>
     )
   }

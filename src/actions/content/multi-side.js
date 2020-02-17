@@ -24,6 +24,18 @@ export const fetchContentError = (error, root) => ({
   error
 });
 
+export const OPEN_GALLERY = 'OPEN_GALLERY';
+export const openGallery = (files, startingIndex) => ({
+  type: OPEN_GALLERY,
+  files,
+  startingIndex
+});
+
+export const CLOSE_GALLERY = 'CLOSE_GALLERY';
+export const closeGallery = () => ({
+  type: CLOSE_GALLERY
+});
+
 //called on editor and user side to return all documents in mongo (not files in GridFS)
 export const fetchContent = (rootOfRequest) => (dispatch) => {
   return new Promise(function(resolve, reject) {
@@ -50,3 +62,9 @@ export const fetchContent = (rootOfRequest) => (dispatch) => {
     }
   )
 };
+
+export const openGalleryRequest = (filesArray, index) => (dispatch) => {
+  //console.log('you called openGalleryRequest');
+  const startingIndex = index? index : 0;
+  dispatch(openGallery(filesArray, startingIndex));
+}

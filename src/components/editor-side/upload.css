@@ -1,3 +1,159 @@
-#editor-upload form {
+ #editor-upload form {
+  margin: 0 auto;
+  padding: .5rem;
+}
+
+.assign-category input {
+  width: .4rem;
+  height: .4rem;
+}
+
+.assign-category label {
+  margin: 0 .3rem;
+}
+
+.upload-flex {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.upload-flex > div,
+.upload-flex > input {
+  margin: .25em 0;
+}
+
+.upload-flex input[type=text] {
+  width: 100%;
   font-size: .5rem;
+}
+
+#editor-upload .assign-category {
+  margin: 0;
+}
+
+.category-tags-flex {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.upload-tn-container {
+  display: flex;
+  flex-wrap: wrap;
+  position: relative;
+  width: 100%;
+}
+
+.upload-tn-container img {
+  height: 3rem;
+}
+
+.upload-tn {
+  position: relative;
+  margin: 0 .2rem;
+}
+
+.fade-out {
+  -webkit-animation: fadeOut 1.0s forwards;
+  -webkit-animation-iteration-count: 1;
+  -webkit-animation-delay: 5s;
+  animation: fadeOut 1.0s forwards;
+  animation-iteration-count: 1;
+  animation-delay: 5s;
+  position: relative;
+}
+
+.publish {
+  padding: .1rem;
+  color: white;
+  background-color: black;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.publish p {
+  font-size: .3rem;
+}
+
+@-webkit-keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    left: -9999px;
+  }
+}
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    left: -9999px;
+  }
+}
+
+@media (min-width: 576px) {
+  .assign-category input {
+    width: .6rem;
+    height: .6rem;
+  }
+  .upload-flex input[type=text] {
+    font-size: 1rem;
+  }
+  .assign-category label {
+    font-size: 1rem;
+    margin: 0 .5rem;
+  }
+  .publish p {
+    font-size: .75rem;
+    padding: .3rem;
+  }
+  .upload-tn-container img {
+    height: 5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  #editor-upload .assign-category {
+    font-size: 1.5rem;
+  }
+  .assign-category input {
+    width: .75rem;
+    height: .75rem;
+  }
+  .publish p {
+    font-size: 1.5rem;
+  }
+  .assign-category label {
+    font-size: 1.5rem;
+  }
+  .upload-tn-container img {
+      height: 6rem;
+  }
+  .upload-flex input[type=text] {
+    font-size: 1.5rem;
+  }
+}
+
+@media (min-width: 992px) and (orientation: landscape) {
+  .upload-flex input[type=text] {
+    font-size: 2rem;
+  }
+  .publish p {
+    font-size: 1.5rem;
+  }
+}
+
+@media (min-width: 992px) and (orientation: landscape) and (orientation: landscape) {
+  .upload-flex input[type=text] {
+    font-size: 1rem;
+  }
+  .publish p {
+    font-size: 1rem;
+  }
 }

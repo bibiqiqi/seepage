@@ -1,8 +1,9 @@
-const React = require('react')
-const ReactTags = require('react-tag-autocomplete')
+import React from 'react';
+import {connect} from 'react-redux';
+import ReactTags from 'react-tag-autocomplete';
+import './tags-input.css';
 
-export default class TagsInput extends React.Component {
-
+class TagsInput extends React.Component {
   convertForComponent(tags){
     //converts the tags, passed from the parent, from an array of strings
     // to an array of objects with key of "name" to fit the need of react-tag-autocomplete
@@ -31,10 +32,10 @@ export default class TagsInput extends React.Component {
   render () {
     return (
       <ReactTags
-        placeholder={this.props.placeholder}
+        placeholder='Tags'
         classNames={{root: 'react-tags'}}
         tags={this.convertForComponent(this.props.tags)}
-        suggestions={this.props.suggestions ? this.convertForComponent(this.props.suggestions) : [] }
+        suggestions={this.props.suggestedTags ? this.convertForComponent(this.props.suggestedTags) : [] }
         allowNew={true}
         handleDelete={this.handleDelete.bind(this)}
         handleAddition={this.handleAddition.bind(this)}
@@ -43,3 +44,9 @@ export default class TagsInput extends React.Component {
     )
   }
 }
+
+const mapStateToProps = state => ({
+  suggestedTags: state.editorContent.suggestedTags
+});
+
+export default connect(mapStateToProps)(TagsInput);

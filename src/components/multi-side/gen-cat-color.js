@@ -1,10 +1,10 @@
 import Color from 'color';
 
-export default function genCatColor(categoryArray){
+export default function genCatColor(categoryArray, lighten){
   const singleColors = {
-    media: {r: 255, g: 52, b: 75}, //red
+    media: {r: 255, g: 80, b: 100}, //red
     performance: {r: 255, g: 235, b: 29}, //yellow
-    text: {r: 8, g: 205, b: 255} //blue
+    text: {r: 40, g: 210, b: 255} //blue
   };
 
   const blendedColors = {
@@ -21,8 +21,7 @@ export default function genCatColor(categoryArray){
         newColor = Color(singleColors[key]);
       }
     }
-  }
-  else if (categoryArray.length === 2) { //if there's two categories
+  } else if (categoryArray.length === 2) { //if there's two categories
     if(categoryArray.includes('media') && categoryArray.includes('performance')) {
       newColor = Color(blendedColors.mediaPerformance);
     } else if(categoryArray.includes('performance') && categoryArray.includes('text')) {
@@ -32,6 +31,9 @@ export default function genCatColor(categoryArray){
     }
   } else if (categoryArray.length === 3) { //it there's three categories
     newColor = Color(blendedColors.all);
+  }
+  if(lighten) {
+    newColor = newColor.desaturate(lighten);
   }
   return newColor;
 }

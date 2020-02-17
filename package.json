@@ -1,18 +1,17 @@
 {
-  "name": "react-d3-example",
+  "name": "seepage",
   "version": "0.1.0",
+  "engines": {
+    "node": "8.11.1"
+  },
   "private": true,
   "dependencies": {
-    "ajv": "^6.10.2",
-    "chroma-js": "^1.3.6",
     "classnames": "^2.2.6",
     "clone-deep": "^4.0.1",
     "color": "^3.1.2",
     "d3": "3.5.17",
     "deepmerge": "^4.0.0",
-    "eslint-plugin-react-hooks": "^1.6.0",
     "jwt-decode": "^2.2.0",
-    "popper.js": "^1.16.0",
     "prop-types": "^15.7.2",
     "react": "^16.8.6",
     "react-collapsible": "^2.6.0",
@@ -23,18 +22,17 @@
     "react-router-dom": "^4.3.1",
     "react-scripts": "1.1.4",
     "react-tag-autocomplete": "^5.8.0",
-    "react-toastify": "^5.4.0",
     "react-video-thumbnail": "^0.1.3",
+    "reactjs-pdf-reader": "^1.0.9",
     "reactstrap": "^8.0.1",
     "redux": "^4.0.1",
     "redux-form": "^8.1.0",
     "redux-thunk": "^2.3.0",
     "underscore": "^1.9.1",
     "uninstall": "0.0.0",
-    "updeep": "^1.1.0",
-    "video-thumbnail-generator": "^1.1.3"
+    "updeep": "^1.1.0"
   },
-  "homepage": "http://sxywu.github.io/react-d3-example",
+  "homepage": "http://bibiqiqi.github.io/seepage",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -44,7 +42,6 @@
     "deploy": "gh-pages -d build"
   },
   "devDependencies": {
-    "casual-browserify": "^1.5.19-2",
     "gh-pages": "^1.1.0",
     "redux-devtools-extension": "^2.13.8"
   },
@@ -52,11 +49,11 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sxywu/react-d3-example.git"
+    "url": "git+https://github.com/bibiqiqi/seepage.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/sxywu/react-d3-example/issues"
+    "url": "https://github.com/bibiqiqi/seepage"
   }
 }

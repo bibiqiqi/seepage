@@ -1,7 +1,8 @@
 import React, { Fragment } from "react";
 import PropTypes from "prop-types";
+import {connect} from 'react-redux';
 
-export default class Autocomplete extends React.Component {
+class Autocomplete extends React.Component {
   static propTypes = {
     suggestions: PropTypes.instanceOf(Array)
   };
@@ -13,15 +14,17 @@ export default class Autocomplete extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      name: this.props.name,
       showFilteredSuggestions: false,
       filteredSuggestions: [],
     };
     this.renderSuggestionsComponent = this.renderSuggestionsComponent.bind(this);
+    this.handleChange = this.handleChange.bind(this)
   }
 
-//if the component has the hidden className in it,
-//trigger a state change of clearing out the
-//filtered suggestions and changing showSuggestions to false
+// if the component has the hidden className in it,
+// trigger a state change of clearing out the
+// filtered suggestions and changing showSuggestions to false
   static getDerivedStateFromProps(nextProps, prevState) {
     if (nextProps.className.indexOf('hidden') > -1) {
       return ({
@@ -32,15 +35,26 @@ export default class Autocomplete extends React.Component {
     }
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.name !== this.props.name) {
+      //console.log('this.props.name changed and its', this.props.name);
+      this.setState({
+        name: this.props.name,
+        filteredSuggestions: [],
+        showFilteredSuggestions: false,
+      })
+    }
+  }
+
   // Event fired when the input value is changed
-  handleChange = e => {
+  handleChange(e) {
     //first send the value to the callback of parent component (edit-form) to update parent state
     this.props.onChange(e);
     //then perform the comparison between suggestions from db and the user input internally
-    const { suggestions } = this.props;
+    const suggestions = this.state.name? this.props[this.state.name] : undefined;
     const userInput = e.target.value;
     let filteredSuggestions;
-    if (!userInput) {
+    if ((!userInput) || (!suggestions)) {
       //if the field is empty, empty out the filteredSuggestions state
       filteredSuggestions = [];
     } else {
@@ -50,12 +64,12 @@ export default class Autocomplete extends React.Component {
           suggestion.toLowerCase().indexOf(userInput.toLowerCase()) > -1
       );
       if(filteredSuggestions[0] === userInput) {
-        this.setState({showFilteredSuggestions: false}, () => console.log('updated state and showFilteredSuggestions is now', this.state.showFilteredSuggestions))
+        this.setState({showFilteredSuggestions: false})
       } else {
-        this.setState({showFilteredSuggestions: true}, () => console.log('updated state and showFilteredSuggestions is now', this.state.showFilteredSuggestions))
+        this.setState({showFilteredSuggestions: true})
       }
     }
-    this.setState({filteredSuggestions}, () => console.log('updated state and filteredSuggestions is now', this.state.filteredSuggestions));
+    this.setState({filteredSuggestions});
   };
 
   renderSuggestionsComponent() {
@@ -83,8 +97,9 @@ export default class Autocomplete extends React.Component {
     return (
       <Fragment >
         <input
+          placeholder={this.props.placeholder}
           className={this.props.className}
-          name={this.props.name}
+          name={this.state.name}
           type="text"
           onChange={this.handleChange}
           value={this.props.value}
@@ -95,3 +110,11 @@ export default class Autocomplete extends React.Component {
     );
   }
 }
+
+const mapStateToProps = (state) => ({
+  artistName: state.editorContent.suggestedArtists,
+  title: state.editorContent.suggestedTitles,
+  tag: state.editorContent.suggestedTags,
+})
+
+export default connect(mapStateToProps)(Autocomplete);

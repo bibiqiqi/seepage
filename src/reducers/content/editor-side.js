@@ -32,9 +32,9 @@ export default function reducer(state = initialState, action) {
         error: null
       })
   } else if (action.type === FETCH_CONTENT_SUCCESS && action.meta === 'editor') {
-    console.log('updating fetchContent in Redux State');
+    //console.log('updating fetchContent in Redux State');
       return Object.assign({}, state, {
-        allContent: action.content,
+        allContent: [...action.content],
         loading: false,
         error: null
       })
@@ -43,9 +43,9 @@ export default function reducer(state = initialState, action) {
         error: action.error
      })
   } else if (action.type === FILTER_CONTENT_SUCCESS) {
-    console.log('updating filteredContent in Redux State');
+    //console.log('updating filteredContent in Redux State');
       return Object.assign({}, state, {
-       filteredContent: action.filteredContent,
+       filteredContent: [...action.filteredContent],
        filteredContentNone: null,
       })
   } else if (action.type === FILTER_CONTENT_NONE) {
@@ -53,19 +53,19 @@ export default function reducer(state = initialState, action) {
        filteredContentNone: "your query didn't match any results"
       })
   } else if (action.type === MAKE_SUGGESTED_ARTISTS) {
-    console.log('updating suggestedArtists in Redux State');
+    //console.log('updating suggestedArtists in Redux State');
       return Object.assign({}, state, {
-        suggestedArtists: action.array
+        suggestedArtists: [...action.suggestedArtists]
       })
   } else if (action.type === MAKE_SUGGESTED_TITLES) {
-    console.log('updating suggestedTitles in Redux State');
+    //console.log('updating suggestedTitles in Redux State');
       return Object.assign({}, state, {
-        suggestedTitles: action.array
+        suggestedTitles: [...action.suggestedTitles]
       })
   } else if (action.type === MAKE_SUGGESTED_TAGS) {
-    console.log('updating suggestedTags in Redux State');
+    //console.log('updating suggestedTags in Redux State');
       return Object.assign({}, state, {
-        suggestedTags: action.array
+        suggestedTags: [...action.suggestedTags]
       })
   }
   return state;

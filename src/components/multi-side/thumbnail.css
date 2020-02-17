@@ -1,1 +1,70 @@
+.img-fit {
+  margin: 0 .05rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  object-fit: cover;
+  object-position: 50% 50%;
+}
 
+.text-icon {
+  height: 3.5rem;
+}
+
+.thumbnail {
+  position: relative;
+}
+
+.thumbnail div {
+  position: absolute;
+  top: 0;
+  height: 3.5rem
+}
+
+.thumbnail p {
+  margin-left: 1rem;
+  font-size: .7rem;
+  padding: 40% 0;
+  text-align: center;
+}
+
+.thumbnail h3 {
+  padding: 30% 0;
+  text-align: center;
+}
+
+.thumbnail video {
+  border: solid white .1rem;
+  height: 3.5rem !important;
+  width: unset !important;
+}
+
+@media (min-width: 768px) {
+  .img-fit {
+    width: 4.5rem;
+    height: 4.5rem;
+  }
+  .text-icon {
+    height: 4.5rem;
+  }
+  .thumbnail video {
+    height: 4.5rem !important;
+  }
+  .thumbnail p {
+    font-size: 1rem;
+    padding: 50% 0;
+  }
+}
+
+/*Large devices (desktops, 992px and up)*/
+@media (min-width: 992px) and (orientation: landscape) {
+  .img-fit {
+    width: 5rem;
+    height: 5rem;
+  }
+  .text-icon {
+    height: 5rem;
+  }
+  .thumbnail video {
+    height: 5rem !important;
+  }
+}

@@ -1,8 +1,7 @@
-import React from 'react';
+import React, {Fragment} from 'react';
 import {connect} from 'react-redux';
-import * as classnames from 'classnames';
 import cloneDeep from 'clone-deep';
-import {toast} from 'react-toastify';
+import Collapsible from 'react-collapsible';
 
 import {fetchContent} from '../../actions/content/multi-side';
 import {filterBySearch, filterByBrowse} from '../../actions/content/editor-side';
@@ -10,24 +9,24 @@ import Autocomplete from './autocomplete';
 import Categories from './categories';
 import './find-form.css';
 
+
 const initialState = {
   findForm: {
     browseBy: {
-      media: false,
-      performance: false,
-      text: false
+      open: false,
+      inputs: {
+        media: false,
+        performance: false,
+        text: false
+      }
     },
     searchBy: {
-      artistName: '',
-      title: '',
-      tag: ''
+      open: false,
+      key: '',
+      value: ''
     }
   },
-  hidden: {
-    artistName: true,
-    title: true,
-    tag: true
-  }
+  validation: [],
 }
 
 class EditorFindForm extends React.Component {
@@ -41,8 +40,8 @@ class EditorFindForm extends React.Component {
   }
 
   componentDidMount(){
-    console.log('doing componentDidMount');
-    //updates the Redux state with current content in DB and map suggestedArtists
+    //console.log('doing componentDidMount');
+    //updates the Redux state with current content in DB and maps suggestedArtists
     //suggestedTitles, and suggestedTags to local state
     this.props.dispatch(fetchContent("editor"));
   }
@@ -50,18 +49,18 @@ class EditorFindForm extends React.Component {
   handleSubmit(event) {
     //called for submitting search or browse
     //determines whether to call handleBrowse or handleSearch
+    //console.log('calling handleSubmit');
     event.preventDefault();
     const state = cloneDeep(this.state);
-    const hidden = state.hidden;
     const findForm = state.findForm;
-    const root = event.target.id;
+    const root = event.target.value;
     const validationString = (validationProperty) => `${validationProperty} is required`;
     const showAutoSuggestions = false;
-    this.setState({showAutoSuggestions}, () => console.log('updated state and showAutoSuggestions is', this.state.showAutoSuggestions));
-    if (root === "searchSubmit") { //user is trying to search by field
-      this.handleSearch(findForm.searchBy, validationString, hidden);
+    this.setState({showAutoSuggestions});
+    if (root === "searchBy") { //user is trying to search by field
+      this.handleSearch(findForm.searchBy, validationString);
     } else { //user is trying to browse by category
-      this.handleBrowse(findForm.browseBy, validationString);
+      this.handleBrowse(findForm.browseBy.inputs, validationString);
     }
   }
 
@@ -79,30 +78,29 @@ class EditorFindForm extends React.Component {
     } else {
       //otherwise, return a validation warning
       const validation = renderValString('choosing a category');
-      toast.warn(validation);
+      this.setState({validation: validation})
     }
   }
 
   handleSearch(searchByState, renderValString, hidden) {
+    //console.log('running handleSearch');
     let searchByObject = {};
-    let validation;
-    //iterating through hidden state to see which parameter user is searching by
-    for (let key in hidden) {
-      if (hidden[key] === false) {
-        searchByObject[key] = searchByState[key];
-        console.log('you want to search by', searchByObject);
-      }
+    let validation = [];
+    //make sure both key and value have been inputted
+    if (searchByState.key) {
+      searchByObject.key = searchByState.key;
+    } else {
+      searchByObject.key = "artistName";
     }
     //if user didn't choose a search field
-    if(!Object.keys(searchByObject).length) {
-      validation = renderValString('choosing a search field');
-    } else if(!Object.values(searchByObject)[0]) {
-      //or enter a search query
-      validation = renderValString('entering a search query');
+    if(searchByState.value) {
+      searchByObject.value = searchByState.value;
+    } else {
+      validation.push(renderValString('entering a search query'));
     }
-    if(validation) {
+    if(validation.length) {
       //...return a validation warning
-      toast.warn(validation);
+      this.setState({validation: validation});
     } else {
       ///otherwise, dispatch filterBySearch action
       this.props.dispatch(filterBySearch(searchByObject));
@@ -111,55 +109,46 @@ class EditorFindForm extends React.Component {
 
   handleChange(event) {
     //update the state with user's input upon input
-    console.log('handleChange happening');
+    //console.log('handleChange happening');
+    this.setState({validation: []});
     const findForm = Object.assign({}, this.state.findForm);
     if (event.target) {
       //then the input didn't come from Autocomplete
       const key = event.target.name;
       const value = event.target.value;
       if (event.target.type === "checkbox") {
-        //user is trying to browse
-        const checkValue = event.target.checked ? 'checked' : 'unchecked';
-        console.log('you', checkValue, key);
         //if user is submitting a true value for a checkbox
         //then add the new category value to the state
         //if it's false, filter out all categories within the state that equal the key submitted by user
-        event.target.checked ? findForm.browseBy[key] = true : findForm.browseBy[key] = false;
+        event.target.checked ? findForm.browseBy.inputs[key] = true : findForm.browseBy.inputs[key] = false;
         this.setState({findForm});
       } else {
         //user is trying to search and they typed in this value
-        findForm.searchBy[key] = value;
+        findForm.searchBy.value = value;
         this.setState({findForm});
       }
-    } else {
-      // the input came from autocomplete
-      findForm.searchBy[event.key] = event.value;
     }
   }
 
-  dropDownChange(event) {
-    //console.log(event.target.value);
+  handleDropDownChange(event) {
     const value = event.target.value;
-    //console.log('this.state is:', this.state);
-    const initialHidden = {
-      artistName: true,
-      title: true,
-      tag: true
-    }
-    const hidden = Object.assign({}, initialHidden);
-    //console.log('hidden is:', hidden, 'and this.state.hidden is:', initialHidden);
-    for (const key in hidden) {
-      if (key === value) {
-        hidden[key] = false;
-        //console.log('now, hidden is:', hidden, 'and this.state.hidden is:', initialHidden);
-        //initialState is being mutated when newState gets changed;
-        this.setState({hidden});
-      }
-    }
+    const findForm = Object.assign({}, this.state.findForm);
+    findForm.searchBy.key = value;
+    this.setState({findForm})
   }
 
-  render(){
+  handleCollapsibleClick(key) {
+    const findForm = cloneDeep(this.state.findForm);
+    findForm[key].open = !findForm[key].open;
+    this.setState({findForm})
+  }
+
+  renderSelectOptions(){
     const optionValues = [
+      {
+        label: 'select',
+        value: ''
+      },
       {
         label: 'Artist Name',
         value: 'artistName'
@@ -173,6 +162,7 @@ class EditorFindForm extends React.Component {
         value: 'tag'
       },
     ];
+
     const options = optionValues.map((e, i) => {
       return(
         <option
@@ -183,16 +173,51 @@ class EditorFindForm extends React.Component {
       )
     });
 
-    return (
-      <form
-        className="clear-fix"
-        noValidate
-      >
-        <div id="editor-browse">
-          <h3>Browse By...</h3>
+    return options
+  }
+
+  renderSearchBy() {
+    if(this.state.findForm.searchBy.open) {
+      const { searchBy } = this.state.findForm;
+      return (
+        <Fragment>
+          <div className='searchBy'>
+            <select
+              name="searchBy"
+              onChange={this.handleDropDownChange.bind(this)}
+            >
+              {this.renderSelectOptions()}
+            </select>
+
+            <Autocomplete
+              className='searchBy-input'
+              name={searchBy.key}
+              value={searchBy.value}
+              onChange={this.handleChange}
+              noValidate
+            />
+          </div>
+          <button
+            className="float-right"
+            type="button"
+            value="searchBy"
+            onClick={this.handleSubmit}
+          >Submit
+          </button>
+        </Fragment>
+      )
+    } else {
+      return null
+    }
+  }
+
+  renderBrowseBy(){
+    if(this.state.findForm.browseBy.open) {
+      return (
+        <Fragment>
           <Categories
-            categories={this.state.findForm.browseBy}
-            onChange={e => this.handleChange(e)}
+            categories={this.state.findForm.browseBy.inputs}
+            onChange={this.handleChange}
           />
           <button
             className="float-right"
@@ -202,77 +227,48 @@ class EditorFindForm extends React.Component {
           >
             Submit
           </button>
-        </div>
-        <div id="editor-search">
-          <h3>Search By...</h3>
-          <div>
-            <select
-              name="searchBy"
-              onChange={this.dropDownChange.bind(this)}
-            >
-              <option />
-              {options}
-            </select>
-          </div>
-          <div>
+        </Fragment>
+      )
+    } else {
+      return null
+    }
+  }
 
-            <Autocomplete
-              className={
-                classnames(
-                  'artistName',
-                  'searchBy',
-                  {
-                    hidden: this.state.hidden.artistName
-                  }
-                )
-              }
-              suggestions={this.props.suggestedArtists}
-              name="artistName"
-              value={this.state.findForm.searchBy.artistName}
-              onChange={this.handleChange}
-              noValidate
-            />
-            <Autocomplete
-              className={
-                classnames(
-                  'title',
-                  'searchBy',
-                  {
-                    hidden: this.state.hidden.title
-                  }
-                )
-              }
-              suggestions={this.props.suggestedTitles}
-              name="title"
-              value={this.state.findForm.searchBy.title}
-              onChange={this.handleChange}
-              noValidate
-            />
-            <Autocomplete
-              className={
-                classnames(
-                  'tags',
-                  'searchBy',
-                  {
-                    hidden: this.state.hidden.tag
-                  }
-                )
-              }
-              suggestions={this.props.suggestedTags}
-              name="tag"
-              value={this.state.findForm.searchBy.tags}
-              onChange={this.handleChange}
-              noValidate
-            />
-            <button
-              className="float-right"
-              id="searchSubmit"
-              type="button"
-              onClick={this.handleSubmit}
-            >Submit
-            </button>
-          </div>
-        </div>
+  render(){
+
+   let validationWarning;
+   if (this.state.validation.length) {
+     validationWarning = this.state.validation.map(e => {
+       return(
+         <div className="message warning-message">
+           {e}
+         </div>
+       )
+     })
+   }
+    return (
+      <form
+        className="editor-find-form"
+        noValidate
+      >
+      {validationWarning}
+       <Collapsible
+         classParentString={'Collapsible editor-browse'}
+         open={this.state.findForm.browseBy.open}
+         trigger={<h3>Browse By...</h3>}
+         handleTriggerClick={() => this.handleCollapsibleClick('browseBy')}
+       >
+        {this.renderBrowseBy()}
+       </Collapsible>
+
+        <Collapsible
+          classParentString={'Collapsible editor-search'}
+          open={this.state.findForm.searchBy.open}
+          trigger={<h3>Search By...</h3>}
+          handleTriggerClick={() => this.handleCollapsibleClick('searchBy')}
+        >
+          {this.renderSearchBy()}
+         </Collapsible>
       </form>
     )
   }
@@ -282,9 +278,6 @@ const mapStateToProps = (state) => ({
     loading: state.editorContent.loading,
     error: state.editorContent.error,
     editFilteredContent: state.editorContent.editFilteredContent,
-    suggestedArtists: state.editorContent.suggestedArtists,
-    suggestedTitles: state.editorContent.suggestedTitles,
-    suggestedTags: state.editorContent.suggestedTags,
 })
 
 export default connect(mapStateToProps)(EditorFindForm);

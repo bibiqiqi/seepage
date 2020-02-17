@@ -10,9 +10,23 @@
   src: url('./fonts/MaterialIcons-Regular.ttf');
 }
 
+/* fira-code-regular - latin */
+@font-face {
+  font-family: 'Fira Code';
+  font-style: normal;
+  font-weight: 400;
+  src: url('./fonts/fira-code/fira-code-v7-latin-regular.eot'); /* IE9 Compat Modes */
+  src: local(''),
+       url('./fonts/fira-code/fira-code-v7-latin-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('./fonts/fira-code/fira-code-v7-latin-regular.woff2') format('woff2'), /* Super Modern Browsers */
+       url('./fonts/fira-code/fira-code-v7-latin-regular.woff') format('woff'), /* Modern Browsers */
+       url('./fonts/fira-code/fira-code-v7-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('./fonts/fira-code/fira-code-v7-latin-regular.svg#FiraCode') format('svg'); /* Legacy iOS */
+}
+
 html {
-  font-size: 30px;
   box-sizing: border-box;
+  font-size: 1.5rem
 }
 
 body {
@@ -23,12 +37,22 @@ body {
   box-sizing: inherit;
 }
 
+h1 {
+  font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.75rem;
+}
+
 h3 {
-  font-size: .5rem;
+  font-size: .9rem;
+  margin-top: 0;
+  margin-bottom: 0;
 }
 
 h4 {
-  font-size: .25rem;
+  font-size: .75rem;
 }
 
 p {
@@ -69,26 +93,6 @@ button {
   margin: .5rem auto;
 }
 
-/* input[type=text],
-input[type=password] {
-  width: 100%;
-  padding: 12px 20px;
-  margin: 8px 0;
-  display: inline-block;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-} */
-
-form {
-  padding: .5rem;
-  font-size: .75rem;
-}
-
-main {
-  width: 95vw;
-  margin: 0 auto;
-}
-
 .back {
   font-family: wingdings;
   position: absolute;
@@ -109,30 +113,16 @@ main {
   cursor: pointer;
 }
 
-.collaps-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: left;
-  width: fit-content;
-  margin: auto;
-}
-
-.delete {
-  font-family: wingdings2;
-  font-size: .75rem;
-}
-
-.edit {
-  font-family: wingdings2;
-  font-size: .75rem;
-}
-
 .float-right {
   float: right;
 }
 
 .forgot-psw {
   font-size: .5rem;
+}
+
+.form-error {
+  color: red;
 }
 
 .hidden {
@@ -143,7 +133,7 @@ main {
   font-family: 'Material Icons';
   font-weight: normal;
   font-style: normal;
-  font-size: 24px;  /* Preferred icon size */
+  font-size: .75rem;  /* Preferred icon size */
   display: inline-block;
   line-height: 1;
   text-transform: none;
@@ -161,30 +151,31 @@ main {
   font-feature-settings: 'liga';
 }
 
-.page {
-  height: 100vh;
-  width: 100vw;
+.message {
+  width: max-content;
+  margin: 0 auto;
 }
 
-.pop-up {
-  position: absolute; /* Stay in place */
-  z-index: 10; /* Sit on top */
-  width: 100%; /* Full width */
-  height: 100%;
-  bottom: 50%;
-  top: 50%;
-  left: 50%;
-  right: 50%;
-  background: white
+.screen {
+  width: 100vw;
+  min-height: 100vh;
+}
+
+.remove {
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  right: 0;
+  color: red;
 }
 
 .smaller {
-  font-size: .5em;
+  font-size: .5rem;
 }
 
 .submit-button {
-  width: 15px;
-  height: 15px;
+  width: 1.5rem;
+  height: 1.5rem;
   background-color: rgb(0, 0, 0);
   margin: 0;
   border: 1px grey solid;
@@ -195,34 +186,158 @@ main {
   font-size: .75rem;
 }
 
-.tags {
-  font-size: .5em;
-  font-style: italic;
+.simple-form {
+  height: max-content;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-size: .75rem;
+}
+
+.simple-form input {
+  border: none;
+  border-bottom: solid black;
 }
 
 .title {
   font-style: italic;
 }
 
-.thumbnail {
-  text-align: center;
-  height: 100px;
-  width: 100px;
-  position: relative;
-  overflow: hidden;
+.loading-message{
+  color: blue;
 }
 
-.thumbnail-fit,
-.react-thumbnail-generator img {
-  width: 100%;
-  object-fit: cover;
-  object-position: 50% 50%;
+.success-message{
+  color: yellow;
 }
 
-#editor-upload main,
-#editor-find-form main,
-#editor-find-results main,
-#editor-view-edit main,
-#editor-reg main {
-  position: relative;
+.error-message {
+  color: orange;
+}
+
+.warning-message {
+  color: red;
+}
+
+.submit {
+  background-color: white;
+}
+
+.suggestions {
+  color: yellow;
+  font-size: .5rem;
+}
+
+#editor-home,
+#editor-upload,
+#editor-find,
+#editor-reg {
+  color: white;
+  background-color: black;
+  font-family: 'Fira Code';
+}
+
+#editor-home.page,
+#editor-upload.page,
+#editor-find.page,
+#editor-reg.page {
+  padding: .5rem
+}
+
+#editor-home .logo,
+#editor-upload .logo,
+#editor-find .logo,
+#editor-reg .logo {
+  -webkit-filter: invert(1);
+  filter: invert(1);
+}
+
+#editor-home .logo:hover,
+#editor-upload .logo:hover,
+#editor-find .logo:hover,
+#editor-reg .logo:hover {
+  color: green;
+}
+
+/*Small devices (landscape phones, 576px and up)*/
+@media (min-width: 576px) {
+  .material-icons {
+    font-size: 1rem;
+  }
+  .smaller {
+    font-size: .75rem;
+  }
+  h3 {
+    font-size: 1.5rem;
+  }
+  h4 {
+    font-size: 1rem;
+  }
+
+  .simple-form {
+    font-size: 1.5em;
+  }
+
+  .suggestions {
+    font-size: 1rem;
+  }
+}
+
+/*Medium devices (tablets, 768px and up)*/
+@media (min-width: 768px) {
+  h3 {
+    font-size: 1rem;
+  }
+
+  h4 {
+    font-size: 1.25rem;
+  }
+
+  .material-icons {
+    font-size: 1.25rem;
+  }
+
+  .smaller {
+    font-size: 1.25rem;
+    margin-left: .4rem;
+  }
+}
+
+/*Large devices (desktops, 992px and up)*/
+@media (min-width: 992px) {
+  h3 {
+    font-size: 1.25rem;
+  }
+
+  h5 {
+    font-size: .75rem;
+  }
+
+  .material-icons {
+    font-size: 2rem;
+  }
+
+  .assign-category label {
+    font-size: 2rem;
+  }
+  .assign-category input {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+@media (min-width: 992px) and (orientation: landscape) {
+  .assign-category label {
+    font-size: 1rem;
+  }
+  .assign-category input {
+    width: .5rem;
+    height: .5rem;
+  }
+  .material-icons {
+    font-size: 1.5rem;
+  }
+  .suggestions {
+    font-size: 1rem;
+  }
 }

@@ -6,7 +6,7 @@ import {searchByKeyWord} from '../../actions/content/user-side';
 import './search-by.css'
 
 const initialState = {
-  keyWord: ''
+  keyWord: '',
 }
 
 class SearchBy extends React.Component {
@@ -21,21 +21,24 @@ class SearchBy extends React.Component {
     //console.log('handleChange happening');
     const value = e.target.value;
     const keyWord = value;
-    this.setState({keyWord}, () => {console.log('handleChange updated the state and now its:', this.state)});
+    this.setState({keyWord});
   }
 
   handleSubmit(){
     //console.log('handleSubmit happening');
     const keyWord = this.state.keyWord;
+    if(!this.state.searched){
+      this.props.onFirstSearch();
+      this.setState({searched: true});
+    };
     this.props.dispatch(searchByKeyWord(keyWord))
       .then(this.props.onSubmit())
   }
 
   render(){
     return(
-      <section
-        id="user-search"
-        className="search-submit"
+      <div
+        className='user-search'
         >
         <input
           placeholder='search...'
@@ -44,11 +47,11 @@ class SearchBy extends React.Component {
           onChange={this.handleChange}
         />
         <button
-          className="submit-button clickable"
+          className = 'clickable'
           type="submit"
           onClick={this.handleSubmit}
         ></button>
-      </section>
+      </div>
     )
   }
 }
