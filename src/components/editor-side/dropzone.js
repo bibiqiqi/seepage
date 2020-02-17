@@ -1,5 +1,6 @@
 import Dropzone from 'react-dropzone';
 import React from 'react';
+import './dropzone.css';
 
 export default class RenderDropZone extends React.Component {
   render() {
@@ -7,15 +8,12 @@ export default class RenderDropZone extends React.Component {
       <Dropzone
         onDrop={this.props.onDrop}>
         {({getRootProps, getInputProps}) => (
-          <section className="container">
-            <div {...getRootProps({className: 'dropzone'})}>
-              <input {...getInputProps()} />
-              <p>Drag 'n' drop some files here, or click to select files</p>
-            </div>
-            <aside>
-              <h4>Files</h4>
-            </aside>
-          </section>
+          <div {...getRootProps({className: 'dropzone'})}>
+            <label>
+              <i class="material-icons">attach_file</i>
+              <input {...getInputProps()}/>
+            </label>
+          </div>
         )}
       </Dropzone>
     );

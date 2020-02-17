@@ -7,7 +7,7 @@ import '../multi-side/logo.css';
 export default function CoverPage(props) {
   const history = props.history;
   return (
-    <section id="cover-page" className="page">
+    <section id="cover-page" className="screen">
       <Logo/>
       <main>
         <div>

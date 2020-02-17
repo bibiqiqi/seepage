@@ -1,6 +1,8 @@
 import LabeledInput from '../multi-side/labeled-input-controlled';
 import React from 'react';
 
+import './categories.css';
+
 export default function Categories(props) {
   //generates html for Label-Input pairs for an array of categories passed via propss
   const categories = props.categories;
@@ -23,7 +25,6 @@ export default function Categories(props) {
   }
   return (
     <div className="assign-category">
-      <legend>Category</legend>
       {categoryInputs}
     </div>
   )

@@ -1,0 +1,15 @@
+.edit-form {
+  width: 100%
+}
+
+.edit-form textarea {
+  width: 100%
+}
+
+.edit-form-thumbnails {
+  display: flex;
+}
+
+.edit-thumbnail {
+  position: relative
+}

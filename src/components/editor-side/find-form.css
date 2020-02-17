@@ -1,16 +1,77 @@
 #editor-browse-search {
-  height: 84vh;
+  padding: .5rem;
 }
 
-#editor-browse-search form {
+.editor-find-form h5{
+  margin: .5rem 0;
+}
+
+.editor-find-form button {
   font-size: .5rem;
+  background-color: black;
+  color: white;
+  margin: 0;
 }
 
-#editor-browse {
-  border: .1rem solid black;
-  height: 32vh;
+.editor-browse .assign-category,
+.searchBy {
+  margin: .5rem 0;
 }
 
-#editor-search {
-  height: 42vh;
+.searchBy input {
+  font-size: .5rem;
+  width: 60%;
+  display: inline-block;
+}
+
+.searchBy select {
+  color: white;
+  background-color: black;
+  font-size: .5rem;
+  margin-right: .25rem;
+  width: 35%;
+  display: inline-block;
+}
+
+.editor-browse__contentInner,
+.editor-search__contentInner {
+  margin: 0 auto;
+}
+
+@media (min-width: 576px) {
+  .searchBy select,
+  .searchBy input,
+  .editor-find-form button {
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  #editor-browse-search {
+    padding: 0 2rem;
+  }
+
+  .editor-find-form button {
+    font-size: 1.25rem;
+  }
+
+  .editor-browse .assign-category label {
+    font-size: 1rem;
+    margin: 0 .5rem;
+  }
+
+  .editor-browse .assign-category input {
+    width: .75rem;
+    height: .75rem;
+  }
+
+  .searchBy select,
+  .searchBy input {
+    font-size: 1.25rem;
+  }
+
+  .searchBy select {
+    margin-right: 1rem;
+  }
+  
 }

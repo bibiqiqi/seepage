@@ -1,0 +1,66 @@
+.react-tags {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+}
+
+.react-tags__search {
+  order: 1;
+  flex-grow: 1;
+}
+
+.react-tags__search {
+  margin-right: .1rem;
+}
+
+.react-tags__search-input input {
+  width: 100%;
+  font-size: .5rem
+}
+
+.react-tags__selected {
+  order: 2;
+  flex-grow: 3;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  align-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.react-tags__selected-tag {
+  background-color: white;
+  margin: 0;
+  font-size: .5rem;
+}
+
+@media (min-width: 576px) {
+  .react-tags__search-input input {
+    font-size: 1rem
+  }
+  .react-tags__selected-tag {
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .react-tags__search-input input {
+    font-size: 1.5rem;
+  }
+  .react-tags__selected-tag {
+    font-size: 1.5rem;
+  }
+}
+
+@media (min-width: 992px) and (orientation: landscape) and (orientation: landscape) {
+  .react-tags__search-input input {
+    font-size: 1rem;
+  }
+  .react-tags__search {
+    margin-right: .5rem;
+  }
+  .react-tags__selected-tag {
+    font-size: 1rem;
+  }
+}

@@ -1,0 +1,33 @@
+.tags {
+  font-style: italic;
+  font-size: .7rem;
+  margin: 0 .1rem;
+}
+
+.tags-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.tags:hover {
+  color: white;
+}
+
+.search-results-description {
+  height: 3rem;
+  overflow: auto;
+  margin-bottom: .5rem;
+  font-size: .6rem;
+}
+
+@media (min-width: 768px) {
+  .search-results-description {
+    font-size: .75rem;
+    height: 5rem;
+  }
+  .tags {
+    font-size: 1rem
+  }
+}

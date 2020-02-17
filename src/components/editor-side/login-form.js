@@ -5,66 +5,72 @@ import Logo from '../multi-side/logo';
 import LabeledInput from '../multi-side/labeled-input-redux';
 import {required, nonEmpty, email} from '../../validators';
 import {login} from '../../actions/auth';
+import {renderValidationWarnings, renderAsyncState} from '../multi-side/user-feedback.js'
+
+import './login-form.css';
 
 class EditorLoginForm extends React.Component {
-  onSubmit(values){
-    console.log('login values being submitted to server are', values);
-    //{/*login() makes ajax call to post to /auth endpoint*/}
-    this.props.dispatch(login(values.email, values.password));
+  constructor(props) {
+    super(props);
+    this.state = {
+      asyncCall: {
+        loading: false,
+        success: null
+      },
+      error: null
+    }
   }
-  render() {
-    let successMessage;
-    if (this.props.submitSucceeded) {
-      successMessage = (
-        <div className="message message-success">
-          Message submitted successfully
-        </div>
-      )
-    }
-    let errorMessage;
-    if (this.props.error) {
-      errorMessage = (
-        <div className="message message-error">{this.props.error}</div>
-      )
-    }
 
+  static getDerivedStateFromProps(props, state) {
+    if (props.error) {
+      const asyncCall = {loading: false, success: false};
+      return {asyncCall}
+    } else {
+      return null
+    }
+  }
+
+  onSubmit(values){
+    //console.log('login values being submitted to server are', values);
+    this.props.dispatch(login(values.email, values.password))
+      .then(res => this.setState({error: null}))
+      .catch(err => this.setState({error: err}))
+  }
+
+  render() {
     return (
-      <section id="editor-login" className="page">
+      <section id="editor-login" className="screen
+      ">
         <Logo/>
         <main>
           <form
             className="clear-fix"
             onSubmit={this.props.handleSubmit(values => this.onSubmit(values))}
           >
-            {successMessage}
-            {errorMessage}
-            <Field
-              name="email"
-              component={LabeledInput}
-              type="email"
-              label="Email"
-              placeholder="EddieEditor@places.com"
-              validate={[required, nonEmpty, email]}
-            />
-            <Field
-              name="password"
-              component={LabeledInput}
-              type="password"
-              label="Password"
-              validate={[required, nonEmpty]}
-            />
+          {renderValidationWarnings(this.state.error)}
+          {renderAsyncState(this.state)}
+            <div className="simple-form">
+              <Field
+                name="email"
+                component={LabeledInput}
+                type="email"
+                label="Email"
+                validate={[required, nonEmpty, email]}
+              />
+              <Field
+                name="password"
+                component={LabeledInput}
+                type="password"
+                label="Password"
+                validate={[required, nonEmpty]}
+              />
+            </div>
             <button
               className="float-right"
               type="submit"
-              id="login-submit"
-            >Enter
-            </button>
-            <Field
-              name="forgot-password"
-              component={LabeledInput}
-              type="checkbox"
-              label="Forgot Password?"
-            />
+            >
+            submit
+          </button>
           </form>
         </main>
       </section>
@@ -75,7 +81,6 @@ class EditorLoginForm extends React.Component {
 export default reduxForm({
   form: 'editorLogin',
   onSubmitFail: (errors, dispatch) => {
-    console.log('failure! and the errors are:', errors);
     dispatch(focus('login', 'username'))
   }
 })(EditorLoginForm);

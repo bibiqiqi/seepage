@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Fragment} from 'react';
 
 export default class LabeledInput extends React.Component {
 
@@ -27,12 +27,8 @@ export default class LabeledInput extends React.Component {
           {this.props.label}</label>
       )
     } else {
-      //console.log(this.props);
         return (
-          <label className={this.props.className}>
-            {this.props.label}
-            {error}
-            {warning}
+          <Fragment>
             <input
               {...this.props.input}
               type={this.props.type}
@@ -42,7 +38,12 @@ export default class LabeledInput extends React.Component {
                 this.input = input}
               }
             />
-          </label>
+            <label className={this.props.className}>
+              {this.props.label}
+              {error}
+              {warning}
+            </label>
+          </Fragment>
         )
     }
   }

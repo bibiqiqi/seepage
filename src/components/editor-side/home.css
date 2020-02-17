@@ -1,22 +1,41 @@
-#editor-home {
-  color: rgb(147, 147, 147);
-  background-color: rgb(246, 225, 245);
+#editor-home main {
+  margin: 0 auto;
+  padding: 1rem;
 }
 
 .button-container {
-  height: 75vh;
-  width: 75vw;
-  margin: 0 auto;
-  padding-bottom: 20%;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-bottom: 30%;
+  height: 50vh;
 }
 
 .editor-buttons {
-  border-radius: 10%;
-  border: .1em solid white;
-  color: white;
-  background-color: rgb(147, 147, 147);
+  width: 100%;
+  color: black;
+  background-color: green;
+}
+
+@media (min-width: 576px) {
+  .editor-buttons {
+    font-size: 2rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .editor-buttons {
+    font-size: 2rem;
+  }
+}
+
+@media (min-width: 992px) and (orientation: landscape) {
+  .editor-buttons {
+    font-size: 2.5rem;
+  }
+}
+
+@media (min-width: 992px) and (orientation: landscape) and (orientation: landscape) {
+  .editor-buttons {
+    font-size: 2rem;
+  }
 }

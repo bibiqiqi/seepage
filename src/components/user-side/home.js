@@ -1,16 +1,18 @@
 import {connect} from 'react-redux';
 import cloneDeep from 'clone-deep';
-
 import React from 'react';
+import * as classnames from 'classnames';
+
 import Logo from '../multi-side/logo';
+import Gallery from '../multi-side/gallery';
 import BrowseBy from './browse-by';
 import SearchBy from './search-by'
 import SearchResults from './search-results'
-
-import {fetchContent} from '../../actions/content/multi-side'
-import './home.css';
+import './home.css'
+import {fetchContent, closeGallery} from '../../actions/content/multi-side'
 
 const initialState = {
+  header: false,
   searchBy: {
     artistName: '',
     title: '',
@@ -19,8 +21,7 @@ const initialState = {
   searchResults: {
     show: false,
     submits: 0
-  },
-  preview: false,
+  }
 }
 
 class Home extends React.Component {
@@ -28,10 +29,12 @@ class Home extends React.Component {
     super(props);
     this.state = cloneDeep(initialState);
     this.handleExitSearchResults = this.handleExitSearchResults.bind(this);
+    this.handleGalleryExit = this.handleGalleryExit.bind(this);
+
   }
 
   componentDidMount(){
-    console.log('doing componentDidMount');
+    //console.log('doing componentDidMount');
     //updates the Redux state with current content in DB and map suggestedArtists
     //suggestedTitles, and suggestedTags to local state
     this.props.dispatch(fetchContent("user"));
@@ -45,11 +48,47 @@ class Home extends React.Component {
     this.setState({searchResults});
   }
 
+  handleGalleryExit(){
+    //when user wants to exit the gallery
+    //updates the state to hide the Gallery component
+    this.props.dispatch(closeGallery());
+  }
+
+  renderGalleryState() {
+    //determines whether to render Gallery component or hide it
+    //dependent on whether use has clicked on a thumb nail
+    if (this.props.galleryFiles.length) {
+      return (
+        <Gallery
+          firstArtIndex={this.props.galleryStarting}
+          fileObjects={this.props.galleryFiles} //bc this can be triggered by onMouseLeave, new render of Gallery receives fileObjects from internal state
+          onExitClick={this.handleGalleryExit}
+          alt={(currentArtIndex) => `Gallery view of file ${currentArtIndex} for ${this.props.galleryFiles[currentArtIndex].title}, by ${this.props.galleryFiles[currentArtIndex].artist}`}
+         />
+      )
+    } else {
+      return null
+    }
+  }
+
+  renderTagMapState() {
+    // if(window.innerWidth < 992) { //touchscreen
+    //   return null
+    // } else {
+      return <BrowseBy/>
+    // }
+  }
+
   render(){
     return (
-      <section id="user-home" className="page">
-        <Logo/>
-        <main>
+      <section id="user-home" className="screen">
+      {this.renderGalleryState()}
+        <header
+          className = {classnames({
+            'header-searched': this.state.header
+          })}
+        >
+          <Logo/>
           <SearchBy
             onSubmit={() => {
               const searchResults = cloneDeep(this.state.searchResults);
@@ -57,14 +96,17 @@ class Home extends React.Component {
               ++searchResults.submits;
               this.setState({searchResults});
             }}
+            onFirstSearch={() => {
+              this.setState({header: true})
+            }}
           />
-          <SearchResults  //pushes tagMap down with results when user searches. user can minimize after opening
-            show={this.state.searchResults.show}
-            submits={this.state.searchResults.submits}
-            onExitClick={this.handleExitSearchResults}
-          />
-          <BrowseBy/>
-        </main>
+        </header>
+        <SearchResults  //pushes tagMap down with results when user searches. user can minimize after opening
+          show={this.state.searchResults.show}
+          submits={this.state.searchResults.submits}
+          onExitClick={this.handleExitSearchResults}
+        />
+        {this.renderTagMapState()}
       </section>
     )
   }
@@ -73,9 +115,8 @@ class Home extends React.Component {
 const mapStateToProps = (state) => ({
   loading: state.userContent.loading,
   error: state.userContent.error,
-  searchResults: state.userContent.searchByKeyWordResults,
-  searchResultsNone: state.userContent.searchByKeyWordResultsNone,
-  browseResults: state.userContent.browseByMap,
+  galleryFiles: state.userContent.galleryFiles,
+  galleryStarting: state.userContent.galleryStarting,
 })
 
 export default connect(mapStateToProps)(Home);

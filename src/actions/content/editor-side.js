@@ -12,21 +12,21 @@ export const filterContentNone = () => ({
 });
 
 export const MAKE_SUGGESTED_ARTISTS = 'MAKE_SUGGESTED_ARTISTS';
-export const makeSuggestedArtists = array => ({
+export const makeSuggestedArtists = suggestedArtists => ({
   type: MAKE_SUGGESTED_ARTISTS,
-  array
+  suggestedArtists
 });
 
 export const MAKE_SUGGESTED_TITLES = 'MAKE_SUGGESTED_TITLES';
-export const makeSuggestedTitles = array => ({
+export const makeSuggestedTitles = suggestedTitles => ({
   type: MAKE_SUGGESTED_TITLES,
-  array
+  suggestedTitles
 });
 
 export const MAKE_SUGGESTED_TAGS = 'MAKE_SUGGESTED_TAGS';
-export const makeSuggestedTags = array => ({
+export const makeSuggestedTags = suggestedTags => ({
   type: MAKE_SUGGESTED_TAGS,
-  array
+  suggestedTags
 });
 
 //called in find-form, for editor to filter content by search term
@@ -36,10 +36,8 @@ export const filterBySearch = (searchBy) => (dispatch, getState) => {
   const contents = state.editorContent.allContent;
   const noResults = "your query didn't match any results";
   let filteredResults = [];
-  const parameter = Object.keys(searchBy)[0];
-  const query = searchBy[Object.keys(searchBy)[0]].toLowerCase();
   contents.forEach((e) => {
-    if (e[parameter].toLowerCase() === query){
+    if (e[searchBy.key].toLowerCase() === searchBy.value.toLowerCase()) {
       filteredResults.push(e);
     };
   })
@@ -70,7 +68,7 @@ const findIndexAndSplice = (arrayOfData, contentId, editObject) => {
   //console.log('running findIndexAndSplice with', arrayOfData);
   return new Promise(function(resolve, reject) {
     const startingIndex = arrayOfData.findIndex((e) => {
-      return e.contentId = contentId;
+      return e.id === contentId;
     });
     editObject ? arrayOfData.splice(startingIndex, 1, editObject) : arrayOfData.splice(startingIndex, 1) ;
     resolve(arrayOfData);
@@ -93,7 +91,7 @@ export const editContentInState = (contentId, editObject) => (dispatch, getState
             dispatch(filterContentSuccess(filteredContent))
           })
      })
-     resolve(console.log('edited Content in Redux State!'));
+     resolve();
   })
 };
 

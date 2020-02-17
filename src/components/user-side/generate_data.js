@@ -10,7 +10,7 @@ function createTagPool(){
     tagPool.push(casual.word);
   }
   _.uniq(tagPool);
-  console.log('tag pool', tagPool);
+//console.log('tag pool', tagPool);
   return tagPool;
 }
 
@@ -42,7 +42,7 @@ function generateNodes() {
   const tagPool = createTagPool();
   const nodes = [];
   const randomNumber= _.random(4, 10);
-  console.log('number of nodes', randomNumber);
+//console.log('number of nodes', randomNumber);
   let uniqKey = 100;
   let i;
   for (i = 0; i < randomNumber; i++) {
@@ -57,7 +57,7 @@ function generateNodes() {
       tags: _.uniq(_.sortBy(pickTags(tagPool)), true)
     };
  }
- console.log('nodes', nodes);
+ //console.log('nodes', nodes);
  return nodes;
 }
 
@@ -97,7 +97,7 @@ export default function generateData(width, height) {
         }) //loop for iterating through target nodes
       }) //loop for iterating through tags in the source node
     }) //loop for iterating through source nodes
-  console.log('links', links);
+//console.log('links', links);
   // maintainNodePositions(oldNodes, nodes, width, height);
   return {nodes, links}
 }

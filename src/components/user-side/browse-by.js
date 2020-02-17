@@ -3,7 +3,6 @@ import {connect} from 'react-redux';
 import _ from 'underscore';
 
 import Graph from './graph';
-import './browse-by.css';
 
 class BrowseBy extends React.Component {
   constructor(props) {
@@ -16,16 +15,15 @@ class BrowseBy extends React.Component {
 
   componentDidUpdate(prevProps) {
     if(prevProps.allContent !== this.props.allContent) {
-      console.log('passing', this.props.allContent, 'to generatePrimaryNodes');
+      //console.log('passing', this.props.allContent, 'to generatePrimaryNodes');
       this.generatePrimaryNodes(this.props.allContent).then(nodeArrays => {
-        console.log('passing', nodeArrays, 'to generateLinks');
+        //console.log('passing', nodeArrays, 'to generateLinks');
         this.generateLinks(nodeArrays);
       })
     }
   }
 
   generatePrimaryNodes(secondaryNodes){
-    //debugger;
     return new Promise(function(resolve, reject) {
       const primaryNodes = [];
       const simplePrimeNodes = [];
@@ -57,9 +55,8 @@ class BrowseBy extends React.Component {
   }
 
   generateLinks(nodeArrays) {
-    //debugger;
     const {primaryNodes, secondaryNodes} = nodeArrays;
-    console.log(primaryNodes, secondaryNodes);
+    //console.log(primaryNodes, secondaryNodes);
     const links = [];
     let l = 0; //iterator for links indexes;
     //iterate through each node in the nodes array
@@ -68,20 +65,19 @@ class BrowseBy extends React.Component {
           secondaryNode.tags.forEach(function(tag){
             if(tag.toLowerCase() === primaryNode.tag){
               links.push({index: l, source: primaryNode.index, target: secondaryNode.index, key: `${primaryNode.index}, ${secondaryNode.index}`, strength: .10, distance: 100 });
-              //debugger;
               l++;
             }
           })
         })
       });
     const nodes = secondaryNodes.concat(primaryNodes);
-    console.log('updating state with', nodes);
+    //console.log('updating state with', nodes);
     this.setState({links});
     this.setState({nodes});
   }
 
   render() {
-    console.log('passing', this.state.nodes, 'to graph component');
+    //console.log('passing', this.state.nodes, 'to graph component');
     const {links, nodes} = this.state;
     if(links.length && nodes.length) {
       return (

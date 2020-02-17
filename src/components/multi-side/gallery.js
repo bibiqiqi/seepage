@@ -1,6 +1,7 @@
 import React from 'react';
-import * as classnames from 'classnames';
 import ReactPlayer from 'react-player'
+import {MobilePDFReader, PDFReader} from 'reactjs-pdf-reader';
+
 import {API_BASE_URL} from '../../config';
 
 import './gallery.css';
@@ -51,11 +52,23 @@ export default class Gallery extends React.Component {
     } else if (fileObject.fileType.includes('video')) {
       file = <ReactPlayer url={url} controls/>
     } else if (fileObject.fileType.includes('pdf')) {
-      file =
-        <object onLoad={() => {this.setState({loadingSymbol: true})}} data={url} type="application/pdf">
-          <p class={classnames({hidden: this.state.loadingSymbol})}>loading</p>
-          <iframe src={`https://docs.google.com/viewer?url=${url}&embedded=true`} title='PDF viewer'></iframe>
-        </object>
+      if(window.innerWidth < 992) {
+        file =
+        <div className="pdf-viewer">
+          <MobilePDFReader
+            url={url}
+            scale={.5}
+            isShowHeader={false}
+          />
+        </div>
+      } else {
+        file =
+          <PDFReader
+            url={url}
+            scale={1}
+            showAllPage={true}
+          />
+      }
     };
     return file
    }
@@ -65,25 +78,25 @@ export default class Gallery extends React.Component {
       <div
         className='gallery'
       >
-        <span
-          className = {classnames('exit', 'float-right', 'clickable')}
+        <i
+          className="material-icons exit clickable'"
           onClick = {() => this.props.onExitClick()}
-        >
-          <i class="material-icons">close</i>
-        </span>
-        <span
-          className={classnames('slider-back', 'arrow', 'clickable')}
-          onClick={() => this.handleArrowClick('back')}
-        >
-          <i class="fa fa-angle-left"></i>
-        </span>
-        <span
-          className={classnames('slider-forward', 'arrow', 'clickable')}
-          onClick={() => this.handleArrowClick('forward')}
-        >
-          <i class="fa fa-angle-right"></i>
-        </span>
-        {this.renderFile()}
+        >close
+        </i>
+        <div className="gallery-flexbox">
+          <i
+            className="material-icons slider-back arrow clickable"
+            onClick={() => this.handleArrowClick('back')}
+          >keyboard_arrow_left
+          </i>
+            {this.renderFile()}
+          <i
+            className="material-icons slider-forward arrow clickable"
+            onClick={() => this.handleArrowClick('forward')}
+          >keyboard_arrow_right
+          </i>
+        </div>
+
       </div>
     )
   }

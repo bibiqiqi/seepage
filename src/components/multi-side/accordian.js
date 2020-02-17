@@ -7,6 +7,7 @@ import EditorInnerCollapsible from '../editor-side/inner-collapsible';
 import UserInnerCollapsible from '../user-side/inner-collapsible';
 import Trigger from './trigger.js';
 import genCatColor from './gen-cat-color';
+import './accordian.css'
 
 const initialState = {
   contentId: '',
@@ -23,7 +24,7 @@ export default class Accordian extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.submits !== prevProps.submits) {
+    if ((this.props.submits !== prevProps.submits) || (this.props.results !== prevProps.results) ) {
       const collapsible = {
         key: null,
         open: false
@@ -57,7 +58,7 @@ export default class Accordian extends React.Component {
     //if user clicks a collapsible that's closed...
     } else {
       //update the state to relect that a collapsible is open and with the corresponding key
-      console.log('updating the state to open the collapsible');
+    //console.log('updating the state to open the collapsible');
       const newState = {
         contentId: contentId,
         collapsible: {
@@ -71,7 +72,7 @@ export default class Accordian extends React.Component {
    };
  }
 
-renderInnerCollapsible(openState, result, index){
+renderInnerCollapsible(openState, result, index, color){
   let innerCollapsible;
   if(this.props.side === 'user') {
     innerCollapsible =
@@ -79,6 +80,8 @@ renderInnerCollapsible(openState, result, index){
         openState={openState}
         content={result}
         index={index}
+        color={color}
+        onCloseCollapsible={() => {this.setState({collapsible: {key: null, open: false}})}}
       />
   } else {
     innerCollapsible =
@@ -96,13 +99,11 @@ renderInnerCollapsible(openState, result, index){
     const results = this.props.results;
     //maps through all the filtered results from user's search and calls other functions to
     //render all of the code within a collapsible
-    return results.map((result, index) => {
+    const collapsibles = results.map((result, index) => {
       const openState = this.state.collapsible.open && this.state.collapsible.key===index;
-      const leftBorder = {
-        'border-left': `5px solid ${genCatColor(result.category)}`
-      };
+      const color = genCatColor(result.category, .5);
       return (
-        <li key={index} className='clickable' style={leftBorder}>
+        <li key={index} className='clickable' style={{'backgroundColor': color, 'borderLeft': '5px solid' + color}}>
           <Collapsible
             open={openState}
             trigger={
@@ -113,10 +114,15 @@ renderInnerCollapsible(openState, result, index){
             }
             handleTriggerClick={(e) => this.handleCollapsibleClick(result.id, index, result.contentType)}
           >
-          {this.renderInnerCollapsible(openState, result, index)}
+          {this.renderInnerCollapsible(openState, result, index, color)}
           </Collapsible>
         </li>
       )
     })
+    return (
+      <div className='collaps-container'>
+        {collapsibles}
+      </div>
+    )
   }
 }

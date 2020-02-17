@@ -1,32 +1,32 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import * as classnames from 'classnames';
-import 'react-toastify/dist/ReactToastify.css';
+import './search-results.css'
 
 import Accordian from '../multi-side/accordian';
 
 function SearchResults(props) {
   if(props.show) {
     //if both searchResults and searchResultsNone are false, then user hasn't submitted query
-    if ((props.searchResults.length > 0) && (!props.searchResultsNone)) {
+    if (props.searchResults.length) {
         return (
-          <section id="user-search-results">
-            <span
-              className = {classnames('exit', 'float-right', 'clickable')}
+          <div id="user-search-results">
+            <i
+              className={classnames('exit', 'float-right', 'clickable', 'material-icons')}
               onClick = {() => props.onExitClick()}
-            >
-              <i class="material-icons">close</i>
-            </span>
-            <div className='collaps-container'>
-              <Accordian
-                results={props.searchResults}
-                side='user'
-              />
-            </div>
-          </section>
+            >close
+            </i>
+            <Accordian
+              results={props.searchResults}
+              side='user'
+              submits={props.submits}
+            />
+          </div>
         );
-      } else if (props.searchResultsNone) {
-          return <p>{props.searchResultsNone}</p>
+      } else if (props.searchResultsNone !== null) {
+          return <div class='message success-message'>{props.searchResultsNone}</div>
+      } else {
+        return null
       }
     } else {
       return null
@@ -34,8 +34,8 @@ function SearchResults(props) {
 }
 
 const mapStateToProps = state => ({
-  searchResults: state.userContent.searchByKeyWordResults,
-  searchResultsNone: state.userContent.searchByKeyWordResultsNone,
+  searchResults: state.userContent.searchResults,
+  searchResultsNone: state.userContent.searchResultsNone,
 });
 
 export default connect(mapStateToProps)(SearchResults);

@@ -4,9 +4,10 @@ import * as classnames from 'classnames';
 import cloneDeep from 'clone-deep';
 import {API_BASE_URL} from '../../config';
 import {normalizeResponseErrors} from '../../actions/utils';
-import {toast} from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import {editContentInState} from '../../actions/content/editor-side';
+import {renderAsyncState} from '../multi-side/user-feedback.js'
+
+import './delete-confirmation.css';
 
 const initialState = {
   asyncCall: {
@@ -26,8 +27,8 @@ class DeleteConfirmation extends React.Component {
   }
 
   deleteEntry() {
-    toast('loading');
-    this.setState({loading: true, success: null});
+    const asyncCall = {loading: true, success: null}
+    this.setState({asyncCall});
     return fetch(`${API_BASE_URL}/protected/content/${this.props.contentId}`, {
       method: 'DELETE',
       headers: {
@@ -36,17 +37,12 @@ class DeleteConfirmation extends React.Component {
     })
       .then(res => normalizeResponseErrors(res))
       .then(deletedDoc => {
-        toast.dismiss();
-        toast('success!');
         const asyncCall = {loading: false, success: true};
         this.setState({asyncCall});
         this.props.dispatch(editContentInState(this.props.contentId))
           .then(() => this.props.onDeleteConfirm())
-
       })
       .catch(err => {
-        toast.dismiss();
-        toast.error('there was an error updating the content');
         const asyncCall = {loading: false, success: false};
         this.setState({asyncCall});
       })
@@ -63,21 +59,20 @@ class DeleteConfirmation extends React.Component {
    }
 
    renderDeleteState() {
-     if ((!(this.state.asyncCall.loading)) && (this.state.asyncCall.success === null)) {
-       return (
-         <div
-         className="pop-up"
-         >
-           {this.renderRemoveSymbol()}
-           <h3>Are You Sure You Want to Erase This Content?</h3>
-           <button
-             onClick={this.deleteEntry}
-           >
-             Yes
+     return (
+       <div className="delete-confirmation">
+       <h3>Are You Sure You Want to Erase This Content?</h3>
+        <div className='delete-confirm-flex'>
+           <button onClick={this.deleteEntry}>
+            Yes
            </button>
-         </div>
-       )
-     }
+           <button onClick={this.props.onDeleteExit}>
+              No
+           </button>
+        </div>
+        {renderAsyncState(this.state.asyncCall, 'deletion')}
+       </div>
+     )
    }
 
    render(){

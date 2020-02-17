@@ -2,8 +2,8 @@ import React from "react";
 
 export default function Trigger(props) {
   return (
-    <p>
+    <h3 className='clickable'>
       <span className='title'>{props.title}</span> <span className='smaller'>by</span> {props.artistName}
-    </p>
+    </h3>
   )
 }

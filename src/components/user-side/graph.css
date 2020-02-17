@@ -1,0 +1,9 @@
+.link {
+  stroke: white;
+  stroke-opacity: .5;
+  stroke-width: .05em;
+}
+
+.graph {
+  height: 80vh;
+}

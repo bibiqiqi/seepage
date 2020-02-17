@@ -1,0 +1,19 @@
+.edit-results-flex {
+  display: flex;
+  align-items: center;
+  align-items: flex-start;
+  margin: .25rem auto;
+}
+
+.inner-collapsible p {
+  font-size: .5rem
+}
+
+.inner-collapsible h4 {
+  margin: 0 .2rem 0 0;
+}
+
+.edit-description h4 {
+  height: 4rem;
+  overflow-y: auto;
+}

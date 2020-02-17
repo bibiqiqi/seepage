@@ -1,1 +1,22 @@
+#user-home {
+  background-color: #9f9f9f;
+}
 
+#user-home .logo {
+  margin: 0 auto;
+}
+
+#user-home header {
+  position: relative;
+}
+
+#user-home .header-searched {
+  height: max-content;
+}
+
+
+@media (min-width: 576px) {
+  #user-home header {
+    padding-top: 1rem
+  }
+}

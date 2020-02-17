@@ -1,7 +1,28 @@
-.graph-prev {
-  font-size: .4em
+.node-preview {
+  font-size: .6rem;
+  fill: black;
+  stroke: none;
 }
 
-.title {
-  font-style: italic
+.node-preview .smaller {
+  font-size: .5em
+}
+
+.node-preview text {
+  fill: white;
+}
+
+.graph-thumbnail foreignObject {
+  overflow: visible;
+}
+
+.node-preview .exit {
+  background-color: black;
+  color: white;
+}
+
+@media (min-width: 768px) {
+  .node-preview {
+    font-size: .75rem;
+  }
 }

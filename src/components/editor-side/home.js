@@ -26,7 +26,7 @@ function EditorHome(props) {
     return (
       <button
         id={button.id}
-        class='editor-buttons'
+        className='editor-buttons clickable'
         onClick={() => {
           history.push(button.location);
         }}
@@ -40,10 +40,10 @@ function EditorHome(props) {
   });
 
   return (
-    <section id="editor-home" className="page">
+    <section id="editor-home" className="screen">
       <Logo/>
       <main>
-        <h3 className="editor-greeting">hello, <span>{currentEditor}</span></h3>
+        <p className='smaller'>hello, <span>{currentEditor}</span></p>
         <div className="button-container">
           {buttons}
         </div>

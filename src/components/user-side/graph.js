@@ -1,35 +1,32 @@
 import React, {Fragment} from "react";
+import {connect} from 'react-redux';
 import * as d3 from 'd3';
 import _ from 'underscore';
 import cloneDeep from 'clone-deep';
 
-import Gallery from '../multi-side/gallery';
 import ContentPreview from './content-preview';
 import genCatColor from '../multi-side/gen-cat-color';
+import './graph.css';
 
-var width = 800;
-var height = 500;
-var force = d3.layout.force()
+const windowWidth = window.innerWidth;
+const windowHeight = window.innerHeight;
+const force = d3.layout.force()
   .charge(-200)
   .linkDistance(function(link){return link.distance})
   .linkStrength(function(link){return link.strength})
-  .size([width, height]);
+  .size([windowWidth, windowHeight])
 
-export default class Graph extends React.Component {
+
+class Graph extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      nodePreview: null,
-      gallery: null,
-      fileObjects: null,
+      nodePreview: '',
       nodes: cloneDeep(this.props.nodes),
       links: cloneDeep(this.props.links)
     };
     force.nodes(this.state.nodes).links(this.state.links);
     force.start();
-    this.handleGalleryOpen = this.handleGalleryOpen.bind(this);
-    this.handleGalleryExit = this.handleGalleryExit.bind(this);
-    this.renderGalleryState = this.renderGalleryState.bind(this);
   }
 
   componentWillMount() {
@@ -47,6 +44,9 @@ export default class Graph extends React.Component {
       return (
         <ContentPreview
           node={node}
+          onExitClick={() => {
+            this.setState({nodePreview: ''});
+          }}
         />
       )
     } else {
@@ -54,72 +54,66 @@ export default class Graph extends React.Component {
     }
   }
 
-  handleGalleryOpen(e, node) {
-    //updates the state with the objectId of the thumbNail that was chosen
-    //and an array of the objectIds of all the other fileIds so they can be sent to gallery component
-    //and reveals the Gallery component
-    this.setState({
-      gallery: parseInt(e.currentTarget.id.slice(5), 10),
-      fileObjects: node.files //when gallery is clicked on by user, fileObjects is received from redux state
-    }, () => {console.log('you opened the gallery and the new state of graph is', this.state)})
+  renderNodeForTouchScreen(node, i, transform, color){
+    return (
+      <g
+        className='node'
+        id={`node-${node.index}`}
+        key={i}
+        transform={transform}
+        fill={color}
+        stroke={color}
+        onClick={() => {
+          const newNPState = this.state.nodePreview? '' : node.index;
+          this.setState({nodePreview: newNPState});
+        }}
+      >
+      <rect width='.5em' height='.5em' x='-.25em' y='-.25em' />
+      {this.renderPreviewState(node)}
+    </g>
+    )
   }
 
-  handleGalleryExit(){
-    //when user wants to exit the gallery
-    //updates the state to hide the Gallery component
-    this.setState({gallery: null}
-      // , () => {console.log('handleGalleryExit ran and the updated state is:', this.state.gallery)}
-    );
-  }
-
-  renderGalleryState() {
-    //determines whether to render Gallery component or hide it
-    //dependent on whether use has clicked on a thumb nail
-    if (this.state.gallery !== null) {
-      return (
-        <Gallery
-          firstArtIndex="0"
-          fileObjects={this.state.fileObjects} //bc this can be triggered by onMouseLeave, new render of Gallery receives fileObjects from internal state
-          onExitClick={this.handleGalleryExit}
-          alt={(fileNumber) => `Gallery view of file ${fileNumber} for ${this.state.nodes[this.state.gallery].title}, by ${this.state.nodes[this.state.gallery].artist}`}
-         />
-      )
-    } else {
-      return null
-    }
+  renderNodeForLargeScreen(node, i, transform, color){
+    return (
+      <g
+        className='node'
+        id={`node-${node.index}`}
+        key={i}
+        transform={transform}
+        fill={color}
+        stroke={color}
+        onMouseEnter={() => {
+           this.setState({nodePreview: node.index});
+        }}
+        onMouseLeave={() => {
+           this.setState({nodePreview: null});
+        }}
+      >
+      <rect width='.5em' height='.5em' x='-.25em' y='-.25em' />
+      {this.renderPreviewState(node)}
+    </g>
+    )
   }
 
   render() {
     // use React to draw all the nodes, d3 calculates the x and y
-    //debugger;
+    //console.log('render() happening and state is', this.state);
     var nodes = this.state.nodes.map((node, i) => {
       var transform = 'translate(' + node.x + ',' + node.y + ')';
       let color;
       if(node.category) {
         color = genCatColor(node.category);
       } else {
-        color = "gray";
+        color = 'black';
       }
-      return (
-        <g
-          className='node'
-          id={`node-${node.index}`}
-          key={i}
-          transform={transform}
-          fill={color}
-          stroke={color}
-          onClick={(e) => this.handleGalleryOpen(e, node)}
-          onMouseEnter={() => {
-             this.setState({nodePreview: node.index}, () => console.log('new state is', this.state));
-          }}
-          onMouseLeave={() => {
-             this.setState({nodePreview: null}, () => console.log('new state is', this.state));
-          }}
-        >
-          <rect width='.5em' height='.5em' x='-.25em' y='-.25em' />
-          {this.renderPreviewState(node)}
-        </g>
-      );
+
+      if (windowWidth >= 992) {
+        return this.renderNodeForLargeScreen(node, i, transform, color)
+      } else {
+        return this.renderNodeForTouchScreen(node, i, transform, color)
+      }
+
     });
 
     var links = _.map(this.state.links, (link) => {
@@ -131,8 +125,7 @@ export default class Graph extends React.Component {
 
     return (
       <Fragment>
-        {this.renderGalleryState()}
-        <svg width={width} height={height}>
+        <svg className='graph' viewBox={`0 0 ${windowWidth} ${windowHeight * 4/5}`}>
           <g>
             {links}
             {nodes}
@@ -142,3 +135,5 @@ export default class Graph extends React.Component {
     );
   }
 };
+
+export default connect()(Graph);
