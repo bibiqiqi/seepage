@@ -7,7 +7,7 @@
   "private": true,
   "dependencies": {
     "classnames": "^2.2.6",
-    "clone-deep": "^4.0.1",
+    "clone-deep": "https://github.com/bibiqiqi/clone-deep/tarball/master",
     "color": "^3.1.2",
     "d3": "3.5.17",
     "deepmerge": "^4.0.0",
