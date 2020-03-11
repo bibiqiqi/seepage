@@ -1,21 +1,38 @@
 diff --git a/node_modules/clone-deep/index.js b/node_modules/clone-deep/index.js
-index 9133c08..34d95a0 100644
+index 9133c08..0219d99 100644
 --- a/node_modules/clone-deep/index.js
 +++ b/node_modules/clone-deep/index.js
-@@ -26,7 +26,7 @@ function cloneObjectDeep(val, instanceClone) {
+@@ -4,9 +4,9 @@
+  * Module dependenices
+  */
+ 
+-const clone = require('shallow-clone');
+-const typeOf = require('kind-of');
+-const isPlainObject = require('is-plain-object');
++var clone = require('shallow-clone');
++var typeOf = require('kind-of');
++var isPlainObject = require('is-plain-object');
+ 
+ function cloneDeep(val, instanceClone) {
+   switch (typeOf(val)) {
+@@ -25,8 +25,8 @@ function cloneObjectDeep(val, instanceClone) {
+     return instanceClone(val);
    }
    if (instanceClone || isPlainObject(val)) {
-     const res = new val.constructor();
+-    const res = new val.constructor();
 -    for (let key in val) {
++    var res = new val.constructor();
 +    for (var key in val) {
        res[key] = cloneDeep(val[key], instanceClone);
      }
      return res;
-@@ -36,7 +36,7 @@ function cloneObjectDeep(val, instanceClone) {
+@@ -35,8 +35,8 @@ function cloneObjectDeep(val, instanceClone) {
+ }
  
  function cloneArrayDeep(val, instanceClone) {
-   const res = new val.constructor(val.length);
+-  const res = new val.constructor(val.length);
 -  for (let i = 0; i < val.length; i++) {
++  var res = new val.constructor(val.length);
 +  for (var i = 0; i < val.length; i++) {
      res[i] = cloneDeep(val[i], instanceClone);
    }
