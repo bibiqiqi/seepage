@@ -1,3 +1,8 @@
+.delete-confirmation button {
+  color: white;
+  background-color: black;
+}
+
 .delete-confirmation h3 {
   margin: 0;
   color: red;
@@ -7,11 +12,6 @@
   display: flex;
   margin: 1rem;
   justify-content: center;
-}
-
-.delete-confirmation button {
-  color: white;
-  background-color: black;
 }
 
 @media (min-width: 768px) {

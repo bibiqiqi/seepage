@@ -48,7 +48,6 @@ class EditorRegForm extends React.Component {
       <section id="editor-reg" className="screen">
         <Link to="/editor-home"><Logo/></Link>
           <form
-            className="clear-fix"
             onSubmit={this.props.handleSubmit(values => this.onSubmit(values))}
           >
           {renderAsyncState(this.state.asyncCall, 'registration')}

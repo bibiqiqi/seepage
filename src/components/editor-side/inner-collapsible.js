@@ -1,5 +1,4 @@
 import React, {Fragment} from 'react';
-import cloneDeep from 'clone-deep';
 import * as classnames from 'classnames';
 
 import EditorEditForm from './edit-form';
@@ -8,17 +7,15 @@ import Thumbnails from '../multi-side/thumbnails';
 
 import './inner-collapsible.css';
 
-const initialState = {
-  hidden: {
-    editForm: '',
-    deleteConfirm: ''
-  }
-}
-
 export default class EditorInnerCollapsible extends React.Component {
   constructor(props) {
     super(props);
-    this.state = cloneDeep(initialState);
+    this.state = {
+      hidden: {
+        editForm: '',
+        deleteConfirm: ''
+      }
+    }
     this.handleEditFormExit = this.handleEditFormExit.bind(this);
     this.handlePatchCompletion = this.handlePatchCompletion.bind(this);
   }

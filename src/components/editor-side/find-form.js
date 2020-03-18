@@ -1,7 +1,7 @@
 import React, {Fragment} from 'react';
 import {connect} from 'react-redux';
-import cloneDeep from 'clone-deep';
 import Collapsible from 'react-collapsible';
+import produce from 'immer';
 
 import {fetchContent} from '../../actions/content/multi-side';
 import {filterBySearch, filterByBrowse} from '../../actions/content/editor-side';
@@ -9,30 +9,27 @@ import Autocomplete from './autocomplete';
 import Categories from './categories';
 import './find-form.css';
 
-
-const initialState = {
-  findForm: {
-    browseBy: {
-      open: false,
-      inputs: {
-        media: false,
-        performance: false,
-        text: false
-      }
-    },
-    searchBy: {
-      open: false,
-      key: '',
-      value: ''
-    }
-  },
-  validation: [],
-}
-
 class EditorFindForm extends React.Component {
   constructor(props) {
     super(props);
-    this.state = cloneDeep(initialState);
+    this.state = {
+      findForm: {
+        browseBy: {
+          open: false,
+          inputs: {
+            media: false,
+            performance: false,
+            text: false
+          }
+        },
+        searchBy: {
+          open: false,
+          key: '',
+          value: ''
+        }
+      },
+      validation: [],
+    }
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleBrowse = this.handleBrowse.bind(this);
@@ -51,12 +48,11 @@ class EditorFindForm extends React.Component {
     //determines whether to call handleBrowse or handleSearch
     //console.log('calling handleSubmit');
     event.preventDefault();
-    const state = cloneDeep(this.state);
-    const findForm = state.findForm;
     const root = event.target.value;
+    const findForm = produce(this.state.findForm, draft => {
+      return draft
+    })
     const validationString = (validationProperty) => `${validationProperty} is required`;
-    const showAutoSuggestions = false;
-    this.setState({showAutoSuggestions});
     if (root === "searchBy") { //user is trying to search by field
       this.handleSearch(findForm.searchBy, validationString);
     } else { //user is trying to browse by category
@@ -138,9 +134,11 @@ class EditorFindForm extends React.Component {
   }
 
   handleCollapsibleClick(key) {
-    const findForm = cloneDeep(this.state.findForm);
-    findForm[key].open = !findForm[key].open;
-    this.setState({findForm})
+    this.setState(
+      produce(draft => {
+        draft.findForm[key].open = !draft.findForm[key].open;
+      })
+    )
   }
 
   renderSelectOptions(){

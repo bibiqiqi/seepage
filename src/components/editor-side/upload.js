@@ -2,9 +2,8 @@ import React from 'react';
 import {Link} from 'react-router-dom';
 import {connect} from 'react-redux';
 import * as classnames from 'classnames';
-import cloneDeep from 'clone-deep';
-import merge from 'deepmerge';
 import VideoThumbnail from 'react-video-thumbnail'; // use npm published version
+import produce from 'immer';
 
 import TextIcon from '../../text-icon.png';
 import {API_BASE_URL} from '../../config';
@@ -50,7 +49,9 @@ const initialState = {
 class EditorUpload extends React.Component {
   constructor(props) {
     super(props);
-    this.state = cloneDeep(initialState);
+    this.state = produce(initialState, draftState => {
+      return draftState
+    });
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleRemoveClick = this.handleRemoveClick.bind(this);
@@ -82,21 +83,24 @@ class EditorUpload extends React.Component {
     .then(post => {
       //you added a doc, so content in redux state needs to be updated
       this.props.dispatch(editContentInState(post.id, post));
-      const asyncCall = {loading: false, success: true};
-      this.setState(merge(initialState, {asyncCall}))
+      this.setState(produce(initialState, draft => {
+        draft.asyncCall = {loading: false, success: true};
+      }));
     })
     .catch(err => {
-      const asyncCall = {loading: false, success: false};
-      this.setState(merge(initialState, {asyncCall}));
+      this.setState(produce(initialState, draft => {
+        draft.asyncCall = {loading: false, success: false};
+      }));
     })
   }
 
   handleSubmit(event) {
     //console.log('doing handleSubmit');
     event.preventDefault();
-    const state = cloneDeep(this.state);
-    const upload = state.uploadForm;
-    const {artistName, title, tags, files, category} = upload;
+    const upload = produce(this.state.uploadForm, draftUpload => {
+      return draftUpload;
+    });
+    let {artistName, title, tags, files, category} = upload;
     //if all the upload values are defined
     if (artistName && title && tags && files && category) {
       //then pluck the values for a formData() object
@@ -117,11 +121,13 @@ class EditorUpload extends React.Component {
         }
       }
       //release existing object URLs, for optimal performance and memory usage
-      let thumbNailUrls = state.thumbNailUrls.map(e => {
-        return window.URL.revokeObjectURL(e);
-      });
-      thumbNailUrls = [];
-      this.setState({thumbNailUrls})
+      this.setState(
+        produce(draft => {
+          draft.thumbNailUrls.forEach(e => {
+            return window.URL.revokeObjectURL(e);
+          });
+          draft.thumbNailsUrls = [];
+        }))
       this.postEntry(data);
     } else {
       //if any of the upload values are not defined, update the state for validation object and return feedback to user
@@ -131,9 +137,10 @@ class EditorUpload extends React.Component {
   }
 
   handleValidation() {
-    const state = cloneDeep(this.state);
-    const uploadObject = state.uploadForm;
-    const validationObject = state.validation;
+    const state = produce(this.state, draftState => {
+      return draftState;
+    });
+    const {uploadObject, validationObject} = state;
     //iterate through the upload object to find which
     //fields don't have values and return a validation object
     const validationString = (validationProperty) => `${validationProperty} is required`;
@@ -159,34 +166,38 @@ class EditorUpload extends React.Component {
 
   handleChange(event) {
     //immediately updates the state with change in update
-    const {uploadForm, thumbNailUrls} = cloneDeep(this.state);
-    const validation = initialState.validation;
-    this.setState({validation});
+    const target = event.target;
+    this.setState(produce(draft => {
+      draft.validation = initialState.validation;
+    }));
     //if event.target doesn't exist, then the change came from file input
-    if (!(event.target)) {
+    if (!(target)) {
       event.forEach(file => {
         const thumbNailObject = {};
         thumbNailObject.type = file.type;
-        uploadForm.files.push(file);
-        if((file.type.includes('image')) || (file.type.includes('video'))) {
-          thumbNailObject.url = this.onCreateObjectUrl(file);
-        } else if (file.type.includes('pdf')) {
-          thumbNailObject.url = TextIcon
-        }
-        thumbNailUrls.push(thumbNailObject);
+        this.setState(produce(draft => {
+          draft.uploadForm.files.push(file);
+          if((file.type.includes('image')) || (file.type.includes('video'))) {
+            thumbNailObject.url = this.onCreateObjectUrl(file);
+          } else if (file.type.includes('pdf')) {
+            thumbNailObject.url = TextIcon;
+          };
+          draft.thumbNailUrls.push(thumbNailObject);
+        }));
       });
-      this.setState({uploadForm, thumbNailUrls});
     } else { //otherwise the change came from either a text input or a checkbox input
-      const key = event.target.name;
-      if (event.target.type === "checkbox") {
+      const key = target.name;
+      if (target.type === "checkbox") {
         //if input type is checkbox, then update value to either true or false
-        event.target.checked ? uploadForm.category[key] = true : uploadForm.category[key] = false;
-        this.setState({uploadForm});
+        this.setState(produce(draft => {
+          target.checked ? draft.uploadForm.category[key] = true : draft.uploadForm.category[key] = false;
+        }));
       } else {
-        const value = event.target.value;
+        const value = target.value;
         //otherwise input is a text value, so update the state with current string
-        uploadForm[key] = value;
-        this.setState({uploadForm});
+        this.setState(produce(draft => {
+          draft.uploadForm[key] = value;
+        }))
       }
     }
   }
@@ -202,11 +213,12 @@ class EditorUpload extends React.Component {
   handleRemoveClick(e) {
     //selected to remove a file in the current edit form
     const index = e.currentTarget.className.slice(24);
-    const state = cloneDeep(this.state);
-    const {uploadForm, thumbNailUrls} = state;
-    uploadForm.files.splice(index, 1);
-    thumbNailUrls.splice(index, 1);
-    this.setState({uploadForm, thumbNailUrls});
+      this.setState(
+        produce(draft => {
+          draft.uploadForm.files.splice(index, 1);
+          draft.thumbNailUrls.splice(index, 1);
+        })
+     )
   }
 
   renderRemoveSymbol(index) {
@@ -262,7 +274,6 @@ class EditorUpload extends React.Component {
       <section id="editor-upload" className="screen">
         <Link to="/editor-home"><Logo/></Link>
         <form
-          className="clear-fix"
           noValidate
         >
           {renderValidationWarnings(this.state.validation)}

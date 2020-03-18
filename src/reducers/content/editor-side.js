@@ -1,7 +1,9 @@
 import {
   FETCH_CONTENT_REQUEST,
   FETCH_CONTENT_SUCCESS,
-  FETCH_CONTENT_ERROR
+  FETCH_CONTENT_ERROR,
+  OPEN_GALLERY,
+  CLOSE_GALLERY
 }
 from '../../actions/content/multi-side';
 
@@ -21,6 +23,8 @@ const initialState = {
   suggestedArtists: [],
   suggestedTitles: [],
   suggestedTags: [],
+  galleryStarting: null,
+  galleryFiles: [],
   loading: false,
   error: null,
 };
@@ -66,6 +70,17 @@ export default function reducer(state = initialState, action) {
     //console.log('updating suggestedTags in Redux State');
       return Object.assign({}, state, {
         suggestedTags: [...action.suggestedTags]
+      })
+
+  }else if (action.type === OPEN_GALLERY) {
+      return Object.assign({}, state, {
+        galleryFiles: [...action.files],
+        galleryStarting: action.startingIndex
+      })
+  } else if (action.type === CLOSE_GALLERY) {
+      return Object.assign({}, state, {
+        galleryFiles: [],
+        galleryStarting: null
       })
   }
   return state;

@@ -39,22 +39,6 @@
   width: 100%;
 }
 
-.upload-tn-container {
-  display: flex;
-  flex-wrap: wrap;
-  position: relative;
-  width: 100%;
-}
-
-.upload-tn-container img {
-  height: 3rem;
-}
-
-.upload-tn {
-  position: relative;
-  margin: 0 .2rem;
-}
-
 .fade-out {
   -webkit-animation: fadeOut 1.0s forwards;
   -webkit-animation-iteration-count: 1;
@@ -76,6 +60,22 @@
 
 .publish p {
   font-size: .3rem;
+}
+
+.upload-tn {
+  position: relative;
+  margin: 0 .2rem;
+}
+
+.upload-tn-container {
+  display: flex;
+  flex-wrap: wrap;
+  position: relative;
+  width: 100%;
+}
+
+.upload-tn-container img {
+  height: 3rem;
 }
 
 @-webkit-keyframes fadeOut {
@@ -126,34 +126,44 @@
     width: .75rem;
     height: .75rem;
   }
-  .publish p {
-    font-size: 1.5rem;
-  }
+
   .assign-category label {
     font-size: 1.5rem;
   }
-  .upload-tn-container img {
-      height: 6rem;
+
+  .publish p {
+    font-size: 1.5rem;
   }
+
   .upload-flex input[type=text] {
     font-size: 1.5rem;
+  }
+
+  .upload-tn-container img {
+      height: 6rem;
   }
 }
 
 @media (min-width: 992px) and (orientation: landscape) {
-  .upload-flex input[type=text] {
-    font-size: 2rem;
-  }
   .publish p {
     font-size: 1.5rem;
+  }
+
+  .upload-flex input[type=text] {
+    font-size: 2rem;
   }
 }
 
 @media (min-width: 992px) and (orientation: landscape) and (orientation: landscape) {
-  .upload-flex input[type=text] {
+  #editor-upload form {
+    width: 60%;
+  }
+
+  .publish p {
     font-size: 1rem;
   }
-  .publish p {
+  
+  .upload-flex input[type=text] {
     font-size: 1rem;
   }
 }

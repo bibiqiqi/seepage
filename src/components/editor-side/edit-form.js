@@ -1,8 +1,7 @@
 import React, { Fragment } from "react";
 import {connect} from 'react-redux';
-import cloneDeep from 'clone-deep';
-import merge from 'deepmerge';
 import * as classnames from 'classnames';
+import produce from 'immer';
 
 import {API_BASE_URL} from '../../config';
 import Autocomplete from './autocomplete';
@@ -40,17 +39,13 @@ const initialState =   {
 class EditorEditForm extends React.Component {
   constructor(props) {
     super(props);
-    this.state = merge(
-      cloneDeep(initialState),
-      {
-        uploadForm: {
-          files: {
-            totalFiles: props.content.files.length,
-            filesEdits: props.content.files
-          }
-        }
+    this.state = produce(initialState, draftState => {
+      draftState.uploadForm.files = {
+        totalFiles: props.content.files.length,
+        filesEdits: props.content.files
       }
-    );
+    })
+
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleRemoveClick = this.handleRemoveClick.bind(this);
@@ -88,13 +83,21 @@ class EditorEditForm extends React.Component {
            totalFiles: this.props.content.files.length,
            filesEdits: this.props.content.files
          };
-         this.setState(merge.all[ initialState, asyncCall, files ]);
+         this.setState(
+           produce(initialState, draft => {
+             draft.asyncCall = asyncCall;
+             draft.uploadForm.files = files;
+           })
+         )
          this.props.onPatchCompletion();
        })
     })
     .catch(err => {
-      const asyncCall = {loading: false, success: false};
-      this.setState(merge(initialState, asyncCall));
+      this.setState(
+        produce(initialState, draft => {
+          draft.asyncCall = {loading: false, success: false}
+        })
+      )
     })
   }
 
@@ -173,30 +176,33 @@ class EditorEditForm extends React.Component {
   }
 
   //performing validation on field input before it's submitted
-  handleChange(event) {
+  handleChange(e) {
     //console.log('handleChange happening');
     this.setState({validation: ''});
-    const uploadForm = cloneDeep(this.state.uploadForm);
-    if (!(event.target)) {//then the input is a file
+    const target = e.target;
+    if (!(e.target)) {//then the input is a file
       const file = {
-        fileType: event[0].type, //preserve the type to pass this info onto Thumbnail component
-        src: URL.createObjectURL(event[0]), //generate a URL for a preview image
-        file: event[0] //save the actual file object to send to the database
+        fileType: e[0].type, //preserve the type to pass this info onto Thumbnail component
+        src: URL.createObjectURL(e[0]), //generate a URL for a preview image
+        file: e[0] //save the actual file object to send to the database
       };
-      uploadForm.files.filesEdits.push(file);
-      ++uploadForm.files.totalFiles;
-      this.setState({uploadForm});
+      this.setState(produce(draft => {
+        draft.uploadForm.files.filesEdits.push(file);
+        ++draft.uploadForm.files.totalFiles;
+      }));
     } else { //otherwise the change came from either a text input or a checkbox input
-      const key = event.target.name;
-      const value = event.target.value;
-      if (event.target.type === "checkbox") {
+      const key = target.name;
+      const value = target.value;
+      if (target.type === "checkbox") {
         //if input is checkbox, then update value to either true or false
-        event.target.checked ? uploadForm.category[key] = true : uploadForm.category[key] = false;
-        this.setState({uploadForm});
+        this.setState(produce(draft => {
+          target.checked ? draft.uploadForm.category[key] = true : draft.uploadForm.category[key] = false;
+        }));
       } else {
         //otherwise input is a text value, so update the state with current string
-        uploadForm[key] = value;
-        this.setState({uploadForm});
+        this.setState(produce(draft => {
+          draft.uploadForm[key] = value;
+        }));
       }
     }
   }
@@ -211,15 +217,15 @@ class EditorEditForm extends React.Component {
 
   handleRemoveClick(e) {
     const index = e.currentTarget.className.slice(39);
-    const uploadForm = cloneDeep(this.state.uploadForm);
-    const selectedFile = uploadForm.files.filesEdits[index];
-    if (selectedFile.fileId) {//the file is already in database
-      selectedFile.remove = true;
-    } else if (selectedFile.file) {//the file was just uploaded
-      uploadForm.files.filesEdits.splice(index, 1);
-    }
-    --uploadForm.files.totalFiles;
-    this.setState({uploadForm});
+    this.setState(produce(draft => {
+      const selectedFile = draft.uploadForm.files.filesEdits[index];
+      if (selectedFile.fileId) {//the file is already in database
+        selectedFile.remove = true;
+      } else if (selectedFile.file) {//the file was just uploaded
+        draft.uploadForm.files.filesEdits.splice(index, 1);
+      }
+      --draft.uploadForm.files.totalFiles;
+    }));
   }
 
   renderRemoveSymbol(index) {
@@ -253,7 +259,7 @@ class EditorEditForm extends React.Component {
         return (
           <input
             name="title"
-            placeholder="Title"
+            placeholder={this.props.placeholder}
             type="text"
             value={this.state.uploadForm.title}
             onChange={this.handleChange}
@@ -265,7 +271,7 @@ class EditorEditForm extends React.Component {
           <textarea
             rows ="4"
             name="description"
-            placeholder="Description"
+            placeholder={this.props.placeholder}
             type="text"
             value={this.state.uploadForm.description}
             onChange={this.handleChange}

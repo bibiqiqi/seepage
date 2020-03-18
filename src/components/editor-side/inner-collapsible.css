@@ -5,15 +5,15 @@
   margin: .25rem auto;
 }
 
-.inner-collapsible p {
-  font-size: .5rem
+.edit-description h4 {
+  height: 4rem;
+  overflow-y: auto;
 }
 
 .inner-collapsible h4 {
   margin: 0 .2rem 0 0;
 }
 
-.edit-description h4 {
-  height: 4rem;
-  overflow-y: auto;
+.inner-collapsible p {
+  font-size: .5rem
 }

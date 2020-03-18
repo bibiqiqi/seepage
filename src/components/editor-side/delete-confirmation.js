@@ -1,7 +1,6 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import * as classnames from 'classnames';
-import cloneDeep from 'clone-deep';
 import {API_BASE_URL} from '../../config';
 import {normalizeResponseErrors} from '../../actions/utils';
 import {editContentInState} from '../../actions/content/editor-side';
@@ -9,18 +8,16 @@ import {renderAsyncState} from '../multi-side/user-feedback.js'
 
 import './delete-confirmation.css';
 
-const initialState = {
-  asyncCall: {
-    loading: false,
-    success: null
-  }
-}
-
 //performs DELETE request
 class DeleteConfirmation extends React.Component {
   constructor(props) {
     super(props);
-    this.state = cloneDeep(initialState);
+    this.state = {
+      asyncCall: {
+        loading: false,
+        success: null
+      }
+    }
     this.deleteEntry = this.deleteEntry.bind(this);
     this.renderRemoveSymbol = this.renderRemoveSymbol.bind(this);
     this.renderDeleteState = this.renderDeleteState.bind(this);

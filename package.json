@@ -7,10 +7,9 @@
   "private": true,
   "dependencies": {
     "classnames": "^2.2.6",
-    "clone-deep": "^4.0.1",
     "color": "^3.1.2",
     "d3": "3.5.17",
-    "deepmerge": "^4.0.0",
+    "immer": "^6.0.1",
     "jwt-decode": "^2.2.0",
     "patch-package": "^6.2.1",
     "prop-types": "^15.7.2",
@@ -29,9 +28,7 @@
     "redux": "^4.0.1",
     "redux-form": "^8.1.0",
     "redux-thunk": "^2.3.0",
-    "underscore": "^1.9.1",
-    "uninstall": "0.0.0",
-    "updeep": "^1.1.0"
+    "underscore": "^1.9.1"
   },
   "homepage": "http://bibiqiqi.github.io/seepage",
   "scripts": {
