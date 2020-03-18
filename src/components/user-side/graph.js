@@ -2,7 +2,6 @@ import React, {Fragment} from "react";
 import {connect} from 'react-redux';
 import * as d3 from 'd3';
 import _ from 'underscore';
-import cloneDeep from 'clone-deep';
 
 import ContentPreview from './content-preview';
 import genCatColor from '../multi-side/gen-cat-color';
@@ -22,8 +21,8 @@ class Graph extends React.Component {
     super(props);
     this.state = {
       nodePreview: '',
-      nodes: cloneDeep(this.props.nodes),
-      links: cloneDeep(this.props.links)
+      nodes: this.props.nodes,
+      links: this.props.links,
     };
     force.nodes(this.state.nodes).links(this.state.links);
     force.start();

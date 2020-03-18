@@ -1,5 +1,4 @@
 import {connect} from 'react-redux';
-import cloneDeep from 'clone-deep';
 import React from 'react';
 import * as classnames from 'classnames';
 
@@ -11,23 +10,21 @@ import SearchResults from './search-results'
 import './home.css'
 import {fetchContent, closeGallery} from '../../actions/content/multi-side'
 
-const initialState = {
-  header: false,
-  searchBy: {
-    artistName: '',
-    title: '',
-    tag: ''
-  },
-  searchResults: {
-    show: false,
-    submits: 0
-  }
-}
-
 class Home extends React.Component {
   constructor(props) {
     super(props);
-    this.state = cloneDeep(initialState);
+    this.state = {
+      header: false,
+      searchBy: {
+        artistName: '',
+        title: '',
+        tag: ''
+      },
+      searchResults: {
+        show: false,
+        submits: 0
+      }
+    }
     this.handleExitSearchResults = this.handleExitSearchResults.bind(this);
     this.handleGalleryExit = this.handleGalleryExit.bind(this);
 
@@ -71,14 +68,6 @@ class Home extends React.Component {
     }
   }
 
-  renderTagMapState() {
-    // if(window.innerWidth < 992) { //touchscreen
-    //   return null
-    // } else {
-      return <BrowseBy/>
-    // }
-  }
-
   render(){
     return (
       <section id="user-home" className="screen">
@@ -91,7 +80,7 @@ class Home extends React.Component {
           <Logo/>
           <SearchBy
             onSubmit={() => {
-              const searchResults = cloneDeep(this.state.searchResults);
+              const searchResults = Object.assign({}, this.state.searchResults);
               searchResults.show = true;
               ++searchResults.submits;
               this.setState({searchResults});
@@ -106,7 +95,7 @@ class Home extends React.Component {
           submits={this.state.searchResults.submits}
           onExitClick={this.handleExitSearchResults}
         />
-        {this.renderTagMapState()}
+        <BrowseBy/>
       </section>
     )
   }
@@ -116,7 +105,7 @@ const mapStateToProps = (state) => ({
   loading: state.userContent.loading,
   error: state.userContent.error,
   galleryFiles: state.userContent.galleryFiles,
-  galleryStarting: state.userContent.galleryStarting,
+  galleryStarting: state.userContent.galleryStarting
 })
 
 export default connect(mapStateToProps)(Home);

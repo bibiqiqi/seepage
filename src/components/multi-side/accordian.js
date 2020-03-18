@@ -1,6 +1,5 @@
 import React from 'react';
-import merge from 'deepmerge';
-import cloneDeep from 'clone-deep';
+import produce from 'immer';
 import Collapsible from 'react-collapsible';
 
 import EditorInnerCollapsible from '../editor-side/inner-collapsible';
@@ -9,18 +8,16 @@ import Trigger from './trigger.js';
 import genCatColor from './gen-cat-color';
 import './accordian.css'
 
-const initialState = {
-  contentId: '',
-  collapsible: {
-    key: null,
-    open: false,
-  }
-}
-
 export default class Accordian extends React.Component {
   constructor(props) {
     super(props);
-    this.state = cloneDeep(initialState);
+    this.state = {
+      contentId: '',
+      collapsible: {
+        key: null,
+        open: false,
+      }
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -34,7 +31,7 @@ export default class Accordian extends React.Component {
   }
 
   handleCollapsibleClick(contentId, key) {
-    const collapsible = cloneDeep(this.state.collapsible);
+    const collapsible = Object.assign({}, this.state.collapsible);
     //if a user clicks a collapsible and one of them is open...
     if (collapsible.open) {
       //test to see if the one that's open equals the one clicked
@@ -45,30 +42,23 @@ export default class Accordian extends React.Component {
       } else {
         //if not, that means the user is trying to open a different collapsible
         //so, update the state and call fetchThumbnails for the new collapsible
-        const newCollapsible = {
-          contentId: contentId,
-          collapsible: {
-            key: key
-          }
-        }
-        this.setState((prevState) => {
-          return merge(prevState, newCollapsible)
-        });
+        this.setState(
+          produce(draft => {
+            draft.contentId = contentId;
+            draft.collapsible = {key: key}
+          })
+        )
       }
     //if user clicks a collapsible that's closed...
     } else {
       //update the state to relect that a collapsible is open and with the corresponding key
     //console.log('updating the state to open the collapsible');
-      const newState = {
-        contentId: contentId,
-        collapsible: {
-          key: key,
-          open: true
-        }
-      }
-      this.setState((prevState) => {
-        return merge(prevState, newState)
-      });
+      this.setState(
+        produce(draft => {
+          draft.contentId = contentId;
+          draft.collapsible = {key: key, open: true}
+        })
+      )
    };
  }
 
@@ -89,6 +79,7 @@ renderInnerCollapsible(openState, result, index, color){
         openState={openState}
         content={result}
         index={index}
+        onCloseCollapsible={() => {this.setState({collapsible: {key: null, open: false}})}}
       />
   }
   return innerCollapsible

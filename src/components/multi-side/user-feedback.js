@@ -27,13 +27,13 @@ export function renderValidationWarnings(validation){
 export function renderAsyncState(asyncState, insert){
   if(asyncState.loading === true) {
     return (
-      <div className="message loading-message">
+      <div className="message loading-message fade-out">
         loading...
       </div>
     )
   } else if ((asyncState.loading === false) && (asyncState.success === true)) {
     return (
-      <div className="message success-message fade-out">
+      <div className="message success-message">
         {`your ${insert} was a success!`}
       </div>
     )

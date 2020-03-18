@@ -1,18 +1,15 @@
 import {connect} from 'react-redux';
 import React from 'react';
-import cloneDeep from 'clone-deep';
 
 import {searchByKeyWord} from '../../actions/content/user-side';
-import './search-by.css'
-
-const initialState = {
-  keyWord: '',
-}
+import './search-by.css';
 
 class SearchBy extends React.Component {
   constructor(props) {
     super(props);
-    this.state = cloneDeep(initialState);
+    this.state = {
+      keyWord: ''
+    }
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this)
   }

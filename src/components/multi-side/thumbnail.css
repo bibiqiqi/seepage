@@ -20,15 +20,15 @@
   height: 3.5rem
 }
 
+.thumbnail h3 {
+  padding: 30% 0;
+  text-align: center;
+}
+
 .thumbnail p {
   margin-left: 1rem;
   font-size: .7rem;
   padding: 40% 0;
-  text-align: center;
-}
-
-.thumbnail h3 {
-  padding: 30% 0;
   text-align: center;
 }
 
@@ -46,13 +46,16 @@
   .text-icon {
     height: 4.5rem;
   }
-  .thumbnail video {
-    height: 4.5rem !important;
-  }
+
   .thumbnail p {
     font-size: 1rem;
     padding: 50% 0;
   }
+
+  .thumbnail video {
+    height: 4.5rem !important;
+  }
+
 }
 
 /*Large devices (desktops, 992px and up)*/
@@ -61,9 +64,11 @@
     width: 5rem;
     height: 5rem;
   }
+
   .text-icon {
     height: 5rem;
   }
+  
   .thumbnail video {
     height: 5rem !important;
   }

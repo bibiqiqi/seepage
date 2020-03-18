@@ -31,7 +31,7 @@ class EditorLoginForm extends React.Component {
   }
 
   onSubmit(values){
-    //console.log('login values being submitted to server are', values);
+    console.log('login values being submitted to server are', values);
     this.props.dispatch(login(values.email, values.password))
       .then(res => this.setState({error: null}))
       .catch(err => this.setState({error: err}))
@@ -44,7 +44,6 @@ class EditorLoginForm extends React.Component {
         <Logo/>
         <main>
           <form
-            className="clear-fix"
             onSubmit={this.props.handleSubmit(values => this.onSubmit(values))}
           >
           {renderValidationWarnings(this.state.error)}

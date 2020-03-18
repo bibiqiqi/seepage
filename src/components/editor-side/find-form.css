@@ -18,6 +18,11 @@
   margin: .5rem 0;
 }
 
+.editor-browse__contentInner,
+.editor-search__contentInner {
+  margin: 0 auto;
+}
+
 .searchBy input {
   font-size: .5rem;
   width: 60%;
@@ -33,11 +38,6 @@
   display: inline-block;
 }
 
-.editor-browse__contentInner,
-.editor-search__contentInner {
-  margin: 0 auto;
-}
-
 @media (min-width: 576px) {
   .searchBy select,
   .searchBy input,
@@ -51,10 +51,6 @@
     padding: 0 2rem;
   }
 
-  .editor-find-form button {
-    font-size: 1.25rem;
-  }
-
   .editor-browse .assign-category label {
     font-size: 1rem;
     margin: 0 .5rem;
@@ -65,6 +61,10 @@
     height: .75rem;
   }
 
+  .editor-find-form button {
+    font-size: 1.25rem;
+  }
+  
   .searchBy select,
   .searchBy input {
     font-size: 1.25rem;
@@ -73,5 +73,5 @@
   .searchBy select {
     margin-right: 1rem;
   }
-  
+
 }

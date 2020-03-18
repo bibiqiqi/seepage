@@ -1,3 +1,7 @@
+.arrow {
+  z-index: 10;
+}
+
 .gallery {
   position: absolute;
   z-index: 10;
@@ -42,10 +46,6 @@
   top: .5rem;
   right: .2rem;
   color: white;
-}
-
-.arrow {
-  z-index: 10;
 }
 
 .gallery:hover
