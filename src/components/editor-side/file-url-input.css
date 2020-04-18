@@ -1,0 +1,28 @@
+.add-video-url {
+  display: flex;
+  flex-grow: 1;
+  border: white solid;
+}
+
+.add-video-url button {
+  padding: 0;
+  margin: 0;
+}
+
+.add-video-url i {
+  line-height: 1rem;
+  font-size: 1rem;
+  color: white;
+}
+
+.video-url-input {
+  font-size: .5rem;
+  min-width: max-content;
+  flex-grow: 1;
+}
+
+@media (min-width: 576px) {
+  .video-url-input {
+    font-size: .75rem;
+  }
+}

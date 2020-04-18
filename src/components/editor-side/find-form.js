@@ -37,7 +37,6 @@ class EditorFindForm extends React.Component {
   }
 
   componentDidMount(){
-    //console.log('doing componentDidMount');
     //updates the Redux state with current content in DB and maps suggestedArtists
     //suggestedTitles, and suggestedTags to local state
     this.props.dispatch(fetchContent("editor"));
@@ -73,13 +72,13 @@ class EditorFindForm extends React.Component {
       this.props.dispatch(filterByBrowse(browseByArray));
     } else {
       //otherwise, return a validation warning
-      const validation = renderValString('choosing a category');
-      this.setState({validation: validation})
+      const validation = [];
+      validation.push(renderValString('choosing a category'));
+      this.setState({validation})
     }
   }
 
   handleSearch(searchByState, renderValString, hidden) {
-    //console.log('running handleSearch');
     let searchByObject = {};
     let validation = [];
     //make sure both key and value have been inputted
@@ -105,32 +104,35 @@ class EditorFindForm extends React.Component {
 
   handleChange(event) {
     //update the state with user's input upon input
-    //console.log('handleChange happening');
-    this.setState({validation: []});
-    const findForm = Object.assign({}, this.state.findForm);
-    if (event.target) {
-      //then the input didn't come from Autocomplete
-      const key = event.target.name;
-      const value = event.target.value;
-      if (event.target.type === "checkbox") {
-        //if user is submitting a true value for a checkbox
-        //then add the new category value to the state
-        //if it's false, filter out all categories within the state that equal the key submitted by user
-        event.target.checked ? findForm.browseBy.inputs[key] = true : findForm.browseBy.inputs[key] = false;
-        this.setState({findForm});
-      } else {
-        //user is trying to search and they typed in this value
-        findForm.searchBy.value = value;
-        this.setState({findForm});
-      }
-    }
+    const target = event.target;
+    this.setState(
+      produce(draft => {
+        draft.validation = []
+        if(target) {
+          //then the input didn't come from Autocomplete
+          const key = target.name;
+          const value = target.value;
+          if (target.type === "checkbox") {
+            //if user is submitting a true value for a checkbox
+            //then add the new category value to the state
+            //if it's false, filter out all categories within the state that equal the key submitted by user
+            target.checked ? draft.findForm.browseBy.inputs[key] = true : draft.findForm.browseBy.inputs[key] = false;
+          } else {
+            //user is trying to search and they typed in this value
+            draft.findForm.searchBy.value = value;
+          }
+        }
+      })
+    )
   }
 
   handleDropDownChange(event) {
     const value = event.target.value;
-    const findForm = Object.assign({}, this.state.findForm);
-    findForm.searchBy.key = value;
-    this.setState({findForm})
+    this.setState(
+      produce(draft => {
+        draft.findForm.searchBy.key = value;
+      })
+    )
   }
 
   handleCollapsibleClick(key) {
@@ -196,7 +198,7 @@ class EditorFindForm extends React.Component {
             />
           </div>
           <button
-            className="float-right"
+            className="float-right clickable"
             type="button"
             value="searchBy"
             onClick={this.handleSubmit}
@@ -218,7 +220,7 @@ class EditorFindForm extends React.Component {
             onChange={this.handleChange}
           />
           <button
-            className="float-right"
+            className="float-right clickable"
             value="browseBy"
             type="button"
             onClick={this.handleSubmit}
@@ -233,9 +235,8 @@ class EditorFindForm extends React.Component {
   }
 
   render(){
-
    let validationWarning;
-   if (this.state.validation.length) {
+   if(this.state.validation.length) {
      validationWarning = this.state.validation.map(e => {
        return(
          <div className="message warning-message">
@@ -251,7 +252,7 @@ class EditorFindForm extends React.Component {
       >
       {validationWarning}
        <Collapsible
-         classParentString={'Collapsible editor-browse'}
+         classParentString={'Collapsible editor-browse clickable'}
          open={this.state.findForm.browseBy.open}
          trigger={<h3>Browse By...</h3>}
          handleTriggerClick={() => this.handleCollapsibleClick('browseBy')}
@@ -260,7 +261,7 @@ class EditorFindForm extends React.Component {
        </Collapsible>
 
         <Collapsible
-          classParentString={'Collapsible editor-search'}
+          classParentString={'Collapsible editor-search clickable'}
           open={this.state.findForm.searchBy.open}
           trigger={<h3>Search By...</h3>}
           handleTriggerClick={() => this.handleCollapsibleClick('searchBy')}

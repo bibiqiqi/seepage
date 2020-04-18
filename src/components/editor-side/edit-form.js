@@ -3,12 +3,13 @@ import {connect} from 'react-redux';
 import * as classnames from 'classnames';
 import produce from 'immer';
 
+import Thumbnails from '../multi-side/thumbnails';
+import {InlineClick} from '../multi-side/clickables';
+import FileAndUrlInput from './file-url-input'
 import {API_BASE_URL} from '../../config';
 import Autocomplete from './autocomplete';
 import Categories from './categories';
 import TagsInput from './tags-input';
-import RenderDropZone from './dropzone';
-import Thumbnail from '../multi-side/thumbnail';
 import {normalizeResponseErrors} from '../../actions/utils';
 import {editContentInState} from '../../actions/content/editor-side';
 import {renderValidationWarnings, renderAsyncState} from '../multi-side/user-feedback.js'
@@ -24,8 +25,9 @@ const initialState =   {
         performance: false,
         text: false
         },
-      tags: []
+      tags: [],
     },
+    thumbnailUrls: [],
     validation: '',
     asyncCall: {
       loading: false,
@@ -45,10 +47,26 @@ class EditorEditForm extends React.Component {
         filesEdits: props.content.files
       }
     })
-
-    this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleRemoveClick = this.handleRemoveClick.bind(this);
+    this.handleFileOrUrlRemove = this.handleFileOrUrlRemove.bind(this);
+    this.handleFileOrUrlAdd = this.handleFileOrUrlAdd.bind(this);
+    this.handleCheckBoxChange = this.handleCheckBoxChange.bind(this);
+    this.handleTextInput = this.handleTextInput.bind(this);
+  }
+
+  componentDidMount(){
+    const thumbnailUrls = this.props.content.files.map(e => {
+      const {fileUrl, fileId} = e; //if it's a video, it will have fileUrl, otherwise it will have fileId
+      const thumbnail = fileUrl? {fileType: e.fileType, fileUrl} : {fileType: e.fileType, fileId};
+      return thumbnail;
+    })
+    this.setState(produce(draft => {
+      draft.uploadForm.files = {
+        totalFiles: this.props.content.files.length,
+        filesEdits: this.props.content.files
+      }
+      draft.thumbnailUrls = thumbnailUrls;
+    }))
   }
 
   patchEntry(data, field) {
@@ -116,6 +134,8 @@ class EditorEditForm extends React.Component {
       let filesEdit = [];
       let totalEdits = 0; //for validation, to ensure that there is at least one edit being submitted
       upload.files.filesEdits.forEach(e => {
+
+//TODO: need to re-write this condition to accomodate video URLs
         if (e.file) {  //the file isn't already in the db, so it tells the server to upload it
           filesEdit.push(e.file);
           ++totalEdits;
@@ -141,7 +161,6 @@ class EditorEditForm extends React.Component {
       if (key === 'tags') {
         if (upload.tags.length < 1) { //validation check to make sure field isn't empty
           validation = 'The content has to have at least one tag';
-
         } else {
           data = {};
           data[key] = upload.tags;
@@ -175,36 +194,11 @@ class EditorEditForm extends React.Component {
     }
   }
 
-  //performing validation on field input before it's submitted
-  handleChange(e) {
-    //console.log('handleChange happening');
-    this.setState({validation: ''});
-    const target = e.target;
-    if (!(e.target)) {//then the input is a file
-      const file = {
-        fileType: e[0].type, //preserve the type to pass this info onto Thumbnail component
-        src: URL.createObjectURL(e[0]), //generate a URL for a preview image
-        file: e[0] //save the actual file object to send to the database
-      };
-      this.setState(produce(draft => {
-        draft.uploadForm.files.filesEdits.push(file);
-        ++draft.uploadForm.files.totalFiles;
-      }));
-    } else { //otherwise the change came from either a text input or a checkbox input
-      const key = target.name;
-      const value = target.value;
-      if (target.type === "checkbox") {
-        //if input is checkbox, then update value to either true or false
-        this.setState(produce(draft => {
-          target.checked ? draft.uploadForm.category[key] = true : draft.uploadForm.category[key] = false;
-        }));
-      } else {
-        //otherwise input is a text value, so update the state with current string
-        this.setState(produce(draft => {
-          draft.uploadForm[key] = value;
-        }));
-      }
-    }
+  handleCheckBoxChange(event) {
+    this.setState(produce(draft => {
+      draft.validation = initialState.validation;
+      event.target.checked ? draft.uploadForm.category[event.target.key] = true : draft.uploadForm.category[event.target.key] = false;
+    }));
   }
 
 //the react-tags component handles input change and tag suggestions internally, so
@@ -215,30 +209,34 @@ class EditorEditForm extends React.Component {
     this.setState({uploadForm})
   }
 
-  handleRemoveClick(e) {
-    const index = e.currentTarget.className.slice(39);
+  handleFileOrUrlAdd(fileOrUrl){
+    this.setState(produce(draft => {
+      draft.thumbnailUrls.push(fileOrUrl);
+      draft.uploadForm.files.filesEdits.push(fileOrUrl);
+      ++draft.uploadForm.files.totalFiles;
+    }));
+  }
+
+  handleFileOrUrlRemove(index){
     this.setState(produce(draft => {
       const selectedFile = draft.uploadForm.files.filesEdits[index];
-      if (selectedFile.fileId) {//the file is already in database
+      if (selectedFile._id) {//the file is already in database
         selectedFile.remove = true;
       } else if (selectedFile.file) {//the file was just uploaded
         draft.uploadForm.files.filesEdits.splice(index, 1);
       }
       --draft.uploadForm.files.totalFiles;
+      draft.thumbnailUrls.splice(index, 1)
     }));
   }
 
-  renderRemoveSymbol(index) {
-    //console.log('value being passed to renderDeleteSymbol is', value);
-     return(
-       <i
-        className = {classnames('remove', 'clickable', 'material-icons', `remove-${index}`)}
-        onClick = {(e) => this.handleRemoveClick(e)}
-       >
-        close
-      </i>
-     )
-   }
+  handleTextInput(event) {
+    const input = event.currentTarget;
+    this.setState(produce(draft => {
+      draft.validation = initialState.validation;
+      draft.uploadForm[input.name] = input.value;
+    }))
+  }
 
   renderEditField(){
     //console.log('reached renderEditField()');
@@ -251,7 +249,7 @@ class EditorEditForm extends React.Component {
             suggestions={this.props.suggestedArtists}
             name="artistName"
             value={this.state.uploadForm.artistName}
-            onChange={this.handleChange}
+            onChange={this.handleTextInput}
             noValidate
           />
         )
@@ -262,19 +260,19 @@ class EditorEditForm extends React.Component {
             placeholder={this.props.placeholder}
             type="text"
             value={this.state.uploadForm.title}
-            onChange={this.handleChange}
+            onChange={this.handleTextInput}
             noValidate
           />
         )
       } else if (this.props.name === 'description') {
         return (
           <textarea
-            rows ="4"
+            rows="3"
             name="description"
             placeholder={this.props.placeholder}
             type="text"
             value={this.state.uploadForm.description}
-            onChange={this.handleChange}
+            onChange={this.handleTextInput}
             noValidate
           />
         )
@@ -282,7 +280,7 @@ class EditorEditForm extends React.Component {
         return(
           <Categories
             categories={this.state.uploadForm.category}
-            onChange={this.handleChange}
+            onChange={this.handleCheckBoxChange}
           />
         )
       } else if (this.props.name === 'tags') {
@@ -299,35 +297,17 @@ class EditorEditForm extends React.Component {
           />
         )
       } else if (this.props.name === 'files') {
-        const thumbnails = this.state.uploadForm.files.filesEdits.map((e, i) => {
-          if(!(e.remove)) {
-            return (
-              <div className='edit-thumbnail'>
-                {this.renderRemoveSymbol(i)}
-                <Thumbnail
-                  title={this.props.content.title}
-                  artistName={this.props.content.artistName}
-                  fileObject={e}
-                  index={i}
-                  gallery={false}
-                  playing={false}
-                />
-              </div>
-            )
-          } else {
-            return null
-          }
-        });
         return(
           <Fragment>
-            <RenderDropZone
-              name={this.props.name}
-              onDrop={this.handleChange}
-              files={this.state.uploadForm.files.filesEdits}
+            <FileAndUrlInput
+              onFileOrUrlAdd={(fileOrUrl) => this.handleFileOrUrlAdd(fileOrUrl)}
             />
-            <div className='edit-form-thumbnails'>
-              {thumbnails}
-            </div>
+            <Thumbnails
+              thumbnailUrls={this.state.thumbnailUrls}
+              handleRemoveClick={this.handleFileOrUrlRemove}
+              gallery={false}
+              autoplay={0}
+            />
           </Fragment>
         )
       }
@@ -346,19 +326,17 @@ class EditorEditForm extends React.Component {
           )
         }
         >
-        <div class='edit-form'>
-          <span
-            className='exit clickable'
-            onClick={this.props.onExit}
-          >
-            <i className="material-icons">close</i>
-          </span>
-         <span
-           className='submit-edit clickable'
-           onClick={this.handleSubmit}
-         >
-          <i className="material-icons">mail</i>
-        </span>
+        <div className='edit-form'>
+          <InlineClick
+            classNames='clickable exit material-icons'
+            handleClick={this.props.onExit}
+            glyph='close'
+          />
+          <InlineClick
+            classNames='submit-edit clickable material-icons'
+            handleClick={this.handleSubmit}
+            glyph='mail'
+          />
         {renderValidationWarnings(this.state.validation)}
         {renderAsyncState(this.state.asyncCall, 'edit')}
         {this.renderEditField()}

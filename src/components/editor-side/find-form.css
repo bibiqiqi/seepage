@@ -51,6 +51,11 @@
     padding: 0 2rem;
   }
 
+  .editor-browse h3,
+  .editor-search h3 {
+    font-size: 1.5rem;
+  }
+
   .editor-browse .assign-category label {
     font-size: 1rem;
     margin: 0 .5rem;
@@ -64,7 +69,7 @@
   .editor-find-form button {
     font-size: 1.25rem;
   }
-  
+
   .searchBy select,
   .searchBy input {
     font-size: 1.25rem;

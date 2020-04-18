@@ -47,7 +47,7 @@ function UserInnerCollapsible(props) {
        <Thumbnails
         content={content}
         gallery={true}
-        playing={false}
+        autoplay={0}
        />
         {description()}
        <div className='tags-container'>

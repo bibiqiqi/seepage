@@ -163,6 +163,7 @@ button {
   width: 100%;
   margin: 0 auto;
   font-size: .75rem;
+  text-align: center;
 }
 
 .remove {
@@ -208,7 +209,6 @@ button {
 }
 
 .submit-edit {
-  font-family: wingdings;
   font-size: .75rem;
 }
 
@@ -227,6 +227,7 @@ button {
 
 .warning-message {
   color: red;
+  margin-bottom: .3rem;
 }
 
 #editor-home,
@@ -293,7 +294,7 @@ button {
 /*Medium devices (tablets, 768px and up)*/
 @media (min-width: 768px) {
   h3 {
-    font-size: 1rem;
+    font-size: 1.75rem;
   }
 
   h4 {
@@ -313,7 +314,7 @@ button {
 /*Large devices (desktops, 992px and up)*/
 @media (min-width: 992px) {
   h3 {
-    font-size: 1.25rem;
+    font-size: 2rem;
   }
 
   h5 {
@@ -343,7 +344,7 @@ button {
   .assign-category label {
     font-size: 1rem;
   }
-  
+
   .material-icons {
     font-size: 1.5rem;
   }

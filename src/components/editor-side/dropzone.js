@@ -10,7 +10,7 @@ export default class RenderDropZone extends React.Component {
         {({getRootProps, getInputProps}) => (
           <div {...getRootProps({className: 'dropzone'})}>
             <label>
-              <i class="material-icons">attach_file</i>
+              Image or Text File
               <input {...getInputProps()}/>
             </label>
           </div>
