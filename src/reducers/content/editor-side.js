@@ -72,7 +72,7 @@ export default function reducer(state = initialState, action) {
         suggestedTags: [...action.suggestedTags]
       })
 
-  }else if (action.type === OPEN_GALLERY) {
+  } else if (action.type === OPEN_GALLERY) {
       return Object.assign({}, state, {
         galleryFiles: [...action.files],
         galleryStarting: action.startingIndex

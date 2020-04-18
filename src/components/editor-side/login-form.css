@@ -1,13 +1,3 @@
-#editor-login button {
-  width: max-content;
-  font-size: .75rem;
-  margin-top: 2rem;
-  background-color: #89c77e8c;
-  color: black;
-  border-radius: .3rem;
-  margin-right: 1rem;
-}
-
 #editor-login form {
   display: flex;
   flex-direction: column;
@@ -15,14 +5,22 @@
   height: max-content;
 }
 
-  #editor-login main {
-    padding: 4rem 0;
+#editor-login main {
+  padding: 4rem 0;
+}
+
+#editor-login button {
+  margin-right: 1rem;
+  line-height: 1rem;
+  width: max-content;
+  font-size: .75rem;
 }
 
 @media (min-width: 576px) {
   #editor-login button {
     font-size: 1.5rem;
     margin-right: 3rem;
+    line-height: 2rem;
   }
   #editor-login main {
     padding: 8rem 0;

@@ -1,0 +1,15 @@
+.upload-tn button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 10;
+  background: transparent;
+  border: none;
+  color: red;
+}
+
+.inline-button {
+  display: inline;
+  margin: 0;
+  padding: 0;
+}

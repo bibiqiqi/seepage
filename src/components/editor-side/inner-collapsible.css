@@ -6,7 +6,7 @@
 }
 
 .edit-description h4 {
-  height: 4rem;
+  height: max-content;
   overflow-y: auto;
 }
 
@@ -16,4 +16,20 @@
 
 .inner-collapsible p {
   font-size: .5rem
+}
+
+.inner-collapsible button {
+  border: none;
+  background-color: transparent;
+  margin: 0;
+}
+
+.inner-collapsible .inline-button {
+  font-size: .6rem;
+}
+
+@media (min-width: 768px) {
+  .inner-collapsible .inline-button {
+    font-size: 1rem;
+  }
 }

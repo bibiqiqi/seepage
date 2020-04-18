@@ -13,3 +13,13 @@
 .edit-thumbnail {
   position: relative
 }
+
+.edit-form .upload-file-flex div,
+.edit-form .upload-file-flex i {
+  color: black;
+}
+
+.edit-form .upload-file-flex div,
+.edit-form .upload-file-flex button {
+  border: black solid .01rem;
+}

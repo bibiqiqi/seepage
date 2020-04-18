@@ -36,8 +36,9 @@ export const filterBySearch = (searchBy) => (dispatch, getState) => {
   const contents = state.editorContent.allContent;
   const noResults = "your query didn't match any results";
   let filteredResults = [];
+  const lowerCaseQuery = searchBy.value.toLowerCase()
   contents.forEach((e) => {
-    if (e[searchBy.key].toLowerCase() === searchBy.value.toLowerCase()) {
+    if (e[searchBy.key].toLowerCase().includes(lowerCaseQuery)) {
       filteredResults.push(e);
     };
   })

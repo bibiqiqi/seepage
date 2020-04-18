@@ -29,19 +29,18 @@ export default class LabeledInput extends React.Component {
     } else {
         return (
           <Fragment>
+            {error}
+            {warning}
             <input
               {...this.props.input}
               type={this.props.type}
               placeholder={this.props.placeholder}
               ref={input => {
-                //console.log(input);
                 this.input = input}
               }
             />
             <label className={this.props.className}>
               {this.props.label}
-              {error}
-              {warning}
             </label>
           </Fragment>
         )

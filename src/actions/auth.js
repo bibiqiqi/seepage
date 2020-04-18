@@ -21,7 +21,7 @@ export const authRequest = () => ({
 });
 
 export const AUTH_SUCCESS = 'AUTH_SUCCESS';
-export const authSuccess = (currentEditor) => ({
+export const authSuccess = currentEditor => ({
   type: AUTH_SUCCESS,
   currentEditor
 });
@@ -42,7 +42,6 @@ const storeAuthInfo = (authToken, dispatch) => {
 
 export const login = (email, password) => dispatch => {
   //sets loading state to true;
-  //console.log(email, password);
   dispatch(authRequest());
   return (
     fetch(`${API_BASE_URL}/auth/login`, {
@@ -94,3 +93,9 @@ export const refreshAuthToken = () => (dispatch, getState) => {
             clearAuthToken(authToken);
         });
 };
+
+export const logOut = () => (dispatch, getState) => {
+  const authToken = getState().auth.authToken;
+  dispatch(clearAuth());
+  clearAuthToken(authToken);
+}

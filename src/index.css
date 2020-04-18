@@ -1,9 +1,4 @@
 @font-face {
-  font-family: 'Epittazio';
-  src: url('fonts/Epittazio.ttf');
-}
-
-@font-face {
   font-family: 'Material Icons';
   font-style: normal;
   font-weight: 400;
@@ -91,6 +86,7 @@ a:active {
 button {
   display: block;
   margin: .5rem auto;
+  border: none;
 }
 
 .back {
@@ -163,6 +159,7 @@ button {
   width: 100%;
   margin: 0 auto;
   font-size: .75rem;
+  text-align: center;
 }
 
 .remove {
@@ -189,6 +186,12 @@ button {
 .simple-form input {
   border: none;
   border-bottom: solid black;
+  margin-top: .5rem;
+  background-color: transparent;
+}
+
+.simple-form button {
+  margin-right: 1rem;
 }
 
 .smaller {
@@ -208,7 +211,6 @@ button {
 }
 
 .submit-edit {
-  font-family: wingdings;
   font-size: .75rem;
 }
 
@@ -227,14 +229,32 @@ button {
 
 .warning-message {
   color: red;
+  margin-bottom: .3rem;
 }
 
+#editor-login button,
+#cover-page button {
+  color: rgb(147, 147, 147);
+  background-color: #5f21ff;
+  border: none;
+}
+
+#editor-login button:hover,
+#cover-page button:hover {
+  background-color: #FF87FA;
+}
+
+#editor-login main button:active,
+#cover-page main button:active {
+  background-color: #FF87FA;
+}
+
+#editor-login,
 #editor-home,
 #editor-upload,
 #editor-find,
 #editor-reg {
-  color: white;
-  background-color: black;
+  background-color: #9f9f9f;
   font-family: 'Fira Code';
 }
 
@@ -243,14 +263,6 @@ button {
 #editor-find.page,
 #editor-reg.page {
   padding: .5rem
-}
-
-#editor-home .logo,
-#editor-upload .logo,
-#editor-find .logo,
-#editor-reg .logo {
-  -webkit-filter: invert(1);
-  filter: invert(1);
 }
 
 #editor-home .logo:hover,
@@ -281,10 +293,6 @@ button {
     font-size: 1.5rem;
   }
 
-  .smaller {
-    font-size: .75rem;
-  }
-
   .suggestions {
     font-size: 1rem;
   }
@@ -293,7 +301,7 @@ button {
 /*Medium devices (tablets, 768px and up)*/
 @media (min-width: 768px) {
   h3 {
-    font-size: 1rem;
+    font-size: 1.75rem;
   }
 
   h4 {
@@ -303,17 +311,12 @@ button {
   .material-icons {
     font-size: 1.25rem;
   }
-
-  .smaller {
-    font-size: 1.25rem;
-    margin-left: .4rem;
-  }
 }
 
 /*Large devices (desktops, 992px and up)*/
 @media (min-width: 992px) {
   h3 {
-    font-size: 1.25rem;
+    font-size: 2rem;
   }
 
   h5 {
@@ -343,7 +346,7 @@ button {
   .assign-category label {
     font-size: 1rem;
   }
-  
+
   .material-icons {
     font-size: 1.5rem;
   }

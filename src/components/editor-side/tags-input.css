@@ -15,8 +15,8 @@
 }
 
 .react-tags__search-input input {
-  width: 100%;
-  font-size: .5rem
+  font-size: .5rem;
+  min-width: 3rem !important;
 }
 
 .react-tags__selected {
@@ -37,7 +37,7 @@
 
 @media (min-width: 576px) {
   .react-tags__search-input input {
-    font-size: 1rem
+    font-size: 1rem;
   }
   .react-tags__selected-tag {
     font-size: 1rem;
@@ -47,7 +47,9 @@
 @media (min-width: 768px) {
   .react-tags__search-input input {
     font-size: 1.5rem;
+    min-width: 4rem !important;
   }
+
   .react-tags__selected-tag {
     font-size: 1.5rem;
   }

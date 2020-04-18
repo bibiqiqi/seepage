@@ -1,6 +1,16 @@
+#user-search-results button {
+  background-color: transparent;
+  border: none;
+}
 /*Medium devices (tablets, 768px and up)*/
 @media (min-width: 768px) {
   #user-search-results {
     margin: 0 .5rem;
+  }
+}
+
+@media (min-width: 992px) and (orientation: landscape) {
+  #user-search-results h3 {
+    font-size: 1.5rem
   }
 }

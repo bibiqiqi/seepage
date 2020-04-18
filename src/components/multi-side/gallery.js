@@ -1,8 +1,8 @@
 import React from 'react';
-import ReactPlayer from 'react-player'
 import {MobilePDFReader, PDFReader} from 'reactjs-pdf-reader';
-
 import {API_BASE_URL} from '../../config';
+import {Button} from './clickables';
+import VideoPlayer from './video-player'
 
 import './gallery.css';
 
@@ -13,12 +13,11 @@ export default class Gallery extends React.Component {
     super(props);
     this.state = {
       currentArtIndex: this.props.firstArtIndex,
-      loadingSymbol: false
     }
     this.renderFile = this.renderFile.bind(this);
     this.handleArrowClick = this.handleArrowClick.bind(this);
-    this.renderFile = this.renderFile.bind(this);
   }
+
 
   handleArrowClick(direction) {
     //increments or decrements the currentArtIndex, updates the state, and makes GET request for current file
@@ -40,7 +39,6 @@ export default class Gallery extends React.Component {
 
   renderFile(){
     const fileObject = this.props.fileObjects[this.state.currentArtIndex];
-    //console.log('calling renderFile and the file array being passed is', this.props.fileObjects)
     const url = `${API_BASE_URL}/content/files/${fileObject.fileId}`;
     let file;
     if(fileObject.fileType.includes('image')) {
@@ -50,23 +48,26 @@ export default class Gallery extends React.Component {
          alt={this.props.alt(this.state.currentArtIndex)}
        />
     } else if (fileObject.fileType.includes('video')) {
-      file = <ReactPlayer url={url} controls/>
+      file =
+        <VideoPlayer
+          url={fileObject.fileUrl}
+          autoplay={1}
+        />
     } else if (fileObject.fileType.includes('pdf')) {
       if(window.innerWidth < 992) {
         file =
-        <div className="pdf-viewer">
           <MobilePDFReader
             url={url}
             scale={.5}
             isShowHeader={false}
           />
-        </div>
       } else {
         file =
           <PDFReader
             url={url}
-            scale={1}
             showAllPage={true}
+            page={1}
+            onDocumentComplete={() => {this.setState({loadingSymbol: false})}}
           />
       }
     };
@@ -78,26 +79,27 @@ export default class Gallery extends React.Component {
       <div
         className='gallery'
       >
-        <i
-          className="material-icons exit clickable'"
-          onClick = {() => this.props.onExitClick()}
-        >close
-        </i>
+        <Button
+          classNames='exit clickable'
+          handleClick={this.props.onExitClick}
+          glyph='close'
+        />
         <div className="gallery-flexbox">
-          <i
-            className="material-icons slider-back arrow clickable"
-            onClick={() => this.handleArrowClick('back')}
-          >keyboard_arrow_left
-          </i>
-            {this.renderFile()}
-          <i
-            className="material-icons slider-forward arrow clickable"
-            onClick={() => this.handleArrowClick('forward')}
-          >keyboard_arrow_right
-          </i>
+          <Button
+            classNames='slider-back arrow clickable'
+            handleClick={() => this.handleArrowClick('back')}
+            glyph='keyboard_arrow_left'
+          />
+            <div className ='file-container'>
+              {this.renderFile()}
+            </div>
+            <Button
+              classNames='slider-forward arrow clickable'
+              handleClick={() => this.handleArrowClick('forward')}
+              glyph='keyboard_arrow_right'
+            />
+          </div>
         </div>
-
-      </div>
-    )
+     )
   }
 }

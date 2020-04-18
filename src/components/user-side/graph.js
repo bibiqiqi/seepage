@@ -2,6 +2,7 @@ import React, {Fragment} from "react";
 import {connect} from 'react-redux';
 import * as d3 from 'd3';
 import _ from 'underscore';
+import {openGalleryRequest} from '../../actions/content/multi-side'
 
 import ContentPreview from './content-preview';
 import genCatColor from '../multi-side/gen-cat-color';
@@ -43,9 +44,6 @@ class Graph extends React.Component {
       return (
         <ContentPreview
           node={node}
-          onExitClick={() => {
-            this.setState({nodePreview: ''});
-          }}
         />
       )
     } else {
@@ -63,8 +61,8 @@ class Graph extends React.Component {
         fill={color}
         stroke={color}
         onClick={() => {
-          const newNPState = this.state.nodePreview? '' : node.index;
-          this.setState({nodePreview: newNPState});
+          const newNpState = this.state.nodePreview? '' : node.index;
+          this.setState({nodePreview: newNpState});
         }}
       >
       <rect width='.5em' height='.5em' x='-.25em' y='-.25em' />
@@ -87,6 +85,10 @@ class Graph extends React.Component {
         }}
         onMouseLeave={() => {
            this.setState({nodePreview: null});
+        }}
+        onClick={() => {
+        //console.log('calling openGalleryRequest')
+          this.props.dispatch(openGalleryRequest(node.files, 0));
         }}
       >
       <rect width='.5em' height='.5em' x='-.25em' y='-.25em' />

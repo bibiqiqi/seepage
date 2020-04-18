@@ -8,13 +8,15 @@
   height: 100%;
   width: 100%;
   background-color: black;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
 }
 
 .gallery i {
   color: white;
+}
+
+.gallery button {
+  background-color: transparent;
+  border: none;
 }
 
 .gallery-flexbox {
@@ -22,6 +24,7 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  height: 100vh;
 }
 
 .gallery-flexbox p,
@@ -48,12 +51,26 @@
   color: white;
 }
 
+.gallery .file-container {
+  overflow-y: scroll;
+  flex-grow: 2;
+}
+
 .gallery:hover
 .arrow {
   display: block;
 }
 
 .gallery-viewer {
-  overflow: scroll;
+  overflow: hidden;
   height: 100vh;
+}
+
+.gallery .invisible-click {
+  display: none;
+}
+
+.gallery .video-thumbnail {
+  height: 100%;
+  width: 100%;
 }

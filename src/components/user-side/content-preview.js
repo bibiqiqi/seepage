@@ -26,7 +26,7 @@ class ContentPreview extends React.Component {
               title={this.props.node.title}
               artistName={this.props.node.artistName}
               gallery={true}
-              playing={true}
+              autoplay={1}
             />
          </foreignObject>
        </g>
@@ -49,19 +49,26 @@ class ContentPreview extends React.Component {
           <text className='smaller' x='0em' y='16.75em'>by</text>
           <text x='.75em' y='8.5em'>{this.props.node.artistName}</text>
         </g>
-      } else if (window.innerWidth >= 768) {
+      } else if (window.innerWidth >= 768) {//tablets
         text =
           <g>
-            <text className='title' x='0em' y='7em'>{this.props.node.title}</text>
-            <text className='smaller' x='0em' y='15.75em'>by</text>
-            <text x='.75em' y='8em'>{this.props.node.artistName}</text>
+            <text className='title' x='0em' y='7.5em'>{this.props.node.title}</text>
+            <text className='smaller' x='0em' y='16.75em'>by</text>
+            <text x='.75em' y='8.5em'>{this.props.node.artistName}</text>
           </g>
+      } else if(window.innerWidth >= 600) { //larger phones
+        text =
+        <g>
+          <text className='title' x='0em' y='7.75em'>{this.props.node.title}</text>
+          <text className='smaller' x='0em' y='17em'>by</text>
+          <text x='.75em' y='8.75em'>{this.props.node.artistName}</text>
+        </g>
       } else { //phones
         text =
         <g>
-          <text className='title' x='0em' y='7em'>{this.props.node.title}</text>
-          <text className='smaller' x='0em' y='16em'>by</text>
-          <text x='.75em' y='8em'>{this.props.node.artistName}</text>
+          <text className='title' x='0em' y='6em'>{this.props.node.title}</text>
+          <text className='smaller' x='0em' y='13.5em'>by</text>
+          <text x='.75em' y='7em'>{this.props.node.artistName}</text>
         </g>
       }
     }

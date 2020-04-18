@@ -1,17 +1,16 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
 import {connect} from 'react-redux';
-import * as classnames from 'classnames';
-import VideoThumbnail from 'react-video-thumbnail'; // use npm published version
 import produce from 'immer';
 
-import TextIcon from '../../text-icon.png';
+import Thumbnails from '../multi-side/thumbnails';
+import FileAndUrlInput from './file-url-input'
+import {Button} from '../multi-side/clickables';
 import {API_BASE_URL} from '../../config';
 import Logo from '../multi-side/logo';
 import Autocomplete from './autocomplete';
 import Categories from './categories';
 import TagsInput from './tags-input';
-import RenderDropZone from './dropzone';
 import {renderValidationWarnings, renderAsyncState} from '../multi-side/user-feedback.js'
 import {normalizeResponseErrors} from '../../actions/utils';
 import {fetchContent} from '../../actions/content/multi-side';
@@ -31,12 +30,11 @@ const initialState = {
     files: [],
     tags: []
   },
-  thumbNailUrls: [],
+  thumbnailUrls: [],
   validation: {
     artistName: '',
     title: '',
     category: '',
-    files: '',
     tags: ''
   },
   asyncCall: {
@@ -52,17 +50,16 @@ class EditorUpload extends React.Component {
     this.state = produce(initialState, draftState => {
       return draftState
     });
-    this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleRemoveClick = this.handleRemoveClick.bind(this);
-    this.renderRemoveSymbol = this.renderRemoveSymbol.bind(this);
-    this.onCreateObjectUrl = this.onCreateObjectUrl.bind(this);
     this.handleValidation = this.handleValidation.bind(this);
-    this.renderThumbNailState = this.renderThumbNailState.bind(this);
+    this.handleFileOrUrlRemove = this.handleFileOrUrlRemove.bind(this);
+    this.handleFileOrUrlAdd = this.handleFileOrUrlAdd.bind(this);
+    this.handleCheckBoxChange = this.handleCheckBoxChange.bind(this);
+    this.handleTextInput = this.handleTextInput.bind(this);
+    this.handleRemoveThumbnail = this.handleRemoveThumbnail.bind(this);
   }
 
   componentDidMount(){
-    //console.log('doing componentDidMount');
     //update the Redux state with current content in DB and map suggestedArtists
     //and suggestedTags to local state
     this.props.dispatch(fetchContent("editor"));
@@ -95,18 +92,25 @@ class EditorUpload extends React.Component {
   }
 
   handleSubmit(event) {
-    //console.log('doing handleSubmit');
     event.preventDefault();
     const upload = produce(this.state.uploadForm, draftUpload => {
       return draftUpload;
     });
     let {artistName, title, tags, files, category} = upload;
     //if all the upload values are defined
-    if (artistName && title && tags && files && category) {
+    if (
+        artistName &&
+        title &&
+        (category.media || category.performance || category.text) &&
+        tags.length &&
+        files.length
+      ) {
       //then pluck the values for a formData() object
       const data = new FormData();
       for (let key in upload) {
-        if ((key === 'files') || (key === 'tags')) {
+        if (key === 'files') {
+          upload[key].forEach(e => data.append(key, e.file));
+        } else if (key === 'tags') {
           for (let x = 0; x < upload[key].length; x++) {
             data.append(key, upload[key][x]);
           }
@@ -123,16 +127,15 @@ class EditorUpload extends React.Component {
       //release existing object URLs, for optimal performance and memory usage
       this.setState(
         produce(draft => {
-          draft.thumbNailUrls.forEach(e => {
+          draft.thumbnailUrls.forEach(e => {
             return window.URL.revokeObjectURL(e);
           });
-          draft.thumbNailsUrls = [];
         }))
       this.postEntry(data);
     } else {
       //if any of the upload values are not defined, update the state for validation object and return feedback to user
-      const validation = this.handleValidation()
-       this.setState({validation});
+      const validation = this.handleValidation();
+      this.setState({validation});
     }
   }
 
@@ -140,142 +143,81 @@ class EditorUpload extends React.Component {
     const state = produce(this.state, draftState => {
       return draftState;
     });
-    const {uploadObject, validationObject} = state;
+    const {uploadForm, validation} = state;
     //iterate through the upload object to find which
     //fields don't have values and return a validation object
     const validationString = (validationProperty) => `${validationProperty} is required`;
-     for (let property in uploadObject) {
+     for (let property in uploadForm) {
        //if the value for this key is undefined and the key isn't 'description'
-       if((!uploadObject[property]) && uploadObject[property] !== 'description'){
+       if((!uploadForm[property]) && (property !== 'description')){
          if (property === 'artistName') { //artistName
-           validationObject[property] = validationString('artist name');
+           validation[property] = validationString('artist name');
          } else { //title
-           validationObject[property] = validationString(property);
+           validation[property] = validationString(property);
          }
-       } else if (((Array.isArray(uploadObject[property])) && (!uploadObject[property].length)) || //tags and files
-         ((typeof uploadObject[property] === 'object') && (Object.values(uploadObject[property]).every(e => e === false)))) { //category
-           validationObject[property] = validationString(property);
+       } else if (((Array.isArray(uploadForm[property])) && (!uploadForm[property].length)) || //tags
+         ((typeof uploadForm[property] === 'object') && (Object.values(uploadForm[property]).every(e => e === false)))) { //category
+          validation[property] = validationString(property);
        }
     }
-    return validationObject;
+    return validation;
   }
 
-  onCreateObjectUrl(object) {
-    return (window.URL) ? window.URL.createObjectURL(object) : window.webkitURL.createObjectURL(object);
-  }
-
-  handleChange(event) {
-    //immediately updates the state with change in update
-    const target = event.target;
+  handleCheckBoxChange(event) {
+    const checked = event.target.checked;
+    const key = event.target.name;
     this.setState(produce(draft => {
       draft.validation = initialState.validation;
+      checked ? draft.uploadForm.category[key] = true : draft.uploadForm.category[key] = false;
     }));
-    //if event.target doesn't exist, then the change came from file input
-    if (!(target)) {
-      event.forEach(file => {
-        const thumbNailObject = {};
-        thumbNailObject.type = file.type;
-        this.setState(produce(draft => {
-          draft.uploadForm.files.push(file);
-          if((file.type.includes('image')) || (file.type.includes('video'))) {
-            thumbNailObject.url = this.onCreateObjectUrl(file);
-          } else if (file.type.includes('pdf')) {
-            thumbNailObject.url = TextIcon;
-          };
-          draft.thumbNailUrls.push(thumbNailObject);
-        }));
-      });
-    } else { //otherwise the change came from either a text input or a checkbox input
-      const key = target.name;
-      if (target.type === "checkbox") {
-        //if input type is checkbox, then update value to either true or false
-        this.setState(produce(draft => {
-          target.checked ? draft.uploadForm.category[key] = true : draft.uploadForm.category[key] = false;
-        }));
-      } else {
-        const value = target.value;
-        //otherwise input is a text value, so update the state with current string
-        this.setState(produce(draft => {
-          draft.uploadForm[key] = value;
-        }))
-      }
-    }
+  }
+
+  handleTextInput(event) {
+    const key = event.target.name
+    const value = event.target.value;;
+    this.setState(produce(draft => {
+      draft.validation = initialState.validation;
+      draft.uploadForm[key] = value;
+    }))
   }
 
 //the react-tags component handles input change and tag suggestions internally, so
 //handleTagSubmit is only called when a full tag string is submitted to this state
   handleTagSubmit(tags) {
-    const uploadForm = Object.assign({}, this.state.uploadForm);
-    uploadForm.tags = tags;
-    this.setState({uploadForm})
+    this.setState(produce(draft => {
+      draft.validation = initialState.validation;
+      draft.uploadForm.tags = tags;
+    }))
   }
 
-  handleRemoveClick(e) {
-    //selected to remove a file in the current edit form
-    const index = e.currentTarget.className.slice(24);
-      this.setState(
-        produce(draft => {
-          draft.uploadForm.files.splice(index, 1);
-          draft.thumbNailUrls.splice(index, 1);
-        })
-     )
+  handleFileOrUrlRemove(index){
+    this.setState(produce(draft => {
+      draft.uploadForm.splice(index, 1);
+    }))
   }
 
-  renderRemoveSymbol(index) {
-    //renders the symbol for removing files that are in the current edit form
-     return(
-       <span
-         className = {classnames('clickable', 'remove', `remove-${index}`)}
-         onClick = {(e) => this.handleRemoveClick(e)}
-       >
-        <i className="material-icons">close</i>
-       </span>
-     )
-   }
+  handleFileOrUrlAdd(fileOrUrl){
+    this.setState(produce(draft => {
+      draft.thumbnailUrls.push(fileOrUrl);
+      draft.uploadForm.files.push(fileOrUrl);
+    }))
+  }
 
-  renderThumbNailState() {
-    if(this.state.thumbNailUrls){
-      const thumbNails = this.state.thumbNailUrls.map((e, i) => {
-        let thumbNail;
-        if(e.type.includes('video')) {
-          thumbNail =
-            <VideoThumbnail
-              videoUrl={e.url}
-            />
-        } else {
-          thumbNail =
-            <img
-              key={i}
-              src={e.url}
-              id={`thumbnail_${i}`}
-              alt={`thumbnail ${i} for your current upload`}
-            >
-            </img>
-        }
-        return (
-          <div className='upload-tn'>
-            {this.renderRemoveSymbol(i)}
-            {thumbNail}
-          </div>
-        )
-      });
-      return (
-        <div className='upload-tn-container'>
-          {thumbNails}
-        </div>
-    )
-  } else {
-      return null
-    }
+  handleRemoveThumbnail(index) {
+    this.setState(produce(draft => {
+      if(draft.thumbnailUrls[index].fileType.includes('image')) {
+        window.URL.revokeObjectURL(draft.thumbnailUrls[index].src)
+      }
+      draft.thumbnailUrls.splice(index, 1);
+      draft.uploadForm.files.splice(index, 1)
+    }));
   }
 
   render() {
     return (
       <section id="editor-upload" className="screen">
         <Link to="/editor-home"><Logo/></Link>
-        <form
-          noValidate
-        >
+        <form>
           {renderValidationWarnings(this.state.validation)}
           {renderAsyncState(this.state.asyncCall, 'upload')}
           <div className="upload-flex">
@@ -285,7 +227,7 @@ class EditorUpload extends React.Component {
               suggestions={this.props.suggestedArtists}
               name="artistName"
               value={this.state.uploadForm.artistName}
-              onChange={this.handleChange}
+              onChange={this.handleTextInput}
               noValidate
             />
             <input
@@ -293,7 +235,7 @@ class EditorUpload extends React.Component {
               placeholder="Title"
               type="text"
               value={this.state.uploadForm.title}
-              onChange={this.handleChange}
+              onChange={this.handleTextInput}
               noValidate
             />
             <input
@@ -301,38 +243,38 @@ class EditorUpload extends React.Component {
               placeholder="Description"
               type="text"
               value={this.state.uploadForm.description}
-              onChange={this.handleChange}
+              onChange={this.handleTextInput}
               noValidate
             />
-            <RenderDropZone
-              name="files"
-              onDrop={this.handleChange}
-              files={this.state.uploadForm.files}
+            <FileAndUrlInput
+              onFileOrUrlAdd={fileObject => this.handleFileOrUrlAdd(fileObject)}
             />
-            {this.renderThumbNailState()}
-              <Categories
-                categories={this.state.uploadForm.category}
-                onChange={this.handleChange}
-              />
-              <TagsInput
-                name="tags"
-                type="text"
-                value={this.state.uploadForm.tags}
-                label="Tags"
-                tags={this.state.uploadForm.tags}
-                noValidate
-                onAddOrDelete={tags => this.handleTagSubmit(tags)}
-              />
+            <Thumbnails
+              thumbnailUrls={this.state.thumbnailUrls}
+              handleRemoveClick={this.handleRemoveThumbnail}
+              gallery={false}
+              autoplay={0}
+            />
+            <Categories
+              categories={this.state.uploadForm.category}
+              onChange={this.handleCheckBoxChange}
+            />
+            <TagsInput
+              name="tags"
+              type="text"
+              value={this.state.uploadForm.tags}
+              label="Tags"
+              tags={this.state.uploadForm.tags}
+              noValidate
+              onAddOrDelete={tags => this.handleTagSubmit(tags)}
+            />
           </div>
-          <button
-            className="publish clickable"
-            type="button"
-            id="uploadContent"
-            onClick={this.handleSubmit}
-          >
-          <p>publish</p>
-          <i class="material-icons">publish</i>
-          </button>
+          <Button
+            classNames='clickable publish'
+            handleClick={this.handleSubmit}
+            glyph='publish'
+            text='publish'
+          />
         </form>
       </section>
     )

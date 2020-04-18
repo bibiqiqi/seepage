@@ -1,9 +1,9 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import * as classnames from 'classnames';
 import './search-results.css'
 
 import Accordian from '../multi-side/accordian';
+import {Button} from '../multi-side/clickables';
 
 function SearchResults(props) {
   if(props.show) {
@@ -11,11 +11,11 @@ function SearchResults(props) {
     if (props.searchResults.length) {
         return (
           <div id="user-search-results">
-            <i
-              className={classnames('exit', 'float-right', 'clickable', 'material-icons')}
-              onClick = {() => props.onExitClick()}
-            >close
-            </i>
+            <Button
+              classNames='clickable exit float-right'
+              handleClick={props.onExitClick}
+              glyph='close'
+            />
             <Accordian
               results={props.searchResults}
               side='user'

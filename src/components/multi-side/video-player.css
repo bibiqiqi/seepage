@@ -1,0 +1,50 @@
+.video-thumbnail {
+  height: 3rem;
+  width: 5.33rem
+}
+
+.player-wrapper {
+  height: 0;
+  overflow: hidden;
+  padding-top: 56.25%;
+  position: relative;
+}
+
+.player-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.invisible-click {
+  position: absolute;
+  top:0;
+  left:0;
+  height: 3rem;
+  width: 5.33rem
+}
+
+@media (min-width: 576px) {
+  .thumbnail .video-thumbnail {
+    height: 4rem;
+    width: 7.11rem
+  }
+  .thumbnail .invisible-click {
+    height: 4rem;
+    width: 7.11rem
+  }
+
+}
+
+@media (min-width: 768px) {
+  .thumbnail .video-thumbnail {
+    height: 5rem;
+    width: 8.88rem
+  }
+  .thumbnail .invisible-click {
+    height: 5rem;
+    width: 8.88rem
+  }
+}

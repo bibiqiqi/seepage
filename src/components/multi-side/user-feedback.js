@@ -11,10 +11,13 @@ export function renderValidationWarnings(validation){
     </div>
   } else { //validation is being called by upload
     validationWarnings = [];
-    Object.values(validation).forEach(e => {
+    Object.values(validation).forEach((e, i) => {
       if (e) {
         const validationWarning =
-          <div className="message warning-message">
+          <div
+            className="message warning-message"
+            key={i}
+          >
             {e}
           </div>
         validationWarnings.push(validationWarning)
@@ -27,13 +30,13 @@ export function renderValidationWarnings(validation){
 export function renderAsyncState(asyncState, insert){
   if(asyncState.loading === true) {
     return (
-      <div className="message loading-message fade-out">
+      <div className="message loading-message">
         loading...
       </div>
     )
   } else if ((asyncState.loading === false) && (asyncState.success === true)) {
     return (
-      <div className="message success-message">
+      <div className="message success-message fade-out">
         {`your ${insert} was a success!`}
       </div>
     )

@@ -3,29 +3,75 @@
   padding: 1rem;
 }
 
+#editor-home header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .button-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
   height: 50vh;
+  margin-top: 1rem;
 }
 
 .editor-buttons {
   width: 100%;
   color: black;
   background-color: green;
+  line-height: 1.5rem;
+}
+
+.greeting {
+  font-size: .6rem;
+  margin: 0;
+}
+
+.sign-out {
+  font-size: .4rem;
+  line-height: .8rem;
+  background-color: black;
+  color: white;
+  margin: 0;
 }
 
 @media (min-width: 576px) {
+  #editor-home header {
+    margin-top: 1rem;
+  }
+
   .editor-buttons {
     font-size: 2rem;
+    line-height: 3rem;
   }
+
+  .greeting {
+    font-size: 1rem;
+  }
+
+  .sign-out {
+    font-size: .8rem;
+    line-height: 1.6rem;
+  }
+
 }
 
 @media (min-width: 768px) {
-  .editor-buttons {
-    font-size: 2rem;
+  .greeting {
+    font-size: 1.5rem;
   }
+  .button-container {
+    margin-top: 0;
+  }
+
+  .sign-out {
+    font-size: 1.25rem;
+    line-height: 2rem;
+  }
+  
 }
 
 @media (min-width: 992px) and (orientation: landscape) {
