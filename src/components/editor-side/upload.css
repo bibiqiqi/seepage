@@ -7,6 +7,10 @@
   padding: .5rem;
 }
 
+#editor-upload .add-video-url i {
+  color: black;
+}
+
 .assign-category input {
   width: .4rem;
   height: .4rem;

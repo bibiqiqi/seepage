@@ -10,12 +10,12 @@ export default function VideoPlayer(props) {
           title='video-thumbnail'
           src={props.url}
           frameBorder={0}
-          autoplay={props.autoplay}
+          autoPlay={props.autoplay}
           fs={0}
           rel={0}
         />
         <div
-          class="invisible-click"
+          className="invisible-click"
           onClick={() => {console.log('you clicked the invisible div')}}
         >
         </div>

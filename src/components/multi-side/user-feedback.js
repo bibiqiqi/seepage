@@ -11,10 +11,13 @@ export function renderValidationWarnings(validation){
     </div>
   } else { //validation is being called by upload
     validationWarnings = [];
-    Object.values(validation).forEach(e => {
+    Object.values(validation).forEach((e, i) => {
       if (e) {
         const validationWarning =
-          <div className="message warning-message">
+          <div
+            className="message warning-message"
+            key={i}
+          >
             {e}
           </div>
         validationWarnings.push(validationWarning)

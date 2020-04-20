@@ -58,17 +58,17 @@ export default class FileAndUrlInput extends React.Component {
 
   handleUrlAdd() {
     const videoId = this.state.videoUrlInput
-    validateUrl(videoId) //validate that the ID is a valid youtube ID
+    return validateUrl(videoId) //validate that the ID is a valid youtube ID
       .then(res => { //if validation comes back positive...
-          const urlObject = {};
-          const videoUrl = `https://www.youtube.com/embed/${videoId}`;
-          urlObject.fileType = 'video';
-          urlObject.src = videoUrl;
-          urlObject.file = videoUrl;
-          this.props.onFileOrUrlAdd(urlObject) //call onFileOrUrlAdd() to pass URL to parent component
-          this.setState(produce(draft => {
-            draft.videoUrlInput = '';
-          }));
+        const urlObject = {};
+        const videoUrl = `https://www.youtube.com/embed/${videoId}`;
+        urlObject.fileType = 'video';
+        urlObject.src = videoUrl;
+        urlObject.file = videoUrl;
+        this.props.onFileOrUrlAdd(urlObject) //call onFileOrUrlAdd() to pass URL to parent component
+        this.setState(produce(draft => {
+          draft.videoUrlInput = '';
+        }));
       })
       .catch(validationErr => { //if validation comes back negative, give validation feedback to user
         this.setState(produce(draft => {

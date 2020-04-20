@@ -1,5 +1,3 @@
-import {YOUTUBE_API_KEY} from './config';
-
 export const required = value => (value ? undefined : 'Required');
 
 export const nonEmpty = value =>
@@ -37,28 +35,26 @@ export const matches = field => (value, allValues) =>
 
 export function validateUrl(videoId) {
   return new Promise(function(resolve, reject) {
-    let validationFb;
     const emptyValidator = (nonEmpty(videoId));
     if(emptyValidator) {
-      validationFb = emptyValidator;
+      reject(emptyValidator)
     } else {
-      const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${YOUTUBE_API_KEY}`;
+      const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${process.env.REACT_APP_YOUTUBE_API_KEY}`;
         fetch(url)
          .then(res => {
-           return res.json();
+           if(res.ok) {
+             resolve()
+           } else {
+             reject('there was an error with validating your Youtube video ID')
+           }
         }).then(data => {
            if (data.items.length < 1) {
-             validationFb = 'please upload the video to the Seepage Youtube account and input the ID of the video';
+             reject('please upload the video to the Seepage Youtube account and input the ID of the video')
            }
         })
         .catch(err => {
-          validationFb = 'there was an error with validating your Youtube video ID';
+          reject('there was an error with validating your Youtube video ID')
         })
-    }
-    if(validationFb) {
-      reject(validationFb)
-    } else {
-      resolve()
     }
   })
 }
