@@ -18,14 +18,14 @@ class Thumbnail extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot){
-    console.log('componentDidUpdate running')
+    //console.log('componentDidUpdate running')
     if(prevProps !== this.props) {
       this.updateStateWithProps();
     }
   }
 
   componentDidMount() {
-    console.log('componentDidMount running')
+    //console.log('componentDidMount running')
     this.updateStateWithProps();
   }
 
@@ -75,7 +75,7 @@ class Thumbnail extends React.Component {
         key={this.props.index}
         alt={`thumbnail ${this.props.index}`}
         onClick={() => {
-          console.log('thumbnail div also clicked. this.props.gallery is', this.props.gallery)
+          // console.log('thumbnail div also clicked. this.props.gallery is', this.props.gallery)
           if(this.props.gallery) {
             this.handleGalleryOpen()
           }

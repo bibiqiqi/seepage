@@ -64,7 +64,7 @@ export const fetchContent = (rootOfRequest) => (dispatch) => {
 };
 
 export const openGalleryRequest = (filesArray, index) => (dispatch) => {
-  //console.log('you called openGalleryRequest');
+//console.log('you called openGalleryRequest');
   const startingIndex = index? index : 0;
   dispatch(openGallery(filesArray, startingIndex));
 }
