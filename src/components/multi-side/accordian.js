@@ -12,55 +12,36 @@ export default class Accordian extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      contentId: '',
-      collapsible: {
-        key: null,
-        open: false,
-      }
+      collapsible: []
     }
   }
 
   componentDidUpdate(prevProps) {
     if ((this.props.submits !== prevProps.submits) || (this.props.results !== prevProps.results) ) {
-      const collapsible = {
-        key: null,
-        open: false
-      };
+      const collapsible = [];
       this.setState({collapsible})
     }
   }
 
-  handleCollapsibleClick(contentId, key) {
-    const collapsible = Object.assign({}, this.state.collapsible);
-    //if a user clicks a collapsible and one of them is open...
-    if (collapsible.open) {
-      //test to see if the one that's open equals the one clicked
-      if (key === collapsible.key) {
-        collapsible.open = false
-        //if so, update the state to reflect that the user is closing that collapsible
-        this.setState({collapsible})
-      } else {
-        //if not, that means the user is trying to open a different collapsible
-        //so, update the state and call fetchThumbnails for the new collapsible
-        this.setState(
-          produce(draft => {
-            draft.contentId = contentId;
-            draft.collapsible = {key: key}
-          })
-        )
-      }
-    //if user clicks a collapsible that's closed...
-    } else {
-      //update the state to relect that a collapsible is open and with the corresponding key
-    //console.log('updating the state to open the collapsible');
-      this.setState(
-        produce(draft => {
-          draft.contentId = contentId;
-          draft.collapsible = {key: key, open: true}
-        })
-      )
-   };
- }
+  handleCollapsibleClick(key) {
+    this.setState(
+      produce(draft => {
+        if (draft.collapsible.includes(key)) {
+          // draft.collapsible.filter(el => el !== key);
+          draft.collapsible.splice(draft.collapsible.findIndex(el => el === key), 1);
+        } else {
+          draft.collapsible.push(key)
+        }
+      }))
+  }
+
+  handleCollapsibleClose(key) {
+    this.setState(
+      produce(draft => {
+        draft.collapsible.filter(function(value, index){return value !== key;})
+      })
+    )
+  }
 
 renderInnerCollapsible(openState, result, index, color){
   let innerCollapsible;
@@ -71,7 +52,6 @@ renderInnerCollapsible(openState, result, index, color){
         content={result}
         index={index}
         color={color}
-        onCloseCollapsible={() => {this.setState({collapsible: {key: null, open: false}})}}
       />
   } else {
     innerCollapsible =
@@ -79,7 +59,7 @@ renderInnerCollapsible(openState, result, index, color){
         openState={openState}
         content={result}
         index={index}
-        onCloseCollapsible={() => {this.setState({collapsible: {key: null, open: false}})}}
+        onCloseCollapsible={(e) => this.handleCollapsibleClose(index)}
       />
   }
   return innerCollapsible
@@ -91,7 +71,7 @@ renderInnerCollapsible(openState, result, index, color){
     //maps through all the filtered results from user's search and calls other functions to
     //render all of the code within a collapsible
     const collapsibles = results.map((result, index) => {
-      const openState = this.state.collapsible.open && this.state.collapsible.key===index;
+      const openState = this.state.collapsible.includes(index);
       const color = genCatColor(result.category, .5);
       return (
         <li key={index} className='clickable' style={{'backgroundColor': color, 'borderLeft': '5px solid' + color}}>
@@ -103,7 +83,7 @@ renderInnerCollapsible(openState, result, index, color){
                artistName={result.artistName}
               />
             }
-            handleTriggerClick={(e) => this.handleCollapsibleClick(result.id, index, result.contentType)}
+            handleTriggerClick={(e) => this.handleCollapsibleClick(index)}
           >
           {this.renderInnerCollapsible(openState, result, index, color)}
           </Collapsible>

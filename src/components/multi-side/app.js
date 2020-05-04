@@ -26,7 +26,7 @@ export function App(props) {
       )
     } else {
       //otherwise, redirect all attempts to navigate to the editor pages to the login page
-      const urlPaths = ["/editor-login", "/editor-upload", "/editor-find", "/editor-reg-form", "editor-home" ];
+      const urlPaths = ["/editor-login", "/editor-upload", "/editor-find", "/editor-reg-form", "/editor-home" ];
       return (
         <Route path={urlPaths} component={EditorLoginForm}/>
       )

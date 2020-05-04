@@ -14,11 +14,7 @@ export default function VideoPlayer(props) {
           fs={0}
           rel={0}
         />
-        <div
-          className="invisible-click"
-          onClick={() => {console.log('you clicked the invisible div')}}
-        >
-        </div>
+        <div className="invisible-click"></div>
       </div>
     </div>
   );

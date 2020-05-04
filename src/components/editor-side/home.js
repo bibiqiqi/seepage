@@ -1,6 +1,6 @@
 import React from 'react';
 import {connect} from 'react-redux';
-
+import {logOut} from '../../actions/auth';
 import Logo from '../multi-side/logo';
 import './home.css'
 
@@ -43,7 +43,14 @@ function EditorHome(props) {
     <section id="editor-home" className="screen">
       <Logo/>
       <main>
-        <p className='smaller'>hello, <span>{currentEditor}</span></p>
+        <header>
+          <p className='greeting'>hello, <span>{currentEditor}</span></p>
+          <button
+            className='sign-out'
+            onClick={() => props.dispatch(logOut())}
+          >Sign Out
+          </button>
+        </header>
         <div className="button-container">
           {buttons}
         </div>

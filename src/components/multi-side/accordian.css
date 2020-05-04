@@ -6,10 +6,10 @@
 
 .collaps-container li {
   padding: 0 .25rem;
+  border: solid #9f9f9f3d .05rem;
 }
 
 
-*Large devices (desktops, 992px and up)*/
 @media (min-width: 992px) and (orientation: landscape) {
   .collaps-container li {
     padding: 0 .75rem;

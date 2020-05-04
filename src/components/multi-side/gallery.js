@@ -13,11 +13,11 @@ export default class Gallery extends React.Component {
     super(props);
     this.state = {
       currentArtIndex: this.props.firstArtIndex,
-      loadingSymbol: false
     }
     this.renderFile = this.renderFile.bind(this);
     this.handleArrowClick = this.handleArrowClick.bind(this);
   }
+
 
   handleArrowClick(direction) {
     //increments or decrements the currentArtIndex, updates the state, and makes GET request for current file
@@ -56,19 +56,18 @@ export default class Gallery extends React.Component {
     } else if (fileObject.fileType.includes('pdf')) {
       if(window.innerWidth < 992) {
         file =
-        <div className="pdf-viewer">
           <MobilePDFReader
             url={url}
             scale={.5}
             isShowHeader={false}
           />
-        </div>
       } else {
         file =
           <PDFReader
             url={url}
-            scale={1}
             showAllPage={true}
+            page={1}
+            onDocumentComplete={() => {this.setState({loadingSymbol: false})}}
           />
       }
     };
@@ -91,14 +90,16 @@ export default class Gallery extends React.Component {
             handleClick={() => this.handleArrowClick('back')}
             glyph='keyboard_arrow_left'
           />
-            {this.renderFile()}
+            <div className ='file-container'>
+              {this.renderFile()}
+            </div>
             <Button
               classNames='slider-forward arrow clickable'
               handleClick={() => this.handleArrowClick('forward')}
               glyph='keyboard_arrow_right'
             />
+          </div>
         </div>
-      </div>
-    )
+     )
   }
 }

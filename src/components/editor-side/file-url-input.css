@@ -13,6 +13,12 @@
   line-height: 1rem;
   font-size: 1rem;
   color: white;
+  padding-top: .1rem;
+}
+
+.upload-file-flex {
+  display: flex;
+  height: 1.5rem;
 }
 
 .video-url-input {
@@ -24,5 +30,26 @@
 @media (min-width: 576px) {
   .video-url-input {
     font-size: .75rem;
+  }
+  .upload-file-flex {
+    height: 2rem;
+  }
+  .add-video-url i {
+    font-size: 1.5rem;
+    padding-top: .3rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .upload-file-flex {
+    height: 3rem;
+  }
+  .add-video-url i {
+    font-size: 2rem;
+    padding-top: .6rem;
+  }
+  .video-url-input,
+  .dropzone label {
+    font-size: 1rem;
   }
 }

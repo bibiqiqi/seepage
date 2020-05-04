@@ -42,6 +42,9 @@ class SearchBy extends React.Component {
           type="text"
           autoComplete="off"
           onChange={this.handleChange}
+          onKeyPress={(e) => {if (e.key === "Enter") {
+            this.handleSubmit();
+          }}}
         />
         <button
           className = 'clickable'

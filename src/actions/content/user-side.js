@@ -26,7 +26,7 @@ export const searchByKeyWord = (keyWord) => (dispatch, getState) => {
     const state = getState();
     const contents = state.userContent.allContent;
     let filteredResults = [];
-    let lowerCaseKw = keyWord.toLowerCase();
+    const lowerCaseKw = keyWord.toLowerCase();
     contents.forEach((e) => {
       if (
            (e.artistName.toLowerCase().includes(lowerCaseKw)) ||

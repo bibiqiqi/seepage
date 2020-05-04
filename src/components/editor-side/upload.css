@@ -57,7 +57,7 @@
 }
 
 .publish {
-  padding: .1rem;
+  padding: .2rem;
   color: white;
   background-color: black;
   display: flex;
@@ -74,12 +74,6 @@
   width: 106px;
 }
 
-
-.upload-file-flex {
-  display: flex;
-  height: 1.5rem;
-}
-
 .upload-flex {
   display: flex;
   flex-direction: column;
@@ -94,6 +88,7 @@
 .upload-flex input[type=text] {
   width: 100%;
   font-size: .5rem;
+  line-height: 1rem;
 }
 
 .upload-tn {

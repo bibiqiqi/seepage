@@ -11,6 +11,7 @@
   background-color: black;
   color: white;
   margin: 0;
+  line-height: .75rem;
 }
 
 .editor-browse .assign-category,
@@ -43,6 +44,11 @@
   .searchBy input,
   .editor-find-form button {
     font-size: 1rem;
+    line-height: 1.25rem;
+  }
+
+  #editor-find-results .smaller {
+    font-size: 1rem;
   }
 }
 
@@ -57,7 +63,7 @@
   }
 
   .editor-browse .assign-category label {
-    font-size: 1rem;
+    font-size: 1.25rem;
     margin: 0 .5rem;
   }
 
@@ -68,6 +74,7 @@
 
   .editor-find-form button {
     font-size: 1.25rem;
+    line-height: 1.5rem;
   }
 
   .searchBy select,
@@ -77,6 +84,10 @@
 
   .searchBy select {
     margin-right: 1rem;
+  }
+
+  #editor-find-results .smaller {
+    font-size: 1.25rem;
   }
 
 }
