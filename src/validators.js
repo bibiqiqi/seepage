@@ -33,27 +33,28 @@ export const matches = field => (value, allValues) =>
         ? undefined
         : 'does not match';
 
-export function validateUrl(videoId) {
+export function validateUrl(videoUrl) {
   return new Promise(function(resolve, reject) {
-    const emptyValidator = (nonEmpty(videoId));
+    const emptyValidator = (nonEmpty(videoUrl));
     if(emptyValidator) {
       reject(emptyValidator)
     } else {
-      const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${process.env.REACT_APP_YOUTUBE_API_KEY}`;
+      const url = `https://www.googleapis.com/youtube/v3/search/?key=${process.env.REACT_APP_YOUTUBE_API_KEY}&part=snippet&q=${videoUrl}`
+      // const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${process.env.REACT_APP_YOUTUBE_API_KEY}`;
         fetch(url)
          .then(res => {
            if(res.ok) {
              resolve()
            } else {
-             reject('there was an error with validating your Youtube video ID')
+             reject('there was an error with validating your Youtube url')
            }
         }).then(data => {
            if (data.items.length < 1) {
-             reject('please upload the video to the Seepage Youtube account and input the ID of the video')
+             reject('this url doesn\'t exist. please upload the video to the Seepage Youtube account first')
            }
         })
         .catch(err => {
-          reject('there was an error with validating your Youtube video ID')
+          reject('there was an error with validating your Youtube URL')
         })
     }
   })

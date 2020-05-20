@@ -3,17 +3,12 @@ import RenderDropZone from './dropzone';
 import {Button} from '../multi-side/clickables';
 import TextIcon from '../../text-icon.png';
 import {validateUrl} from '../../validators.js';
-import {renderValidationWarnings} from '../multi-side/user-feedback.js'
 import produce from 'immer';
 
 import './file-url-input.css';
 
 const initialState = {
-  videoUrlInput: '',
-  validation: {
-    file: '',
-    url: ''
-  }
+  videoUrlInput: ''
 }
 
 export default class FileAndUrlInput extends React.Component {
@@ -24,6 +19,7 @@ export default class FileAndUrlInput extends React.Component {
     });
     this.handleFileInput = this.handleFileInput.bind(this);
     this.handleUrlAdd = this.handleUrlAdd.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
 
   onCreateObjectUrl(object) { //generate an object url from object file
@@ -35,9 +31,8 @@ export default class FileAndUrlInput extends React.Component {
       if ((file.type.includes('image')) || (file.type.includes('pdf'))) {
         this.handleValidFile(file);
       } else {
-        this.setState(produce(draft => {
-          draft.validation.files = 'File uploads have to be an image or pdf. For video files, upload to the Seepage Youtube account and submit the URL below.' ;
-        }));
+        const files = 'File uploads have to be an image or pdf. For video files, upload to the Seepage Youtube account and submit the URL below.';
+        this.props.onFileValidation(files)
       }
     })
   }
@@ -56,31 +51,47 @@ export default class FileAndUrlInput extends React.Component {
     this.props.onFileOrUrlAdd(fileObject) //pass the file to Upload component
   }
 
+  getId(url){
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+
+    return (match && match[2].length === 11)
+      ? match[2]
+      : null;
+  }
+
   handleUrlAdd() {
-    const videoId = this.state.videoUrlInput
-    return validateUrl(videoId) //validate that the ID is a valid youtube ID
+    const videoUrl = this.state.videoUrlInput
+    return validateUrl(videoUrl) //validate that the ID is a valid youtube ID
       .then(res => { //if validation comes back positive...
+        const videoId = this.getId(videoUrl);
+        const embed = `//www.youtube.com/embed/${videoId}`;
+        console.log('embed is', embed)
         const urlObject = {};
-        const videoUrl = `https://www.youtube.com/embed/${videoId}`;
         urlObject.fileType = 'video';
-        urlObject.src = videoUrl;
-        urlObject.file = videoUrl;
+        urlObject.src = embed;
+        urlObject.file = embed;
         this.props.onFileOrUrlAdd(urlObject) //call onFileOrUrlAdd() to pass URL to parent component
         this.setState(produce(draft => {
           draft.videoUrlInput = '';
         }));
       })
-      .catch(validationErr => { //if validation comes back negative, give validation feedback to user
-        this.setState(produce(draft => {
-          draft.validation.url = validationErr;
-          }))
+      .catch(validationWarning => { //if validation comes back negative, give validation feedback to user
+        const url = validationWarning;
+        this.props.onUrlValidation(url)
       })
+  }
+
+  handleChange(e) {
+    const input = e.target.value
+    this.setState(produce(draft => {
+      draft.videoUrlInput = input;
+    }));
   }
 
   render() {
     return(
       <div>
-       {renderValidationWarnings(this.state.validation)}
         <div className='upload-file-flex'>
           <RenderDropZone
             name="files"
@@ -93,16 +104,11 @@ export default class FileAndUrlInput extends React.Component {
               placeholder="ID of Youtube Video"
               type="url"
               value={this.state.videoUrlInput}
-              onChange={(e) => {
-                const input = e.target.value
-                this.setState(produce(draft => {
-                  draft.videoUrlInput = input;
-                }));
-              }}
+              onChange={this.handleChange}
               noValidate
             />
             <Button
-              classNames='clickable'
+              className='clickable'
               handleClick={this.handleUrlAdd}
               glyph='add'
             />

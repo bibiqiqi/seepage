@@ -3,35 +3,46 @@ import {Link} from 'react-router-dom';
 import Gallery from '../multi-side/gallery';
 import {connect} from 'react-redux';
 import {closeGallery} from '../../actions/content/multi-side'
+import {filterContentSuccess} from '../../actions/content/editor-side'
 
 import EditorFindForm from './find-form';
 import EditorFindResults from './find-results';
 import Logo from '../multi-side/logo';
 
-function EditorFindPage(props) {
-
-  const handleGalleryExit = () => {
-    //when user wants to exit the gallery
-    //updates the state to hide the Gallery component
-    props.dispatch(closeGallery());
+export class EditorFindPage extends React.Component {
+  constructor(props) {
+    super(props);
+    this.handleGalleryExit = this.handleGalleryExit.bind(this);
   }
 
-  const renderGallery = () => {
+  componentDidMount(){
+    //updates the Redux state with current content in DB and maps suggestedArtists
+    //suggestedTitles, and suggestedTags to local state
+    this.props.dispatch(filterContentSuccess([]));
+  }
+
+  handleGalleryExit() {
+    //when user wants to exit the gallery
+    //updates the state to hide the Gallery component
+    this.props.dispatch(closeGallery());
+  }
+
+  renderGallery() {
     //determines whether to render Gallery component or hide it
     //dependent on whether use has clicked on a thumb nail
       return (
         <section id="gallery" className="screen">
           <Gallery
-            firstArtIndex={props.galleryStarting}
-            fileObjects={props.galleryFiles} //bc this can be triggered by onMouseLeave, new render of Gallery receives fileObjects from internal state
-            onExitClick={handleGalleryExit}
-            alt={(currentArtIndex) => `Gallery view of file ${currentArtIndex} for ${props.galleryFiles[currentArtIndex].title}, by ${props.galleryFiles[currentArtIndex].artist}`}
+            firstArtIndex={this.props.galleryStarting}
+            fileObjects={this.props.galleryFiles} //bc this can be triggered by onMouseLeave, new render of Gallery receives fileObjects from internal state
+            onExitClick={this.handleGalleryExit}
+            alt={(currentArtIndex) => `Gallery view of file ${currentArtIndex} for ${this.props.galleryFiles[currentArtIndex].title}, by ${this.props.galleryFiles[currentArtIndex].artist}`}
            />
         </section>
       )
     }
 
-  const renderPage = () => {
+  renderPage(){
     return (
       <section id="editor-find" className="screen">
         <Link to="/editor-home"><Logo/></Link>
@@ -43,10 +54,12 @@ function EditorFindPage(props) {
     )
   }
   //a skeleton of html that holds the EditorFindForm and EditorFindresults
-  if (props.galleryFiles.length) {
-    return renderGallery()
-  } else {
-    return renderPage()
+  render(){
+    if (this.props.galleryFiles.length) {
+      return this.renderGallery()
+    } else {
+      return this.renderPage()
+    }
   }
 }
 

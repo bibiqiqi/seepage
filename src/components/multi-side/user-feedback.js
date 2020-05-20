@@ -2,6 +2,7 @@ import React from 'react';
 
 export function renderValidationWarnings(validation){
   let validationWarnings;
+  //console.log('running renderValidationWarnings and validation is', validation)
   if(validation === null) {
     return null
   } else if (typeof validation === 'string'){ //validation is being called by edit-form

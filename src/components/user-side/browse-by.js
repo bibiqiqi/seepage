@@ -4,7 +4,7 @@ import _ from 'underscore';
 
 import Graph from './graph';
 
-class BrowseBy extends React.Component {
+export class BrowseBy extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -15,7 +15,7 @@ class BrowseBy extends React.Component {
 
   componentDidUpdate(prevProps) {
     if(prevProps.allContent !== this.props.allContent) {
-      //console.log('passing', this.props.allContent, 'to generatePrimaryNodes');
+      // console.log('passing', this.props.allContent, 'to generatePrimaryNodes');
       this.generatePrimaryNodes(this.props.allContent).then(nodeArrays => {
         //console.log('passing', nodeArrays, 'to generateLinks');
         this.generateLinks(nodeArrays);
@@ -55,6 +55,7 @@ class BrowseBy extends React.Component {
   }
 
   generateLinks(nodeArrays) {
+    // console.log('generateLinks running')
     const {primaryNodes, secondaryNodes} = nodeArrays;
     //console.log(primaryNodes, secondaryNodes);
     const links = [];
@@ -71,13 +72,14 @@ class BrowseBy extends React.Component {
         })
       });
     const nodes = secondaryNodes.concat(primaryNodes);
-    //console.log('updating state with', nodes);
+    // console.log('updating state with', nodes);
     this.setState({links});
     this.setState({nodes});
   }
 
   render() {
-    //console.log('passing', this.state.nodes, 'to graph component');
+    // console.log('passing', this.state.nodes, 'to graph component');
+    // console.log('passing', this.state.links, 'to graph component');
     const {links, nodes} = this.state;
     if(links.length && nodes.length) {
       return (

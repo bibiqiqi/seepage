@@ -9,7 +9,7 @@ import {renderAsyncState} from '../multi-side/user-feedback.js'
 import './delete-confirmation.css';
 
 //performs DELETE request
-class DeleteConfirmation extends React.Component {
+export class DeleteConfirmation extends React.Component {
   constructor(props) {
     super(props);
     this.state = {

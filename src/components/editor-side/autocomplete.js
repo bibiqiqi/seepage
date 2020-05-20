@@ -2,7 +2,7 @@ import React, { Fragment } from "react";
 import PropTypes from "prop-types";
 import {connect} from 'react-redux';
 
-class Autocomplete extends React.Component {
+export class Autocomplete extends React.Component {
   static propTypes = {
     suggestions: PropTypes.instanceOf(Array)
   };

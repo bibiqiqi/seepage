@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 import ReactTags from 'react-tag-autocomplete';
 import './tags-input.css';
 
-class TagsInput extends React.Component {
+export class TagsInput extends React.Component {
   convertForComponent(tags){
     //converts the tags, passed from the parent, from an array of strings
     // to an array of objects with key of "name" to fit the need of react-tag-autocomplete

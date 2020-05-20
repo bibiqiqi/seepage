@@ -16,7 +16,7 @@ export default class Accordian extends React.Component {
     }
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps) { //this is so that all Accordian panels close when new search is submitted
     if ((this.props.submits !== prevProps.submits) || (this.props.results !== prevProps.results) ) {
       const collapsible = [];
       this.setState({collapsible})
@@ -27,7 +27,6 @@ export default class Accordian extends React.Component {
     this.setState(
       produce(draft => {
         if (draft.collapsible.includes(key)) {
-          // draft.collapsible.filter(el => el !== key);
           draft.collapsible.splice(draft.collapsible.findIndex(el => el === key), 1);
         } else {
           draft.collapsible.push(key)

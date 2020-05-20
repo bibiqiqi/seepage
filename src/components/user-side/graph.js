@@ -17,7 +17,7 @@ const force = d3.layout.force()
   .size([windowWidth, windowHeight])
 
 
-class Graph extends React.Component {
+export class Graph extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -27,6 +27,7 @@ class Graph extends React.Component {
     };
     force.nodes(this.state.nodes).links(this.state.links);
     force.start();
+    this.handleNodeClick = this.handleNodeClick.bind(this);
   }
 
   componentWillMount() {
@@ -37,9 +38,15 @@ class Graph extends React.Component {
     });
   }
 
+  handleNodeClick(nodeIndex) {
+    const newNpState = this.state.nodePreview? '' : nodeIndex;
+    this.setState({nodePreview: newNpState});
+  }
+
   renderPreviewState(node) {
     //determines whether to render Gallery component or hide it
     //dependent on whether user has clicked on a thumbnail
+    // console.log(node);
     if (node.index === this.state.nodePreview) {
       return (
         <ContentPreview
@@ -60,10 +67,7 @@ class Graph extends React.Component {
         transform={transform}
         fill={color}
         stroke={color}
-        onClick={() => {
-          const newNpState = this.state.nodePreview? '' : node.index;
-          this.setState({nodePreview: newNpState});
-        }}
+        onClick={() => this.handleNodeClick(node.index)}
       >
       <rect width='.5em' height='.5em' x='-.25em' y='-.25em' />
       {this.renderPreviewState(node)}

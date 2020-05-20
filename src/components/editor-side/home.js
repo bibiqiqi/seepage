@@ -4,7 +4,7 @@ import {logOut} from '../../actions/auth';
 import Logo from '../multi-side/logo';
 import './home.css'
 
-function EditorHome(props) {
+export function EditorHome(props) {
   const history = props.history;
   const currentEditor = props.currentEditor.firstName;
   const buttonDetails = [

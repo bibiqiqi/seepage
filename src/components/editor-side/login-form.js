@@ -9,7 +9,7 @@ import {renderValidationWarnings, renderAsyncState} from '../multi-side/user-fee
 
 import './login-form.css';
 
-class EditorLoginForm extends React.Component {
+export class EditorLoginForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -31,7 +31,7 @@ class EditorLoginForm extends React.Component {
   }
 
   onSubmit(values){
-  // console.log('login values being submitted to server are', values);
+  //console.log('login values being submitted to server are', values);
     this.props.dispatch(login(values.email, values.password))
       // .then(res => this.setState({error: null}))
       .catch(err => this.setState({error: err}))
@@ -39,8 +39,7 @@ class EditorLoginForm extends React.Component {
 
   render() {
     return (
-      <section id="editor-login" className="screen
-      ">
+      <section id="editor-login" className="screen">
         <Logo/>
         <main>
           <form

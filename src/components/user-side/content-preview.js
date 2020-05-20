@@ -1,10 +1,9 @@
 import React from 'react';
-import {connect} from 'react-redux';
 
 import Thumbnail from '../multi-side/thumbnail';
 import './content-preview.css'
 
-class ContentPreview extends React.Component {
+export default class ContentPreview extends React.Component {
   //renders a gallery viewer component for user to view the files of a content entry, one at a time
   //makes a GET request to stream a single file at a time
 
@@ -90,10 +89,3 @@ class ContentPreview extends React.Component {
     )
   }
 }
-
-const mapStateToProps = state => ({
-  loading: state.userContent.loading,
-  error: state.userContent.error
-});
-
-export default connect(mapStateToProps)(ContentPreview);

@@ -9,19 +9,23 @@ export default class Thumbnails extends React.Component {
   handleRemoveClick(e){
     //selected to remove a file in the current edit form
     const index = parseFloat(e.currentTarget.className.slice(10));
-    // console.log('handleRemoveClick() in Thumbnails is calling handleRemoveClick in file-url-input and passing this index', index)
+    console.log('handleRemoveClick() in Thumbnails is calling handleRemoveClick in file-url-input and passing this index', index)
     this.props.handleRemoveClick(index);
   }
 
   renderThumbnailsFromUpload(){
     if(this.props.thumbnailUrls){
+      // console.log(this.props.thumbnailUrls)
       const thumbnails = this.props.thumbnailUrls.map((e, i) => {
         return (
-          <div className ='upload-tn'>
+          <div
+            className ='upload-tn'
+            key={i}
+          >
             <Button
               index={i}
               handleClick={e => this.handleRemoveClick(e)}
-              classNames={classnames(`upload-tn-${i}`)}
+              className={classnames(`upload-tn-${i}`)}
               glyph='close'
             />
             <Thumbnail
@@ -33,7 +37,6 @@ export default class Thumbnails extends React.Component {
           </div>
         )
       });
-
       return (
         <div className='upload-tn-container'>
           {thumbnails}
@@ -44,7 +47,7 @@ export default class Thumbnails extends React.Component {
     }
   }
 
-  renderThumbnailsFromDb() {   ///rendering thumbnails from the DB
+  renderThumbnailsFromDb() {   //rendering thumbnails from the DB
     const files = this.props.content.files;
     const thumbnails = files.map((e, i) => {
       return (

@@ -17,6 +17,7 @@
 .gallery button {
   background-color: transparent;
   border: none;
+  float: right;
 }
 
 .gallery-flexbox {
@@ -25,6 +26,7 @@
   justify-content: space-between;
   align-items: center;
   height: 100vh;
+  overflow: hidden;
 }
 
 .gallery-flexbox p,
@@ -52,7 +54,6 @@
 }
 
 .gallery .file-container {
-  overflow-y: scroll;
   flex-grow: 2;
 }
 
@@ -73,4 +74,10 @@
 .gallery .video-thumbnail {
   height: 100%;
   width: 100%;
+}
+
+#my-pdf {
+  height: 90vh !important;
+  width: auto !important;
+  overflow-y: auto !important;
 }

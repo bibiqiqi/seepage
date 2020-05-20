@@ -1,6 +1,5 @@
 import React, { Fragment } from "react";
 import {connect} from 'react-redux';
-import * as classnames from 'classnames';
 import produce from 'immer';
 
 import Thumbnails from '../multi-side/thumbnails';
@@ -33,12 +32,12 @@ const initialState =   {
       loading: false,
       success: null
     }
-  };
+};
 
 //performs async PATCH request
 //renders an "editor form" that is just one input field, depending on which value
 //(artistName, title, category, tags, files) the user wants to edit
-class EditorEditForm extends React.Component {
+export class EditorEditForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = produce(initialState, draftState => {
@@ -56,8 +55,8 @@ class EditorEditForm extends React.Component {
 
   componentDidMount(){
     const thumbnailUrls = this.props.content.files.map(e => {
-      const {fileUrl, fileId} = e; //if it's a video, it will have fileUrl, otherwise it will have fileId
-      const thumbnail = fileUrl? {fileType: e.fileType, fileUrl} : {fileType: e.fileType, fileId};
+      const {fileUrl, fileName} = e; //if it's a video, it will have fileUrl, otherwise it will have fileId
+      const thumbnail = fileUrl? {fileType: e.fileType, fileUrl} : {fileType: e.fileType, fileName};
       return thumbnail;
     })
     this.setState(produce(draft => {
@@ -125,7 +124,7 @@ class EditorEditForm extends React.Component {
     const key = this.props.name;
     let data;
     let validation;
-    //console.log('doing handleSubmit() and the state is', upload.files);
+    console.log('doing handleSubmit() and the state is', upload.files);
     if (key === 'files') {
       let totalFiles = upload.files.totalFiles; //for validation, to ensure that there is at least 1 file for this entry
       if (totalFiles < 1) { //validation check to make sure field isn't empty
@@ -134,13 +133,11 @@ class EditorEditForm extends React.Component {
       let filesEdit = [];
       let totalEdits = 0; //for validation, to ensure that there is at least one edit being submitted
       upload.files.filesEdits.forEach(e => {
-
-//TODO: need to re-write this condition to accomodate video URLs
-        if (e.file) {  //the file isn't already in the db, so it tells the server to upload it
-          filesEdit.push(e.file);
+        if (e.remove) { //the user wants to remove one of the files in the db
+          filesEdit.push(e._id);
           ++totalEdits;
-        } else if (e.fileId && e.remove) { //the user wants to remove one of the files in the db
-          filesEdit.push(e.fileId);
+        } else if (!e.remove && !e._id){  //the file isn't already in the db, so it tells the server to upload it
+          filesEdit.push(e.file);
           ++totalEdits;
         }
       })
@@ -150,7 +147,7 @@ class EditorEditForm extends React.Component {
       if (validation) {
         this.setState({validation: validation});
       } else {
-        //console.log('you chose to submit a files edit, and your submitting the following filesEdit array', filesEdit, 'and you have the following totalFiles', totalFiles);
+        console.log('you chose to submit a files edit, and your submitting the following filesEdit array', filesEdit, 'and you have the following totalFiles', totalFiles);
         data = new FormData();
         filesEdit.forEach(e => {
           data.append('files', e);
@@ -210,7 +207,9 @@ class EditorEditForm extends React.Component {
   }
 
   handleFileOrUrlAdd(fileOrUrl){
+    console.log('filesOrUrl being passed to handleFileOrUrlAdd is', fileOrUrl)
     this.setState(produce(draft => {
+      draft.validation = initialState.validation;
       draft.thumbnailUrls.push(fileOrUrl);
       draft.uploadForm.files.filesEdits.push(fileOrUrl);
       ++draft.uploadForm.files.totalFiles;
@@ -218,6 +217,7 @@ class EditorEditForm extends React.Component {
   }
 
   handleFileOrUrlRemove(index){
+    console.log('index being passed to handleFileOrUrlRemove is', index)
     this.setState(produce(draft => {
       const selectedFile = draft.uploadForm.files.filesEdits[index];
       if (selectedFile._id) {//the file is already in database
@@ -301,6 +301,16 @@ class EditorEditForm extends React.Component {
           <Fragment>
             <FileAndUrlInput
               onFileOrUrlAdd={(fileOrUrl) => this.handleFileOrUrlAdd(fileOrUrl)}
+              onFileValidation={files => {
+                this.setState(produce(draft => {
+                  draft.validation = files;
+                }))
+              }}
+              onUrlValidation={url => {
+                this.setState(produce(draft => {
+                  draft.validation = url;
+                }))
+              }}
             />
             <Thumbnails
               thumbnailUrls={this.state.thumbnailUrls}
@@ -319,22 +329,17 @@ class EditorEditForm extends React.Component {
     return (
       <section
         id="editor-edit"
-        className = {
-          classnames(
-            'editForm',
-            {hidden: this.props.className}
-          )
-        }
+        className = 'editForm'
         >
         <div className='edit-form'>
           <InlineClick
-            classNames='clickable exit material-icons'
-            handleClick={this.props.onExit}
+            className='clickable exit material-icons'
+            onClick={this.props.onExit}
             glyph='close'
           />
           <InlineClick
-            classNames='submit-edit clickable material-icons'
-            handleClick={this.handleSubmit}
+            className='submit-edit clickable material-icons'
+            onClick={this.handleSubmit}
             glyph='mail'
           />
         {renderValidationWarnings(this.state.validation)}

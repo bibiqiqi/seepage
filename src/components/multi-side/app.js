@@ -16,9 +16,10 @@ export function App(props) {
     //if editor is already logged in, redirect any login urls to the editor home page
     if (props.loggedIn) {
       const urlPaths = ["/editor-home", "/editor-login"];
+      const editorHome = urlPaths.map((e, i) => {return <Route path={e} key={i} component={EditorHome}/>})
       return (
         <Fragment>
-          <Route exact path={urlPaths} component={EditorHome}/>
+          {editorHome}
           <Route exact path="/editor-upload" component={EditorUpload}/>
           <Route exact path="/editor-find" component={EditorFindPage}/>
           <Route exact path="/editor-reg-form" component={EditorRegForm}/>
@@ -27,8 +28,11 @@ export function App(props) {
     } else {
       //otherwise, redirect all attempts to navigate to the editor pages to the login page
       const urlPaths = ["/editor-login", "/editor-upload", "/editor-find", "/editor-reg-form", "/editor-home" ];
+      const editorLogin = urlPaths.map((e, i) => {return <Route path={e} key={i} component={EditorLoginForm}/>})
       return (
-        <Route path={urlPaths} component={EditorLoginForm}/>
+        <Fragment>
+          {editorLogin}
+        </Fragment>
       )
     }
   }

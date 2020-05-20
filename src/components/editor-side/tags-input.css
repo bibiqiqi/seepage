@@ -33,6 +33,7 @@
   background-color: white;
   margin: 0;
   font-size: .5rem;
+  border: solid grey .01rem;
 }
 
 @media (min-width: 576px) {

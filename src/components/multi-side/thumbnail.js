@@ -7,7 +7,7 @@ import VideoPlayer from './video-player'
 
 import './thumbnail.css';
 
-class Thumbnail extends React.Component {
+export class Thumbnail extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -39,7 +39,7 @@ class Thumbnail extends React.Component {
         url = this.props.fileObject.fileUrl;
         this.setState({fileUrl: url});
       } else {
-        url = `${API_BASE_URL}/content/files/${this.props.fileObject.fileId}`;
+        url = `${API_BASE_URL}/content/files/${this.props.fileObject.fileName}`;
         this.setState({fileUrl: url});
       }
     }
