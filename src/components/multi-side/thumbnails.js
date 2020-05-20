@@ -15,6 +15,7 @@ export default class Thumbnails extends React.Component {
 
   renderThumbnailsFromUpload(){
     if(this.props.thumbnailUrls){
+      console.log(this.props.thumbnailUrls)
       const thumbnails = this.props.thumbnailUrls.map((e, i) => {
         return (
           <div className ='upload-tn'>
@@ -33,7 +34,6 @@ export default class Thumbnails extends React.Component {
           </div>
         )
       });
-
       return (
         <div className='upload-tn-container'>
           {thumbnails}
@@ -44,7 +44,7 @@ export default class Thumbnails extends React.Component {
     }
   }
 
-  renderThumbnailsFromDb() {   ///rendering thumbnails from the DB
+  renderThumbnailsFromDb() {   //rendering thumbnails from the DB
     const files = this.props.content.files;
     const thumbnails = files.map((e, i) => {
       return (

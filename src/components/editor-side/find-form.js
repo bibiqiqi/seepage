@@ -9,7 +9,7 @@ import Autocomplete from './autocomplete';
 import Categories from './categories';
 import './find-form.css';
 
-class EditorFindForm extends React.Component {
+export class EditorFindForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -48,22 +48,23 @@ class EditorFindForm extends React.Component {
     //console.log('calling handleSubmit');
     event.preventDefault();
     const root = event.target.value;
-    const findForm = produce(this.state.findForm, draft => {
-      return draft
-    })
     const validationString = (validationProperty) => `${validationProperty} is required`;
     if (root === "searchBy") { //user is trying to search by field
-      this.handleSearch(findForm.searchBy, validationString);
+      this.handleSearch(validationString);
     } else { //user is trying to browse by category
-      this.handleBrowse(findForm.browseBy.inputs, validationString);
+      this.handleBrowse(validationString);
     }
   }
 
-  handleBrowse(browseByState, renderValString) {
+
+  handleBrowse(validationString) {
+    const browseBy = produce(this.state.findForm.browseBy.inputs, draft => {
+      return draft
+    })
     //iterate through the category object to turn it into an array
     let browseByArray = [];
-    for (let key in browseByState) {
-      if (browseByState[key] === true) {
+    for (let key in browseBy) {
+      if (browseBy[key] === true) {
         browseByArray.push(key)
       }
     }
@@ -73,23 +74,26 @@ class EditorFindForm extends React.Component {
     } else {
       //otherwise, return a validation warning
       const validation = [];
-      validation.push(renderValString('choosing a category'));
+      validation.push(validationString);
       this.setState({validation})
     }
   }
 
-  handleSearch(searchByState, renderValString, hidden) {
+  handleSearch(renderValString, hidden) {
     let searchByObject = {};
     let validation = [];
+    const searchBy = produce(this.state.findForm.searchBy, draft => {
+      return draft
+    })
     //make sure both key and value have been inputted
-    if (searchByState.key) {
-      searchByObject.key = searchByState.key;
+    if (searchBy.key) {
+      searchByObject.key = searchBy.key;
     } else {
       searchByObject.key = "artistName";
     }
     //if user didn't choose a search field
-    if(searchByState.value) {
-      searchByObject.value = searchByState.value;
+    if(searchBy.value) {
+      searchByObject.value = searchBy.value;
     } else {
       validation.push(renderValString('entering a search query'));
     }
@@ -276,7 +280,6 @@ class EditorFindForm extends React.Component {
 const mapStateToProps = (state) => ({
     loading: state.editorContent.loading,
     error: state.editorContent.error,
-    editFilteredContent: state.editorContent.editFilteredContent,
 })
 
 export default connect(mapStateToProps)(EditorFindForm);

@@ -1,6 +1,5 @@
 import React, { Fragment } from "react";
 import {connect} from 'react-redux';
-import * as classnames from 'classnames';
 import produce from 'immer';
 
 import Thumbnails from '../multi-side/thumbnails';
@@ -33,12 +32,12 @@ const initialState =   {
       loading: false,
       success: null
     }
-  };
+};
 
 //performs async PATCH request
 //renders an "editor form" that is just one input field, depending on which value
 //(artistName, title, category, tags, files) the user wants to edit
-class EditorEditForm extends React.Component {
+export class EditorEditForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = produce(initialState, draftState => {
@@ -135,7 +134,6 @@ class EditorEditForm extends React.Component {
       let totalEdits = 0; //for validation, to ensure that there is at least one edit being submitted
       upload.files.filesEdits.forEach(e => {
 
-//TODO: need to re-write this condition to accomodate video URLs
         if (e.file) {  //the file isn't already in the db, so it tells the server to upload it
           filesEdit.push(e.file);
           ++totalEdits;
@@ -319,21 +317,16 @@ class EditorEditForm extends React.Component {
     return (
       <section
         id="editor-edit"
-        className = {
-          classnames(
-            'editForm',
-            {hidden: this.props.className}
-          )
-        }
+        className = 'editForm'
         >
         <div className='edit-form'>
           <InlineClick
-            classNames='clickable exit material-icons'
+            className='clickable exit material-icons'
             handleClick={this.props.onExit}
             glyph='close'
           />
           <InlineClick
-            classNames='submit-edit clickable material-icons'
+            className='submit-edit clickable material-icons'
             handleClick={this.handleSubmit}
             glyph='mail'
           />

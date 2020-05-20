@@ -5,7 +5,7 @@ import './cover-page.css';
 import '../multi-side/logo.css';
 
 export default function CoverPage(props) {
-  const history = props.history;
+  // const history = props.history;
   return (
     <section id="cover-page" className="screen">
       <Logo/>
@@ -22,7 +22,7 @@ export default function CoverPage(props) {
           <p>form and content of submissions are open to interpretation, if you're not sure please ask.</p>
         </div>
         <button
-          onClick={() => {history.push('/home')}}
+          onClick={() => {props.history.push('/home')}}
         >Enter
         </button>
         <footer>

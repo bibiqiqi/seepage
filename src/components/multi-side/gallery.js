@@ -12,7 +12,7 @@ export default class Gallery extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentArtIndex: this.props.firstArtIndex,
+      currentArtIndex: this.props.firstArtIndex
     }
     this.renderFile = this.renderFile.bind(this);
     this.handleArrowClick = this.handleArrowClick.bind(this);
@@ -86,7 +86,7 @@ export default class Gallery extends React.Component {
         />
         <div className="gallery-flexbox">
           <Button
-            classNames='slider-back arrow clickable'
+            className='slider-back arrow clickable'
             handleClick={() => this.handleArrowClick('back')}
             glyph='keyboard_arrow_left'
           />
@@ -94,7 +94,7 @@ export default class Gallery extends React.Component {
               {this.renderFile()}
             </div>
             <Button
-              classNames='slider-forward arrow clickable'
+              className='slider-forward arrow clickable'
               handleClick={() => this.handleArrowClick('forward')}
               glyph='keyboard_arrow_right'
             />

@@ -1,6 +1,6 @@
 import {connect} from 'react-redux';
 import React from 'react';
-import * as classnames from 'classnames';
+import classnames from 'classnames';
 
 import Logo from '../multi-side/logo';
 import Gallery from '../multi-side/gallery';
@@ -10,7 +10,7 @@ import SearchResults from './search-results'
 import './home.css'
 import {fetchContent, closeGallery} from '../../actions/content/multi-side'
 
-class Home extends React.Component {
+export class Home extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -27,7 +27,6 @@ class Home extends React.Component {
     }
     this.handleExitSearchResults = this.handleExitSearchResults.bind(this);
     this.handleGalleryExit = this.handleGalleryExit.bind(this);
-
   }
 
   componentDidMount(){
@@ -73,7 +72,7 @@ class Home extends React.Component {
       <section id="user-home" className="screen">
       {this.renderGalleryState()}
         <header
-          className = {classnames({
+          className={classnames({
             'header-searched': this.state.header
           })}
         >

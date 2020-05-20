@@ -5,7 +5,7 @@ import Thumbnails from '../multi-side/thumbnails';
 import './inner-collapsible.css';
 import {searchByTag} from '../../actions/content/user-side';
 
-function UserInnerCollapsible(props) {
+export function UserInnerCollapsible(props) {
   const {content, openState} = props;
 
   const handleTagQuery = (tag) => {
@@ -17,7 +17,7 @@ function UserInnerCollapsible(props) {
     let tag;
     for(let i = 0; i < content.tags.length; i++) {
       if(i < content.tags.length - 1) {
-        tag = content.tags[i] + ',';
+      tag = content.tags[i] + ',';
       } else tag = content.tags[i];
       const tagString =
       <p

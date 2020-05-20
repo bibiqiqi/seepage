@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 
 import Accordian from '../multi-side/accordian'
 
-class EditorFindResults extends React.Component {
+export class EditorFindResults extends React.Component {
 
   render(){
     //if both filteredContent and filteredContentNone are false, then user hasn't submitted query

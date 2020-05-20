@@ -5,7 +5,7 @@ export function Button(props) {
   const text = props.text? <p>{props.text}</p> : null;
    return(
      <button
-      className={props.classNames}
+      className={props.className}
       type="button"
       onClick={props.handleClick}
      >
@@ -21,8 +21,8 @@ export function InlineClick(props) {
      <button className="inline-button">
       {text}
       <i
-        className={props.classNames}
-        onClick={props.handleClick}
+        className={props.className}
+        onClick={props.onClick}
        >
         {props.glyph}
        </i>

@@ -8,7 +8,7 @@ import EditorFindForm from './find-form';
 import EditorFindResults from './find-results';
 import Logo from '../multi-side/logo';
 
-function EditorFindPage(props) {
+export function EditorFindPage(props) {
 
   const handleGalleryExit = () => {
     //when user wants to exit the gallery

@@ -5,10 +5,10 @@ import './search-results.css'
 import Accordian from '../multi-side/accordian';
 import {Button} from '../multi-side/clickables';
 
-function SearchResults(props) {
+export function SearchResults(props) {
   if(props.show) {
     //if both searchResults and searchResultsNone are false, then user hasn't submitted query
-    if (props.searchResults.length) {
+    if(props.searchResults.length) {
         return (
           <div id="user-search-results">
             <Button

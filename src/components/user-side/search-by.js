@@ -4,11 +4,12 @@ import React from 'react';
 import {searchByKeyWord} from '../../actions/content/user-side';
 import './search-by.css';
 
-class SearchBy extends React.Component {
+export class SearchBy extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      keyWord: ''
+      keyWord: '',
+      searched: false
     }
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this)

@@ -7,7 +7,7 @@ import VideoPlayer from './video-player'
 
 import './thumbnail.css';
 
-class Thumbnail extends React.Component {
+export class Thumbnail extends React.Component {
   constructor(props) {
     super(props);
     this.state = {

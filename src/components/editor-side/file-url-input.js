@@ -24,6 +24,7 @@ export default class FileAndUrlInput extends React.Component {
     });
     this.handleFileInput = this.handleFileInput.bind(this);
     this.handleUrlAdd = this.handleUrlAdd.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
 
   onCreateObjectUrl(object) { //generate an object url from object file
@@ -77,6 +78,13 @@ export default class FileAndUrlInput extends React.Component {
       })
   }
 
+  handleChange(e) {
+    const input = e.target.value
+    this.setState(produce(draft => {
+      draft.videoUrlInput = input;
+    }));
+  }
+
   render() {
     return(
       <div>
@@ -93,12 +101,7 @@ export default class FileAndUrlInput extends React.Component {
               placeholder="ID of Youtube Video"
               type="url"
               value={this.state.videoUrlInput}
-              onChange={(e) => {
-                const input = e.target.value
-                this.setState(produce(draft => {
-                  draft.videoUrlInput = input;
-                }));
-              }}
+              onChange={this.handleChange}
               noValidate
             />
             <Button

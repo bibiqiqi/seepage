@@ -12,7 +12,7 @@ import './registration-form.css';
 const passwordLength = length({min: 10, max: 72})
 const matchesPassword = matches('password');
 
-class EditorRegForm extends React.Component {
+export class EditorRegForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {

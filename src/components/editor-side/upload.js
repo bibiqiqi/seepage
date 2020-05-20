@@ -44,7 +44,7 @@ const initialState = {
 };
 
 //performs POST request
-class EditorUpload extends React.Component {
+export class EditorUpload extends React.Component {
   constructor(props) {
     super(props);
     this.state = produce(initialState, draftState => {
@@ -92,76 +92,74 @@ class EditorUpload extends React.Component {
   }
 
   handleSubmit(event) {
-    event.preventDefault();
-    const upload = produce(this.state.uploadForm, draftUpload => {
-      return draftUpload;
-    });
-    let {artistName, title, tags, files, category} = upload;
-    //if all the upload values are defined
-    if (
-        artistName &&
-        title &&
-        (category.media || category.performance || category.text) &&
-        tags.length &&
-        files.length
-      ) {
-      //then pluck the values for a formData() object
-      const data = new FormData();
-      for (let key in upload) {
-        if (key === 'files') {
-          upload[key].forEach(e => data.append(key, e.file));
-        } else if (key === 'tags') {
-          for (let x = 0; x < upload[key].length; x++) {
-            data.append(key, upload[key][x]);
-          }
-        } else if (key === 'category') {
-          for (let key in category) {
-            if (category[key] === true) {
-              data.append('category', key);
-            }
-          }
-        } else {//the value is a string (either artistName or title, or description)
-          data.append(key, upload[key].trim());
-        }
-      }
-      //release existing object URLs, for optimal performance and memory usage
-      this.setState(
-        produce(draft => {
-          draft.thumbnailUrls.forEach(e => {
-            return window.URL.revokeObjectURL(e);
-          });
-        }))
-      this.postEntry(data);
-    } else {
-      //if any of the upload values are not defined, update the state for validation object and return feedback to user
-      const validation = this.handleValidation();
-      this.setState({validation});
-    }
-  }
-
-  handleValidation() {
-    const state = produce(this.state, draftState => {
-      return draftState;
-    });
-    const {uploadForm, validation} = state;
-    //iterate through the upload object to find which
-    //fields don't have values and return a validation object
-    const validationString = (validationProperty) => `${validationProperty} is required`;
-     for (let property in uploadForm) {
-       //if the value for this key is undefined and the key isn't 'description'
-       if((!uploadForm[property]) && (property !== 'description')){
-         if (property === 'artistName') { //artistName
-           validation[property] = validationString('artist name');
-         } else { //title
-           validation[property] = validationString(property);
+     event.preventDefault();
+     const upload = produce(this.state.uploadForm, draftUpload => {
+       return draftUpload;
+     });
+     let {artistName, title, tags, files, category} = upload;
+     //if all the upload values are defined
+     if (
+         artistName &&
+         title &&
+         (category.media || category.performance || category.text) &&
+         tags.length &&
+         files.length
+       ) {
+       //then pluck the values for a formData() object
+       const data = new FormData();
+       for (let key in upload) {
+         if (key === 'files') {
+           upload[key].forEach(e => data.append(key, e.file));
+         } else if (key === 'tags') {
+           for (let x = 0; x < upload[key].length; x++) {
+             data.append(key, upload[key][x]);
+           }
+         } else if (key === 'category') {
+           for (let key in category) {
+             if (category[key] === true) {
+               data.append('category', key);
+             }
+           }
+         } else {//the value is a string (either artistName or title, or description)
+           data.append(key, upload[key].trim());
          }
-       } else if (((Array.isArray(uploadForm[property])) && (!uploadForm[property].length)) || //tags
-         ((typeof uploadForm[property] === 'object') && (Object.values(uploadForm[property]).every(e => e === false)))) { //category
-          validation[property] = validationString(property);
        }
-    }
-    return validation;
-  }
+       //release existing object URLs, for optimal performance and memory usage
+       this.setState(
+         produce(draft => {
+           draft.thumbnailUrls.forEach(e => {
+             return window.URL.revokeObjectURL(e);
+           });
+         }))
+       this.postEntry(data);
+     } else {
+       //if any of the upload values are not defined, update the state for validation object and return feedback to user
+       const validation = this.handleValidation();
+       this.setState({validation});
+     }
+   }
+
+   handleValidation() {
+   const validation = Object.assign({}, this.state.validation);
+   const uploadForm = Object.assign({}, this.state.uploadForm)
+   //iterate through the upload object to find which
+   //fields don't have values and return a validation object
+   const validationString = (validationProperty) => `${validationProperty} is required`;
+    for (let property in uploadForm) {
+      //if the value for this key is undefined and the key isn't 'description'
+      if((!uploadForm[property]) && (property !== 'description')){
+        if (property === 'artistName') { //artistName
+          validation[property] = validationString('artist name');
+        } else { //title
+          validation[property] = validationString(property);
+        }
+      } else if (((Array.isArray(uploadForm[property])) && (!uploadForm[property].length)) || //tags
+        ((typeof uploadForm[property] === 'object') && (Object.values(uploadForm[property]).every(e => e === false)))) { //category
+         validation[property] = validationString(property);
+      }
+   }
+   return validation;
+ }
 
   handleCheckBoxChange(event) {
     const checked = event.target.checked;

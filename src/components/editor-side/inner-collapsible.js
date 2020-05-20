@@ -1,5 +1,5 @@
 import React, {Fragment} from 'react';
-import * as classnames from 'classnames';
+import classnames from 'classnames';
 
 import EditorEditForm from './edit-form';
 import DeleteConfirmation from './delete-confirmation';
@@ -98,8 +98,8 @@ export default class EditorInnerCollapsible extends React.Component {
        <Fragment>
           <h4 title='files'>
             <InlineClick
-              classNames={classnames('edit', 'clickable', 'material-icons', 'edit-files')}
-              handleClick={this.handleEditClick}
+              className='edit clickable material-icons edit-files'
+              onClick={this.handleEditClick}
               glyph='edit'
             />
           Files:</h4>
@@ -124,7 +124,7 @@ export default class EditorInnerCollapsible extends React.Component {
    }
 
    renderTextState(field, result, i){
-     //gets called for each field except for thumbNails and files
+     //gets called for each field except for files
      //and determines whether to render as an EditorEditForm component or read-only
      let key, value;
      if ((field === 'artistName') || (field === 'title') || (field === 'description')) {
@@ -157,11 +157,11 @@ export default class EditorInnerCollapsible extends React.Component {
         )
       } else {
        return (
-         <div className={`edit-results-flex edit-${field}`} title={field} k={i}>
+         <div className='edit-results-flex' title={field} key={i}>
           <h4>
             <InlineClick
-              classNames={classnames('edit', 'material-icons', 'clickable', `edit-${field}`)}
-              handleClick={this.handleEditClick}
+              className={classnames('edit', 'material-icons', 'clickable', `edit-${field}`)}
+              onClick={this.handleEditClick}
               glyph='edit'
             />
              {key}: {value}
@@ -198,7 +198,7 @@ export default class EditorInnerCollapsible extends React.Component {
          return (
          <div className='inner-collapsible'>
            <Button
-             classNames={classnames('delete', 'float-right', 'clickable', `delete-${index}`)}
+             className={classnames('delete', 'float-right', 'clickable', `delete-${index}`)}
              handleClick={this.handleDeleteClick}
              glyph='delete'
            />
