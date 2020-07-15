@@ -25,10 +25,6 @@ export class SearchBy extends React.Component {
   handleSubmit(){
     //console.log('handleSubmit happening');
     const keyWord = this.state.keyWord;
-    if(!this.state.searched){
-      this.props.onFirstSearch();
-      this.setState({searched: true});
-    };
     this.props.dispatch(searchByKeyWord(keyWord))
       .then(this.props.onSubmit())
   }
@@ -38,20 +34,21 @@ export class SearchBy extends React.Component {
       <div
         className='user-search'
         >
-        <input
-          placeholder='search...'
-          type="text"
-          autoComplete="off"
-          onChange={this.handleChange}
-          onKeyPress={(e) => {if (e.key === "Enter") {
-            this.handleSubmit();
-          }}}
-        />
-        <button
-          className = 'clickable'
-          type="submit"
-          onClick={this.handleSubmit}
-        ></button>
+          <input
+            id="keyword-search"
+            type="text"
+            autoComplete="off"
+            onChange={this.handleChange}
+            onKeyPress={(e) => {if (e.key === "Enter") {
+              this.handleSubmit();
+            }}}
+          />
+          <input
+            className = 'clickable'
+            type="button"
+            value="submit_keyword"
+            onClick={this.handleSubmit}
+          ></input>
       </div>
     )
   }

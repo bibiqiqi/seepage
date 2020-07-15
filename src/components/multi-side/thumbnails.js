@@ -9,7 +9,7 @@ export default class Thumbnails extends React.Component {
   handleRemoveClick(e){
     //selected to remove a file in the current edit form
     const index = parseFloat(e.currentTarget.className.slice(10));
-    console.log('handleRemoveClick() in Thumbnails is calling handleRemoveClick in file-url-input and passing this index', index)
+    //console.log('handleRemoveClick() in Thumbnails is calling handleRemoveClick in file-url-input and passing this index', index)
     this.props.handleRemoveClick(index);
   }
 

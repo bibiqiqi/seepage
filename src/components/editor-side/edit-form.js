@@ -124,7 +124,7 @@ export class EditorEditForm extends React.Component {
     const key = this.props.name;
     let data;
     let validation;
-    console.log('doing handleSubmit() and the state is', upload.files);
+    //console.log('doing handleSubmit() and the state is', upload.files);
     if (key === 'files') {
       let totalFiles = upload.files.totalFiles; //for validation, to ensure that there is at least 1 file for this entry
       if (totalFiles < 1) { //validation check to make sure field isn't empty
@@ -147,7 +147,7 @@ export class EditorEditForm extends React.Component {
       if (validation) {
         this.setState({validation: validation});
       } else {
-        console.log('you chose to submit a files edit, and your submitting the following filesEdit array', filesEdit, 'and you have the following totalFiles', totalFiles);
+        //console.log('you chose to submit a files edit, and your submitting the following filesEdit array', filesEdit, 'and you have the following totalFiles', totalFiles);
         data = new FormData();
         filesEdit.forEach(e => {
           data.append('files', e);
@@ -207,7 +207,7 @@ export class EditorEditForm extends React.Component {
   }
 
   handleFileOrUrlAdd(fileOrUrl){
-    console.log('filesOrUrl being passed to handleFileOrUrlAdd is', fileOrUrl)
+    //console.log('filesOrUrl being passed to handleFileOrUrlAdd is', fileOrUrl)
     this.setState(produce(draft => {
       draft.validation = initialState.validation;
       draft.thumbnailUrls.push(fileOrUrl);
@@ -217,7 +217,7 @@ export class EditorEditForm extends React.Component {
   }
 
   handleFileOrUrlRemove(index){
-    console.log('index being passed to handleFileOrUrlRemove is', index)
+    //console.log('index being passed to handleFileOrUrlRemove is', index)
     this.setState(produce(draft => {
       const selectedFile = draft.uploadForm.files.filesEdits[index];
       if (selectedFile._id) {//the file is already in database

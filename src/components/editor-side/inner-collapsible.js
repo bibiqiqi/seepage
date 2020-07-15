@@ -34,7 +34,7 @@ export default class EditorInnerCollapsible extends React.Component {
   handleEditFormExit(e) {
     //when user wants to exit the EditorEditForm component
     //update the state to hide the EditorEditForm component and reveal the read-only code
-    console.log('handleEditFormExit called')
+    //console.log('handleEditFormExit called')
     const hidden = Object.assign({}, this.state.hidden);
     hidden.editForm = false;
     this.setState({hidden});
@@ -154,6 +154,7 @@ export default class EditorInnerCollapsible extends React.Component {
           onPatchCompletion={this.handlePatchCompletion}
           placeholder={value}
           label={key}
+          key={i}
         />
         )
       } else {

@@ -1,12 +1,17 @@
+#user-search-results {
+  margin: 1rem 0 0 0;
+}
+
 #user-search-results button {
   background-color: transparent;
   border: none;
+  color: white;
+  margin: 0;
 }
-/*Medium devices (tablets, 768px and up)*/
-@media (min-width: 768px) {
-  #user-search-results {
-    margin: 0 .5rem;
-  }
+
+.top-bar {
+  height: 1.5rem;
+  background-color: #6f6f6f;
 }
 
 @media (min-width: 992px) and (orientation: landscape) {

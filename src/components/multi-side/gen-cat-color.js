@@ -3,15 +3,15 @@ import Color from 'color';
 export default function genCatColor(categoryArray, lighten){
   const singleColors = {
     media: {r: 255, g: 80, b: 100}, //red
-    performance: {r: 255, g: 235, b: 29}, //yellow
+    performance: {r: 255, g: 235, b: 30}, //yellow
     text: {r: 40, g: 210, b: 255} //blue
   };
 
   const blendedColors = {
-    mediaPerformance: {r: 255, g: 116, b: 65},
-    performanceText: {r: 34, g: 255, b: 28},
-    textMedia: {r: 93, g: 53, b: 255},
-    all: {r: 0, g: 0, b: 0}
+    mediaPerformance: {r: 255, g: 115, b: 65},
+    performanceText: {r: 35, g: 255, b: 30},
+    textMedia: {r: 95, g: 55, b: 255},
+    all: {r: 140, g: 70, b: 20}
   }
 
   let newColor;

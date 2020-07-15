@@ -53,6 +53,7 @@ export class EditorRegForm extends React.Component {
           {renderAsyncState(this.state.asyncCall, 'registration')}
             <div className="simple-form">
               <Field
+                id="reg-email"
                 name="email"
                 component={LabeledInput}
                 type="email"
@@ -61,6 +62,7 @@ export class EditorRegForm extends React.Component {
                 validate={[required, nonEmpty, isTrimmed, email]}
               />
               <Field
+                id="reg-firstname"
                 name="firstName"
                 component={LabeledInput}
                 type="text"
@@ -69,6 +71,7 @@ export class EditorRegForm extends React.Component {
                 validate={[required, nonEmpty, isTrimmed]}
               />
               <Field
+                id="reg-lastname"
                 name="lastName"
                 component={LabeledInput}
                 type="text"
@@ -77,6 +80,7 @@ export class EditorRegForm extends React.Component {
                 validate={[required, nonEmpty, isTrimmed]}
               />
               <Field
+                id="reg-password"
                 name="password"
                 component={LabeledInput}
                 type="password"
@@ -84,6 +88,7 @@ export class EditorRegForm extends React.Component {
                 validate={[required, passwordLength, isTrimmed]}
               />
               <Field
+                id="reg-password-ver"
                 name="passwordVer"
                 component={LabeledInput}
                 type="password"
@@ -95,7 +100,7 @@ export class EditorRegForm extends React.Component {
               type="submit"
               disabled={this.props.pristine || this.props.submitting}
             >
-              <i class="material-icons">person_add</i>
+              <i className="material-icons">person_add</i>
             </button>
           </form>
       </section>

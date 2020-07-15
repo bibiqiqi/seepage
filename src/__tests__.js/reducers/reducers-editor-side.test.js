@@ -68,7 +68,7 @@ describe('editorContentReducer', () => {
         it('Should update the filteredContentNone state', () => {
             let state = {filteredContentNone: null}
             state = editorContentReducer(state, filterContentNone());
-            expect(state).toEqual({filteredContentNone: feedback});
+            expect(state).toEqual({filteredContent: [], filteredContentNone: "your query didn't match any results"});
         });
     });
     describe('makeSuggestedArtists', () => {

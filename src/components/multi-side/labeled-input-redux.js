@@ -32,6 +32,7 @@ export default class LabeledInput extends React.Component {
             {error}
             {warning}
             <input
+              id={this.props.id}
               {...this.props.input}
               type={this.props.type}
               placeholder={this.props.placeholder}
@@ -39,7 +40,10 @@ export default class LabeledInput extends React.Component {
                 this.input = input}
               }
             />
-            <label className={this.props.className}>
+            <label
+              className={this.props.className}
+              for={this.props.id}
+            >
               {this.props.label}
             </label>
           </Fragment>

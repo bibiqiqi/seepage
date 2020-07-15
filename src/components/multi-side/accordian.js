@@ -73,7 +73,7 @@ renderInnerCollapsible(openState, result, index, color){
       const openState = this.state.collapsible.includes(index);
       const color = genCatColor(result.category, .5);
       return (
-        <li key={index} className='clickable' style={{'backgroundColor': color, 'borderLeft': '5px solid' + color}}>
+        <li key={index} className='clickable result-item' style={{'backgroundColor': color, 'borderLeft': '5px solid' + color}}>
           <Collapsible
             open={openState}
             trigger={
@@ -90,9 +90,9 @@ renderInnerCollapsible(openState, result, index, color){
       )
     })
     return (
-      <div className='collaps-container'>
+      <ul className='collaps-container'>
         {collapsibles}
-      </div>
+      </ul>
     )
   }
 }

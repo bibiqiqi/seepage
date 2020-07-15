@@ -4,12 +4,20 @@
 
 #user-home .logo {
   margin: 0 auto;
-}
-
-#user-home header {
   position: relative;
 }
 
-#user-home .header-searched {
-  height: max-content;
+.user-browse {
+  flex-grow: 2
+}
+
+.large-home-container {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  height: 85vh
+}
+
+.small-home-container {
+  height: 85vh
 }

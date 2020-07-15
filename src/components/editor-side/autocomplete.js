@@ -95,16 +95,22 @@ export class Autocomplete extends React.Component {
 
   render() {
     return (
-      <Fragment >
+      <Fragment>
         <input
+          id={this.props.id}
           placeholder={this.props.placeholder}
           className={this.props.className}
-          name={this.state.name}
+          name={this.props.name}
           type="text"
           onChange={this.handleChange}
           value={this.props.value}
           autoComplete="off"
         />
+        <label
+          for={this.props.id}
+        >
+          {this.props.name}
+        </label>
         {this.renderSuggestionsComponent()}
       </Fragment>
     );

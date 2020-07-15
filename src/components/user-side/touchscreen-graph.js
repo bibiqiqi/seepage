@@ -2,7 +2,6 @@ import React, {Fragment} from "react";
 import {connect} from 'react-redux';
 import * as d3 from 'd3';
 import _ from 'underscore';
-import {openGalleryRequest} from '../../actions/content/multi-side'
 
 import ContentPreview from './content-preview';
 import genCatColor from '../multi-side/gen-cat-color';
@@ -10,14 +9,15 @@ import './graph.css';
 
 const windowWidth = window.innerWidth;
 const windowHeight = window.innerHeight;
+//console.log('charge is', windowWidth/-6)
 const force = d3.layout.force()
-  .charge(-200)
-  .linkDistance(function(link){return link.distance})
-  .linkStrength(function(link){return link.strength})
-  .size([windowWidth, windowHeight])
+  .charge(windowWidth/-6)
+  .linkDistance(() => 100)
+  .linkStrength(() => .1)
+  .size([windowWidth, windowHeight * 16/20])
 
 
-export class Graph extends React.Component {
+export class TouchScreenGraph extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -58,7 +58,9 @@ export class Graph extends React.Component {
     }
   }
 
-  renderNodeForTouchScreen(node, i, transform, color){
+  renderNode(node, i, transform, color){
+    const dimension = windowWidth/1280;
+    //console.log('dimension is', dimension)
     return (
       <g
         className='node'
@@ -69,33 +71,7 @@ export class Graph extends React.Component {
         stroke={color}
         onClick={() => this.handleNodeClick(node.index)}
       >
-      <rect width='.5em' height='.5em' x='-.25em' y='-.25em' />
-      {this.renderPreviewState(node)}
-    </g>
-    )
-  }
-
-  renderNodeForLargeScreen(node, i, transform, color){
-    return (
-      <g
-        className='node'
-        id={`node-${node.index}`}
-        key={i}
-        transform={transform}
-        fill={color}
-        stroke={color}
-        onMouseEnter={() => {
-           this.setState({nodePreview: node.index});
-        }}
-        onMouseLeave={() => {
-           this.setState({nodePreview: null});
-        }}
-        onClick={() => {
-        //console.log('calling openGalleryRequest')
-          this.props.dispatch(openGalleryRequest(node.files, 0));
-        }}
-      >
-      <rect width='.5em' height='.5em' x='-.25em' y='-.25em' />
+      <rect width={`${dimension}em`} height={`${dimension}em`} x={`-${dimension/2}em`} y={`-${dimension/2}em`} />
       {this.renderPreviewState(node)}
     </g>
     )
@@ -103,7 +79,7 @@ export class Graph extends React.Component {
 
   render() {
     // use React to draw all the nodes, d3 calculates the x and y
-    //console.log('render() happening and state is', this.state);
+    // console.log('render() happening and state is', this.state);
     var nodes = this.state.nodes.map((node, i) => {
       var transform = 'translate(' + node.x + ',' + node.y + ')';
       let color;
@@ -112,13 +88,7 @@ export class Graph extends React.Component {
       } else {
         color = 'black';
       }
-
-      if (windowWidth >= 992) {
-        return this.renderNodeForLargeScreen(node, i, transform, color)
-      } else {
-        return this.renderNodeForTouchScreen(node, i, transform, color)
-      }
-
+      return this.renderNode(node, i, transform, color)
     });
 
     var links = _.map(this.state.links, (link) => {
@@ -130,7 +100,7 @@ export class Graph extends React.Component {
 
     return (
       <Fragment>
-        <svg className='graph' viewBox={`0 0 ${windowWidth} ${windowHeight * 4/5}`}>
+        <svg className='graph' viewBox={`0 0 ${windowWidth} ${windowHeight * 16/20}`}>
           <g>
             {links}
             {nodes}
@@ -141,4 +111,4 @@ export class Graph extends React.Component {
   }
 };
 
-export default connect()(Graph);
+export default connect()(TouchScreenGraph);

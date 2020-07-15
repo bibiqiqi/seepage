@@ -3,7 +3,7 @@
   padding: 1rem;
 }
 
-#editor-home header {
+#editor-home div:first-child {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -39,7 +39,7 @@
 }
 
 @media (min-width: 576px) {
-  #editor-home header {
+  #editor-home div:first-child {
     margin-top: 1rem;
   }
 
@@ -71,7 +71,7 @@
     font-size: 1.25rem;
     line-height: 2rem;
   }
-  
+
 }
 
 @media (min-width: 992px) and (orientation: landscape) {

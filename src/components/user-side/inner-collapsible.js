@@ -20,13 +20,13 @@ export function UserInnerCollapsible(props) {
       tag = content.tags[i] + ',';
       } else tag = content.tags[i];
       const tagString =
-      <p
+      <li
        className='tags clickable'
        onClick={handleTagQuery}
        key={i}
       >
       {tag}
-      </p>;
+      </li>;
       tags.push(tagString);
     }
 
@@ -50,9 +50,9 @@ export function UserInnerCollapsible(props) {
         autoplay={0}
        />
         {description()}
-       <div className='tags-container'>
+       <ul className='tags-container'>
         {tags}
-       </div>
+       </ul>
      </div>
      )
   } else {

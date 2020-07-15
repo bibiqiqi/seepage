@@ -2,7 +2,7 @@
   display: block;
   margin: 0 auto;
   padding-top: .5rem;
-  width: 80%;
+  height: 15vh;
 }
 
 .logo:hover,
@@ -12,13 +12,6 @@
 
 @media (min-width: 576px) {
   .logo {
-    width: 60%;
     padding-top: 1rem;
-  }
-}
-
-@media (min-width: 992px) and (orientation: landscape) {
-  .logo {
-    width: 30%;
   }
 }

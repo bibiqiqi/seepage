@@ -9,6 +9,10 @@
   margin: 0;
 }
 
+.add-video-url label {
+  background-color: white;
+}
+
 .add-video-url i {
   line-height: 1rem;
   font-size: 1rem;
@@ -21,14 +25,14 @@
   height: 1.5rem;
 }
 
-.video-url-input {
+#video-url-input {
   font-size: .5rem;
   min-width: max-content;
   flex-grow: 1;
 }
 
 @media (min-width: 576px) {
-  .video-url-input {
+  #video-url-input {
     font-size: .75rem;
   }
   .upload-file-flex {
@@ -48,7 +52,7 @@
     font-size: 2rem;
     padding-top: .6rem;
   }
-  .video-url-input,
+  #video-url-input,
   .dropzone label {
     font-size: 1rem;
   }

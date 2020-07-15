@@ -354,4 +354,8 @@ button {
   .suggestions {
     font-size: 1rem;
   }
+
+  .smaller {
+    font-size: .75rem;
+  }
 }

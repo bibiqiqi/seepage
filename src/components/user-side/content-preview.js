@@ -9,6 +9,8 @@ export default class ContentPreview extends React.Component {
 
   renderThumbNail() {
     if(this.props.node.type === 'secondary') {
+      let height;
+      //console.log('height is', height)
       return (
         <g className='graph-thumbnail clickable'>
           <foreignObject
@@ -44,9 +46,9 @@ export default class ContentPreview extends React.Component {
       if(window.innerWidth >= 992) {//desktop
       text =
         <g>
-          <text className='title' x='0em' y='7.5em'>{this.props.node.title}</text>
-          <text className='smaller' x='0em' y='16.75em'>by</text>
-          <text x='.75em' y='8.5em'>{this.props.node.artistName}</text>
+          <text className='title' x='0em' y='6.5em'>{this.props.node.title}</text>
+          <text className='smaller' x='0em' y='9.85em'>by</text>
+          <text x='1em' y='7.5em'>{this.props.node.artistName}</text>
         </g>
       } else if (window.innerWidth >= 768) {//tablets
         text =
@@ -55,7 +57,7 @@ export default class ContentPreview extends React.Component {
             <text className='smaller' x='0em' y='16.75em'>by</text>
             <text x='.75em' y='8.5em'>{this.props.node.artistName}</text>
           </g>
-      } else if(window.innerWidth >= 600) { //larger phones
+      } else if (window.innerWidth >= 600) {//larger phones
         text =
         <g>
           <text className='title' x='0em' y='7.75em'>{this.props.node.title}</text>

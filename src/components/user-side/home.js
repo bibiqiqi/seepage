@@ -1,20 +1,18 @@
 import {connect} from 'react-redux';
 import React from 'react';
-import classnames from 'classnames';
 
 import Logo from '../multi-side/logo';
 import Gallery from '../multi-side/gallery';
 import BrowseBy from './browse-by';
-import SearchBy from './search-by'
-import SearchResults from './search-results'
-import './home.css'
-import {fetchContent, closeGallery} from '../../actions/content/multi-side'
+import SearchResults from './search-results';
+import Navigation from './navigation';
+import './home.css';
+import {fetchContent, closeGallery} from '../../actions/content/multi-side';
 
 export class Home extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      header: false,
       searchBy: {
         artistName: '',
         title: '',
@@ -27,6 +25,7 @@ export class Home extends React.Component {
     }
     this.handleExitSearchResults = this.handleExitSearchResults.bind(this);
     this.handleGalleryExit = this.handleGalleryExit.bind(this);
+    this.handleSearch = this.handleSearch.bind(this);
   }
 
   componentDidMount(){
@@ -50,6 +49,13 @@ export class Home extends React.Component {
     this.props.dispatch(closeGallery());
   }
 
+  handleSearch(){
+    const searchResults = Object.assign({}, this.state.searchResults);
+    searchResults.show = true;
+    ++searchResults.submits;
+    this.setState({searchResults});
+  }
+
   renderGalleryState() {
     //determines whether to render Gallery component or hide it
     //dependent on whether use has clicked on a thumb nail
@@ -67,34 +73,39 @@ export class Home extends React.Component {
     }
   }
 
+  renderHomeContainer() {
+    if (window.innerWidth >= 992) {
+      return (
+        <div className='large-home-container'>
+          <Navigation
+            onSearch={this.handleSearch}
+          />
+          <BrowseBy/>
+        </div>
+      )
+    } else {
+      return (
+        <div className='small-home-container'>
+          <Navigation
+            onSearch={this.handleSearch}
+          />
+          <BrowseBy/>
+        </div>
+      )
+    }
+  }
+
   render(){
     return (
       <section id="user-home" className="screen">
       {this.renderGalleryState()}
-        <header
-          className={classnames({
-            'header-searched': this.state.header
-          })}
-        >
-          <Logo/>
-          <SearchBy
-            onSubmit={() => {
-              const searchResults = Object.assign({}, this.state.searchResults);
-              searchResults.show = true;
-              ++searchResults.submits;
-              this.setState({searchResults});
-            }}
-            onFirstSearch={() => {
-              this.setState({header: true})
-            }}
-          />
-        </header>
+        <Logo/>
         <SearchResults  //pushes tagMap down with results when user searches. user can minimize after opening
           show={this.state.searchResults.show}
           submits={this.state.searchResults.submits}
           onExitClick={this.handleExitSearchResults}
         />
-        <BrowseBy/>
+        {this.renderHomeContainer()}
       </section>
     )
   }

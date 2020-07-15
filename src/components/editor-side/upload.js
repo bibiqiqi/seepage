@@ -218,11 +218,12 @@ export class EditorUpload extends React.Component {
     return (
       <section id="editor-upload" className="screen">
         <Link to="/editor-home"><Logo/></Link>
-        <form>
+        <form id="upload-form">
           {renderValidationWarnings(this.state.validation)}
           {renderAsyncState(this.state.asyncCall, 'upload')}
           <div className="upload-flex">
             <Autocomplete
+              id="upload-artistname"
               placeholder="Artist Name"
               className="artistName"
               suggestions={this.props.suggestedArtists}
@@ -232,6 +233,7 @@ export class EditorUpload extends React.Component {
               noValidate
             />
             <input
+              id="upload-title"
               name="title"
               placeholder="Title"
               type="text"
@@ -239,7 +241,13 @@ export class EditorUpload extends React.Component {
               onChange={this.handleTextInput}
               noValidate
             />
+            <label
+              for="upload-title"
+            >
+              title
+            </label>
             <input
+              id="upload-description"
               name="description"
               placeholder="Description"
               type="text"
@@ -247,6 +255,11 @@ export class EditorUpload extends React.Component {
               onChange={this.handleTextInput}
               noValidate
             />
+            <label
+              for='upload-description'
+            >
+              description
+            </label>
             <FileAndUrlInput
               onFileOrUrlAdd={fileObject => this.handleFileOrUrlAdd(fileObject)}
               onFileValidation={files => {

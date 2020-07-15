@@ -26,3 +26,12 @@
     font-size: .75rem;
   }
 }
+
+@media (min-width: 992px) and (orientation: landscape) {
+  .node-preview {
+    font-size: 1rem
+  }
+  .node-preview .smaller {
+    font-size: .75em
+  }
+}

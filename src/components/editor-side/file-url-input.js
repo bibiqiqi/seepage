@@ -66,7 +66,6 @@ export default class FileAndUrlInput extends React.Component {
       .then(res => { //if validation comes back positive...
         const videoId = this.getId(videoUrl);
         const embed = `//www.youtube.com/embed/${videoId}`;
-        console.log('embed is', embed)
         const urlObject = {};
         urlObject.fileType = 'video';
         urlObject.src = embed;
@@ -99,7 +98,7 @@ export default class FileAndUrlInput extends React.Component {
           />
           <div className="add-video-url">
             <input
-              className="video-url-input"
+              id="video-url-input"
               name="videoUrls"
               placeholder="ID of Youtube Video"
               type="url"
@@ -107,11 +106,16 @@ export default class FileAndUrlInput extends React.Component {
               onChange={this.handleChange}
               noValidate
             />
-            <Button
-              className='clickable'
-              handleClick={this.handleUrlAdd}
-              glyph='add'
-            />
+            <label
+              for="video-url-input"
+            >
+              <Button
+                className='clickable'
+                handleClick={this.handleUrlAdd}
+                glyph='add'
+              />
+            </label>
+
           </div>
         </div>
       </div>

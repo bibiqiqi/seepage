@@ -2,7 +2,7 @@ import React from 'react';
 import './clickables.css'
 
 export function Button(props) {
-  const text = props.text? <p>{props.text}</p> : null;
+  const text = props.text? <h5>{props.text}</h5> : null;
    return(
      <button
       className={props.className}

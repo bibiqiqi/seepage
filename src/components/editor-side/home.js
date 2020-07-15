@@ -43,14 +43,14 @@ export function EditorHome(props) {
     <section id="editor-home" className="screen">
       <Logo/>
       <main>
-        <header>
-          <p className='greeting'>hello, <span>{currentEditor}</span></p>
+        <div>
+          <h2 className='greeting'>hello, <span>{currentEditor}</span></h2>
           <button
             className='sign-out'
             onClick={() => props.dispatch(logOut())}
           >Sign Out
           </button>
-        </header>
+        </div>
         <div className="button-container">
           {buttons}
         </div>

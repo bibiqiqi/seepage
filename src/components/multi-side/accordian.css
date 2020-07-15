@@ -1,17 +1,17 @@
 .collaps-container {
   margin: auto;
   width: 100%;
-  margin-top: .75rem;
+  padding: 0;
 }
 
-.collaps-container li {
+.result-item {
   padding: 0 .25rem;
   border: solid #9f9f9f3d .05rem;
 }
 
 
 @media (min-width: 992px) and (orientation: landscape) {
-  .collaps-container li {
+  .result-item {
     padding: 0 .75rem;
   }
 }

@@ -11,11 +11,13 @@ export function SearchResults(props) {
     if(props.searchResults.length) {
         return (
           <div id="user-search-results">
-            <Button
-              className='clickable exit float-right'
-              handleClick={props.onExitClick}
-              glyph='close'
-            />
+            <div className="top-bar">
+              <Button
+                className='clickable exit float-right'
+                handleClick={props.onExitClick}
+                glyph='close'
+              />
+            </div>
             <Accordian
               results={props.searchResults}
               side='user'

@@ -1,70 +1,66 @@
 .user-search {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  margin-top: 1rem;
 }
 
-.user-search input {
+.user-search input[type="text"] {
   border: none;
-  height: 1rem;
+  height: .7rem;
   background-color: lightgray;
-  font-size: .75rem;
   padding: 0 .25rem;
+  width: 100%;
 }
 
-.user-search button {
-  width: 1rem;
-  height: 1rem;
+.user-search input[type="button"] {
+  color: transparent;
+  width: .7rem;
+  height: .7rem;
   margin: 0;
   background-color: rgb(60, 40, 115);
 }
 
 @media (min-width: 576px) {
-  .user-search input {
+  .user-search input[type="text"] {
     font-size: 1rem;
     height: 1.25rem;
   }
 
-  .user-search button {
+  .user-search input[type="button"] {
     width: 1.25rem;
     height: 1.25rem;
   }
 }
 
 @media (min-width: 768px) {
-  .user-search input {
+  .user-search {
+    width: 16.8rem;
+    margin: 0 auto;
+  }
+
+  .user-search input[type="text"] {
     height: 1.5rem;
     font-size: 1.25rem;
-    width: 100%;
     margin-left: unset;
   }
 
-  .user-search {
-    margin: 1rem auto;
-    width: 60%;
-  }
-
-  .user-search button {
+  .user-search input[type="button"] {
     width: 1.5rem;
     height: 1.5rem;
   }
 }
 
 @media (min-width: 992px) and (orientation: landscape) and (orientation: landscape) {
+
   .user-search {
-    margin-left: 1rem;
-    justify-content: flex-start;
+    width: auto;
   }
 
-  .user-search input {
+  .user-search input[type="text"] {
     font-size: 1rem;
     height: 1.25rem;
-    width: 12rem;
+    max-width: 10rem;
   }
 
-  .user-search button {
+  .user-search input[type="button"] {
     width: 1.25rem;
     height: 1.25rem;
   }

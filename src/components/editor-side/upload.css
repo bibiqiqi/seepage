@@ -11,6 +11,10 @@
   color: black;
 }
 
+.upload-flex > label {
+  display: none;
+}
+
 .assign-category input {
   width: .4rem;
   height: .4rem;
@@ -65,7 +69,8 @@
   align-items: center;
 }
 
-.publish p {
+.publish h5 {
+  margin: .1rem;
   font-size: .3rem;
 }
 
@@ -141,7 +146,7 @@
     font-size: 1.5rem;
   }
 
-  .publish p {
+  .publish h5 {
     font-size: 1.5rem;
   }
 
@@ -155,7 +160,7 @@
 }
 
 @media (min-width: 992px) and (orientation: landscape) {
-  .publish p {
+  .publish h5 {
     font-size: 1.5rem;
   }
 
@@ -169,7 +174,7 @@
     width: 60%;
   }
 
-  .publish p {
+  .publish h5 {
     font-size: 1rem;
   }
 

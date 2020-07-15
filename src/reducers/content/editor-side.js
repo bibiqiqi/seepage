@@ -54,6 +54,7 @@ export default function reducer(state = initialState, action) {
       })
   } else if (action.type === FILTER_CONTENT_NONE) {
       return Object.assign({}, state, {
+       filteredContent: [],
        filteredContentNone: "your query didn't match any results"
       })
   } else if (action.type === MAKE_SUGGESTED_ARTISTS) {

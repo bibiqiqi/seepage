@@ -2,7 +2,8 @@ import React from 'react';
 import {connect} from 'react-redux';
 import _ from 'underscore';
 
-import Graph from './graph';
+import LargeScreenGraph from './largescreen-graph';
+import TouchScreenGraph from './touchscreen-graph';
 
 export class BrowseBy extends React.Component {
   constructor(props) {
@@ -65,7 +66,7 @@ export class BrowseBy extends React.Component {
         secondaryNodes.forEach(function(secondaryNode, n){
           secondaryNode.tags.forEach(function(tag){
             if(tag.toLowerCase() === primaryNode.tag){
-              links.push({index: l, source: primaryNode.index, target: secondaryNode.index, key: `${primaryNode.index}, ${secondaryNode.index}`, strength: .10, distance: 100 });
+              links.push({index: l, source: primaryNode.index, target: secondaryNode.index, key: `${primaryNode.index}, ${secondaryNode.index}`});
               l++;
             }
           })
@@ -82,11 +83,19 @@ export class BrowseBy extends React.Component {
     // console.log('passing', this.state.links, 'to graph component');
     const {links, nodes} = this.state;
     if(links.length && nodes.length) {
-      return (
-        <div id="user-browse">
-          <Graph nodes={nodes} links={links} />
-        </div>
-      );
+      if (window.innerWidth >= 992) {
+        return (
+          <div className="user-browse">
+            <LargeScreenGraph nodes={nodes} links={links} />
+          </div>
+        )
+      } else {
+        return (
+          <div className="user-browse">
+            <TouchScreenGraph nodes={nodes} links={links} />
+          </div>
+        )
+      }
     } else {
       return null
     }

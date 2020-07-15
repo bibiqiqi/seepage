@@ -38,10 +38,15 @@ export const filterBySearch = (searchBy) => (dispatch, getState) => {
   let filteredResults = [];
   const lowerCaseQuery = searchBy.value.toLowerCase()
   contents.forEach((e) => {
-    if (e[searchBy.key].toLowerCase().includes(lowerCaseQuery)) {
+    let value = e[searchBy.key];
+    if (searchBy.key !== 'tags') {
+      value = value.toLowerCase();
+    }
+    if (value.includes(lowerCaseQuery)) {
       filteredResults.push(e);
     };
   })
+  //debugger;
   filteredResults[0]? dispatch(filterContentSuccess(filteredResults)) : dispatch(filterContentNone(noResults));
 }
 

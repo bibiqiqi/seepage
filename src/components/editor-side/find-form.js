@@ -5,6 +5,7 @@ import produce from 'immer';
 
 import {fetchContent} from '../../actions/content/multi-side';
 import {filterBySearch, filterByBrowse} from '../../actions/content/editor-side';
+import {renderValidationWarnings} from '../multi-side/user-feedback'
 import Autocomplete from './autocomplete';
 import Categories from './categories';
 import './find-form.css';
@@ -47,6 +48,7 @@ export class EditorFindForm extends React.Component {
     //determines whether to call handleBrowse or handleSearch
     //console.log('calling handleSubmit');
     event.preventDefault();
+    this.setState({validation:[]})
     const root = event.target.value;
     const validationString = (validationProperty) => `${validationProperty} is required`;
     if (root === "searchBy") { //user is trying to search by field
@@ -86,15 +88,17 @@ export class EditorFindForm extends React.Component {
       return draft
     })
     //make sure both key and value have been inputted
+    //debugger;
     if (searchBy.key) {
       searchByObject.key = searchBy.key;
     } else {
-      searchByObject.key = "artistName";
+      //if user didn't choose a search key from the dropdownn
+      validation.push(renderValString('choosing a search key'));;
     }
-    //if user didn't choose a search field
     if(searchBy.value) {
       searchByObject.value = searchBy.value;
     } else {
+      //if user didn't choose a search field
       validation.push(renderValString('entering a search query'));
     }
     if(validation.length) {
@@ -163,7 +167,7 @@ export class EditorFindForm extends React.Component {
       },
       {
         label: 'Tag',
-        value: 'tag'
+        value: 'tags'
       },
     ];
 
@@ -239,22 +243,12 @@ export class EditorFindForm extends React.Component {
   }
 
   render(){
-   let validationWarning;
-   if(this.state.validation.length) {
-     validationWarning = this.state.validation.map(e => {
-       return(
-         <div className="message warning-message">
-           {e}
-         </div>
-       )
-     })
-   }
     return (
       <form
         className="editor-find-form"
         noValidate
       >
-      {validationWarning}
+      {renderValidationWarnings(this.state.validation)}
        <Collapsible
          classParentString={'Collapsible editor-browse clickable'}
          open={this.state.findForm.browseBy.open}
