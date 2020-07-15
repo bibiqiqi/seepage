@@ -1,7 +1,7 @@
 import React from 'react';
 import {shallow, mount} from 'enzyme';
 
-import {Graph} from '../../components/user-side/graph';
+import {LargeScreenGraph} from '../../components/user-side/largescreen-graph';
 
 const nodes = [
   {
@@ -57,18 +57,18 @@ const links = [
 
 describe('<Graph />', () => {
     it('Renders without crashing', () => {
-        shallow(<Graph nodes={nodes} links={links}/>);
+        shallow(<LargeScreenGraph nodes={nodes} links={links}/>);
     });
     it('Updates the state with the props', () => {
-        const wrapper = shallow(<Graph nodes={nodes} links={links}/>);
+        const wrapper = shallow(<LargeScreenGraph nodes={nodes} links={links}/>);
         expect(wrapper.state('nodes')).toEqual(nodes);
     });
     it('Updates the state with the props', () => {
-        const wrapper = shallow(<Graph nodes={nodes} links={links}/>);
+        const wrapper = shallow(<LargeScreenGraph nodes={nodes} links={links}/>);
         expect(wrapper.state('links')).toEqual(links);
     });
     it('Updates the nodePreview state when user clicks on a node', () => {
-        const wrapper = shallow(<Graph nodes={nodes} links={links}/>);
+        const wrapper = shallow(<LargeScreenGraph nodes={nodes} links={links}/>);
         wrapper.instance().handleNodeClick(0);
         wrapper.update();
         expect(wrapper.state('nodePreview')).toEqual(0);
